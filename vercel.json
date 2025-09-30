@@ -1,6 +1,7 @@
 {
-  "buildCommand": "npx expo export -p web",
+  "buildCommand": "bun install && bunx expo export -p web",
   "outputDirectory": "dist",
+  "installCommand": "bun install",
   "rewrites": [
     {
       "source": "/(.*)",
