@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,19 +10,22 @@ import {
   Switch,
   StatusBar,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import colors, { COLORS } from "@/constants/colors";
 import { ICONS } from "@/constants/icons";
 import { CATEGORIES } from "@/constants/categories";
 import * as Haptics from "expo-haptics";
-import { Check, Bell, Sparkles } from "lucide-react-native";
+import { Check, Bell, Edit3 } from "lucide-react-native";
 
-export default function AddHabitScreen() {
+export default function EditHabitScreen() {
   const router = useRouter();
+  const { id } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
-  const { addHabit } = useHabits();
+  const { habits, updateHabit } = useHabits();
+  
+  const habit = habits.find(h => h.id === id);
   
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -34,6 +37,31 @@ export default function AddHabitScreen() {
   const [reminderTime, setReminderTime] = useState("09:00");
   const [selectedDays, setSelectedDays] = useState<string[]>(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('other');
+  
+  useEffect(() => {
+    if (habit) {
+      setName(habit.name);
+      setDescription(habit.description || "");
+      setSelectedIcon(habit.icon);
+      setSelectedColor(habit.color);
+      setStreakGoal(habit.streakGoal.toString());
+      setWeeklyGoal((habit.weeklyGoal || 7).toString());
+      setSelectedDays(habit.targetDays || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
+      setSelectedCategoryId(habit.category || 'other');
+      setEnableReminders(!!(habit.reminders && habit.reminders.length > 0));
+      if (habit.reminders && habit.reminders.length > 0) {
+        setReminderTime(habit.reminders[0].time);
+      }
+    }
+  }, [habit]);
+  
+  if (!habit) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Habit not found</Text>
+      </View>
+    );
+  }
   
   const handleSave = async () => {
     const trimmedName = name.trim();
@@ -70,7 +98,7 @@ export default function AddHabitScreen() {
     }
     
     try {
-      addHabit({
+      updateHabit(habit.id, {
         name: trimmedName,
         description: description.trim(),
         icon: selectedIcon,
@@ -80,8 +108,8 @@ export default function AddHabitScreen() {
         targetDays: selectedDays,
         category: selectedCategoryId,
         reminders: enableReminders ? [{
-          id: Date.now().toString(),
-          habitId: '',
+          id: habit.reminders?.[0]?.id || Date.now().toString(),
+          habitId: habit.id,
           time: reminderTime,
           days: selectedDays,
           enabled: true,
@@ -92,7 +120,7 @@ export default function AddHabitScreen() {
       
       router.back();
     } catch (error) {
-      console.error('Failed to create habit:', error);
+      console.error('Failed to update habit:', error);
     }
   };
   
@@ -122,11 +150,11 @@ export default function AddHabitScreen() {
       >
         <View style={styles.header}>
           <View style={styles.headerIcon}>
-            <Sparkles size={24} color="#8B5CF6" />
+            <Edit3 size={24} color="#8B5CF6" />
           </View>
-          <Text style={styles.headerTitle}>Create New Habit</Text>
+          <Text style={styles.headerTitle}>Edit Habit</Text>
           <Text style={styles.headerSubtitle}>
-            Build a habit that sticks. Start small and be consistent.
+            Update your habit details and preferences
           </Text>
         </View>
       <View style={styles.section}>
@@ -137,7 +165,6 @@ export default function AddHabitScreen() {
           onChangeText={setName}
           placeholder="e.g., Morning Meditation"
           placeholderTextColor="#6B7280"
-          autoFocus
         />
       </View>
       
@@ -310,7 +337,7 @@ export default function AddHabitScreen() {
           style={[styles.saveButton, { backgroundColor: selectedColor }]}
           onPress={handleSave}
         >
-          <Text style={styles.saveButtonText}>Create Habit</Text>
+          <Text style={styles.saveButtonText}>Save Changes</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -327,6 +354,12 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 50,
   },
   header: {
     alignItems: 'center',

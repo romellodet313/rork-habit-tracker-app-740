@@ -11,7 +11,7 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
-import { Calendar, Share2, Archive, Trash2 } from "lucide-react-native";
+import { Calendar, Share2, Archive, Trash2, Edit } from "lucide-react-native";
 import { HabitGrid } from "@/components/HabitGrid";
 import * as Haptics from "expo-haptics";
 
@@ -133,6 +133,14 @@ export default function HabitDetailsScreen() {
       </View>
       
       <View style={styles.actions}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => router.push(`/edit/${habit.id}`)}
+        >
+          <Edit size={20} color="#8B5CF6" />
+          <Text style={styles.actionText}>Edit</Text>
+        </TouchableOpacity>
+        
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => router.push(`/calendar/${habit.id}`)}

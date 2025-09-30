@@ -1,9 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
+  TextInput,
   TouchableOpacity,
   Platform,
   Pressable,
@@ -13,23 +14,69 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import { HabitCard } from "@/components/HabitCard";
-import { Plus, Settings as SettingsIcon, Sparkles, Target } from "lucide-react-native";
+import { Plus, Settings as SettingsIcon, Sparkles, Target, Search, Filter } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import colors from "@/constants/colors";
+import { CATEGORIES } from "@/constants/categories";
 
 export default function HabitsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { habits, toggleHabitCompletion } = useHabits();
   
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'name' | 'streak' | 'created'>('created');
+  const [showFilters, setShowFilters] = useState(false);
+  
   const activeHabits = useMemo(() => {
-    const filtered = habits.filter(h => h && h.id && !h.archived);
-    // Remove any potential duplicates by ID
+    let filtered = habits.filter(h => h && h.id && !h.archived);
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(h => 
+        h.name.toLowerCase().includes(query) || 
+        h.description?.toLowerCase().includes(query)
+      );
+    }
+    
+    if (selectedCategory) {
+      filtered = filtered.filter(h => h.category === selectedCategory);
+    }
+    
+    filtered.sort((a, b) => {
+      if (sortBy === 'name') {
+        return a.name.localeCompare(b.name);
+      } else if (sortBy === 'streak') {
+        const streakA = getStreakForHabit(a);
+        const streakB = getStreakForHabit(b);
+        return streakB - streakA;
+      } else {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+    });
+    
     const uniqueHabits = filtered.filter((habit, index, self) => 
       index === self.findIndex(h => h.id === habit.id)
     );
     return uniqueHabits;
-  }, [habits]);
+  }, [habits, searchQuery, selectedCategory, sortBy]);
+  
+  const getStreakForHabit = (habit: any) => {
+    let streak = 0;
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(today.getDate() - i);
+      const dateStr = checkDate.toISOString().split('T')[0];
+      if (habit.completions?.[dateStr]) {
+        streak++;
+      } else if (i > 0) {
+        break;
+      }
+    }
+    return streak;
+  };
 
   const totalCompletionsToday = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -98,13 +145,82 @@ export default function HabitsScreen() {
               {totalCompletionsToday} of {activeHabits.length} habits completed today
             </Text>
           </View>
-          <TouchableOpacity
-            style={styles.settingsButton}
-            onPress={() => router.push('/settings')}
-          >
-            <SettingsIcon size={24} color={colors.dark.tint} />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => setShowFilters(!showFilters)}
+            >
+              <Filter size={22} color={showFilters ? colors.dark.tint : colors.dark.tabIconDefault} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => router.push('/settings')}
+            >
+              <SettingsIcon size={22} color={colors.dark.tabIconDefault} />
+            </TouchableOpacity>
+          </View>
         </View>
+        
+        <View style={styles.searchContainer}>
+          <Search size={20} color="#6B7280" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Search habits..."
+            placeholderTextColor="#6B7280"
+          />
+        </View>
+        
+        {showFilters && (
+          <View style={styles.filtersContainer}>
+            <View style={styles.filterSection}>
+              <Text style={styles.filterLabel}>Sort by</Text>
+              <View style={styles.sortButtons}>
+                <TouchableOpacity
+                  style={[styles.sortButton, sortBy === 'created' && styles.sortButtonActive]}
+                  onPress={() => setSortBy('created')}
+                >
+                  <Text style={[styles.sortButtonText, sortBy === 'created' && styles.sortButtonTextActive]}>Recent</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.sortButton, sortBy === 'name' && styles.sortButtonActive]}
+                  onPress={() => setSortBy('name')}
+                >
+                  <Text style={[styles.sortButtonText, sortBy === 'name' && styles.sortButtonTextActive]}>Name</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.sortButton, sortBy === 'streak' && styles.sortButtonActive]}
+                  onPress={() => setSortBy('streak')}
+                >
+                  <Text style={[styles.sortButtonText, sortBy === 'streak' && styles.sortButtonTextActive]}>Streak</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            <View style={styles.filterSection}>
+              <Text style={styles.filterLabel}>Category</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
+                <TouchableOpacity
+                  style={[styles.categoryChip, !selectedCategory && styles.categoryChipActive]}
+                  onPress={() => setSelectedCategory(null)}
+                >
+                  <Text style={[styles.categoryChipText, !selectedCategory && styles.categoryChipTextActive]}>All</Text>
+                </TouchableOpacity>
+                {CATEGORIES.map(cat => (
+                  <TouchableOpacity
+                    key={cat.id}
+                    style={[styles.categoryChip, selectedCategory === cat.id && styles.categoryChipActive]}
+                    onPress={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
+                  >
+                    <Text style={styles.categoryIcon}>{cat.icon}</Text>
+                    <Text style={[styles.categoryChipText, selectedCategory === cat.id && styles.categoryChipTextActive]}>{cat.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        )}
         
         {totalCompletionsToday > 0 && (
           <View style={styles.progressCard}>
@@ -180,10 +296,108 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     fontWeight: '500',
   },
-  settingsButton: {
+  headerActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  iconButton: {
     padding: 12,
     borderRadius: 12,
     backgroundColor: colors.dark.card,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.dark.card,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+  },
+  searchIcon: {
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: '#fff',
+  },
+  filtersContainer: {
+    backgroundColor: colors.dark.card,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+  },
+  filterSection: {
+    marginBottom: 16,
+  },
+  filterLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#9CA3AF',
+    marginBottom: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  sortButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  sortButton: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    backgroundColor: colors.dark.background,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+  },
+  sortButtonActive: {
+    backgroundColor: colors.dark.tint,
+    borderColor: colors.dark.tint,
+  },
+  sortButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#9CA3AF',
+  },
+  sortButtonTextActive: {
+    color: '#fff',
+  },
+  categoryScroll: {
+    flexDirection: 'row',
+  },
+  categoryChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: colors.dark.background,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+  },
+  categoryChipActive: {
+    backgroundColor: colors.dark.tint,
+    borderColor: colors.dark.tint,
+  },
+  categoryIcon: {
+    fontSize: 16,
+    marginRight: 6,
+  },
+  categoryChipText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#9CA3AF',
+  },
+  categoryChipTextActive: {
+    color: '#fff',
   },
   progressCard: {
     backgroundColor: colors.dark.card,

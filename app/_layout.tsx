@@ -50,6 +50,14 @@ function RootLayoutNav() {
           headerShown: true,
         }} 
       />
+      <Stack.Screen 
+        name="edit/[id]" 
+        options={{ 
+          title: "Edit Habit",
+          presentation: "modal",
+          headerShown: true,
+        }} 
+      />
     </Stack>
   );
 }
