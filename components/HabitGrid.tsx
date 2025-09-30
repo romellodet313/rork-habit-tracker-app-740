@@ -17,7 +17,8 @@ export function HabitGrid({ habit, days = 60, compact = false }: HabitGridProps)
       const date = new Date(today);
       date.setDate(today.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
-      const isCompleted = habit.completions?.[dateStr] || false;
+      const completion = habit.completions?.[dateStr];
+      const isCompleted = completion === true || (typeof completion === 'object' && completion.completed);
       const isToday = i === 0;
       const isRecent = i <= 7;
       data.push({ date: dateStr, completed: isCompleted, isToday, isRecent });
@@ -83,7 +84,7 @@ export function HabitGrid({ habit, days = 60, compact = false }: HabitGridProps)
     <View style={[styles.container, compact && styles.compact]}>
       {gridData.map((day, index) => (
         <View
-          key={`habit-${habit.id || 'unknown'}-${day.date}-${index}`}
+          key={`${day.date}-${index}`}
           style={[
             styles.square,
             getSquareStyle(day, index),
