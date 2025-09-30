@@ -19,7 +19,7 @@ export function HabitGrid({ habit, days = 60, compact = false }: HabitGridProps)
       const dateStr = date.toISOString().split('T')[0];
       const isCompleted = habit.completions?.[dateStr] || false;
       const isToday = i === 0;
-      const isRecent = i <= 7; // Last 7 days
+      const isRecent = i <= 7;
       data.push({ date: dateStr, completed: isCompleted, isToday, isRecent });
     }
     
@@ -30,7 +30,23 @@ export function HabitGrid({ habit, days = 60, compact = false }: HabitGridProps)
   const gap = compact ? 1.5 : 3;
   const borderRadius = compact ? 1 : 3;
 
-  const getSquareStyle = (day: { date: string; completed: boolean; isToday: boolean; isRecent: boolean }) => {
+  const calculateStreakIntensity = (index: number): number => {
+    let consecutiveDays = 0;
+    for (let i = index; i >= 0; i--) {
+      if (gridData[i]?.completed) {
+        consecutiveDays++;
+      } else {
+        break;
+      }
+    }
+    if (consecutiveDays === 0) return 0;
+    if (consecutiveDays <= 2) return 0.4;
+    if (consecutiveDays <= 5) return 0.6;
+    if (consecutiveDays <= 10) return 0.8;
+    return 1;
+  };
+
+  const getSquareStyle = (day: { date: string; completed: boolean; isToday: boolean; isRecent: boolean }, index: number) => {
     let backgroundColor = '#2A2F4A';
     let opacity = 1;
     let borderWidth = 0;
@@ -38,7 +54,8 @@ export function HabitGrid({ habit, days = 60, compact = false }: HabitGridProps)
     
     if (day.completed) {
       backgroundColor = habit.color;
-      opacity = day.isRecent ? 1 : 0.8;
+      const intensity = calculateStreakIntensity(index);
+      opacity = intensity;
     } else {
       opacity = day.isRecent ? 0.6 : 0.3;
     }
@@ -46,7 +63,7 @@ export function HabitGrid({ habit, days = 60, compact = false }: HabitGridProps)
     if (day.isToday) {
       borderWidth = 2;
       borderColor = day.completed ? '#fff' : habit.color;
-      opacity = 1;
+      opacity = day.completed ? opacity : 1;
     }
     
     return {
@@ -69,7 +86,7 @@ export function HabitGrid({ habit, days = 60, compact = false }: HabitGridProps)
           key={`habit-${habit.id || 'unknown'}-${day.date}-${index}`}
           style={[
             styles.square,
-            getSquareStyle(day),
+            getSquareStyle(day, index),
           ]}
         />
       ))}

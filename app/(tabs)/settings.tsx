@@ -10,12 +10,18 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
-import { Download, Upload, Trash2, Info } from "lucide-react-native";
+import { useGamification } from "@/providers/GamificationProvider";
+import { Download, Upload, Trash2, Info, Lock } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
+import colors from "@/constants/colors";
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { habits, importData, exportData, clearAllData } = useHabits();
+  const { achievements, getUnlockedAchievements, getLockedAchievements } = useGamification();
+
+  const unlockedAchievements = getUnlockedAchievements();
+  const lockedAchievements = getLockedAchievements();
 
   const handleExport = async () => {
     if (Platform.OS !== 'web') {
@@ -76,11 +82,43 @@ export default function SettingsScreen() {
       style={[styles.container, { paddingTop: insets.top }]} 
       contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
     >
+      <View style={styles.header}>
+        <Text style={styles.title}>Settings</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Achievements</Text>
+        <Text style={styles.sectionSubtitle}>
+          {unlockedAchievements.length} of {achievements.length} unlocked
+        </Text>
+        
+        <View style={styles.achievementsGrid}>
+          {unlockedAchievements.map(achievement => (
+            <View key={achievement.id} style={styles.achievementCard}>
+              <Text style={styles.achievementIcon}>{achievement.icon}</Text>
+              <Text style={styles.achievementName}>{achievement.name}</Text>
+              <Text style={styles.achievementProgress}>
+                {achievement.progress}/{achievement.target}
+              </Text>
+            </View>
+          ))}
+          {lockedAchievements.slice(0, 6).map(achievement => (
+            <View key={achievement.id} style={[styles.achievementCard, styles.lockedAchievement]}>
+              <Lock size={24} color="#6B7280" />
+              <Text style={styles.lockedAchievementName}>{achievement.name}</Text>
+              <Text style={styles.achievementProgress}>
+                {achievement.progress}/{achievement.target}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Data Management</Text>
         
         <TouchableOpacity style={styles.option} onPress={handleExport}>
-          <Download size={20} color="#8B5CF6" />
+          <Download size={20} color={colors.dark.tint} />
           <View style={styles.optionContent}>
             <Text style={styles.optionTitle}>Export Data</Text>
             <Text style={styles.optionDescription}>
@@ -90,7 +128,7 @@ export default function SettingsScreen() {
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.option} onPress={handleImport}>
-          <Upload size={20} color="#8B5CF6" />
+          <Upload size={20} color={colors.dark.tint} />
           <View style={styles.optionContent}>
             <Text style={styles.optionTitle}>Import Data</Text>
             <Text style={styles.optionDescription}>
@@ -114,7 +152,7 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>About</Text>
         
         <View style={styles.option}>
-          <Info size={20} color="#8B5CF6" />
+          <Info size={20} color={colors.dark.tint} />
           <View style={styles.optionContent}>
             <Text style={styles.optionTitle}>HabitKit Clone</Text>
             <Text style={styles.optionDescription}>
@@ -143,10 +181,18 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0E27',
+    backgroundColor: colors.dark.background,
   },
   content: {
     padding: 20,
+  },
+  header: {
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#fff',
   },
   section: {
     marginBottom: 32,
@@ -155,21 +201,66 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#9CA3AF',
-    marginBottom: 16,
+    marginBottom: 4,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 16,
+  },
+  achievementsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  achievementCard: {
+    width: '31%',
+    backgroundColor: colors.dark.card,
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+  },
+  lockedAchievement: {
+    opacity: 0.5,
+  },
+  achievementIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  achievementName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  lockedAchievementName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  achievementProgress: {
+    fontSize: 10,
+    color: '#9CA3AF',
   },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1F3A',
+    backgroundColor: colors.dark.card,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     gap: 16,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
   },
   dangerOption: {
-    borderWidth: 1,
     borderColor: '#EF444433',
   },
   optionContent: {
@@ -189,10 +280,12 @@ const styles = StyleSheet.create({
     color: '#EF4444',
   },
   stats: {
-    backgroundColor: '#1A1F3A',
+    backgroundColor: colors.dark.card,
     padding: 20,
     borderRadius: 12,
     marginBottom: 40,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
   },
   statsTitle: {
     fontSize: 16,

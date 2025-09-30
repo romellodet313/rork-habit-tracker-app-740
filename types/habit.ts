@@ -1,3 +1,10 @@
+export interface HabitCompletionData {
+  completed: boolean;
+  note?: string;
+  mood?: 'great' | 'good' | 'okay' | 'bad' | 'terrible';
+  energy?: 'high' | 'medium' | 'low';
+}
+
 export interface Habit {
   id: string;
   name: string;
@@ -7,7 +14,7 @@ export interface Habit {
   streakGoal: number;
   createdAt: string;
   archived: boolean;
-  completions: Record<string, boolean>;
+  completions: Record<string, boolean | HabitCompletionData>;
   streaks?: Record<string, number>;
   reminders?: HabitReminder[];
   category?: string;
@@ -46,4 +53,29 @@ export interface HabitCategory {
   name: string;
   color: string;
   icon: string;
+}
+
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  unlockedAt?: string;
+  progress: number;
+  target: number;
+  category: 'streak' | 'completion' | 'consistency' | 'challenge';
+}
+
+export interface Challenge {
+  id: string;
+  name: string;
+  description: string;
+  type: '30-day' | '100-day' | 'weekly' | 'custom';
+  habitId?: string;
+  startDate: string;
+  endDate: string;
+  targetDays: number;
+  completedDays: number;
+  active: boolean;
+  completed: boolean;
 }

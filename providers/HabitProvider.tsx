@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import createContextHook from "@nkzw/create-context-hook";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { Habit } from "@/types/habit";
+import { Habit, HabitCompletionData } from "@/types/habit";
 
 interface HabitContextType {
   habits: Habit[];
@@ -11,12 +11,13 @@ interface HabitContextType {
   deleteHabit: (id: string) => void;
   archiveHabit: (id: string) => void;
   restoreHabit: (id: string) => void;
-  toggleHabitCompletion: (habitId: string, date: string) => void;
+  toggleHabitCompletion: (habitId: string, date: string, data?: Partial<HabitCompletionData>) => void;
   getStreak: (habitId: string) => number;
   getLongestStreak: (habitId: string) => number;
   getCompletionRate: (habitId: string, days?: number) => number;
   getWeeklyProgress: (habitId: string) => number;
   getTotalCompletions: (habitId: string) => number;
+  getCompletionData: (habitId: string, date: string) => HabitCompletionData | boolean | undefined;
   importData: (jsonString: string) => void;
   exportData: () => string;
   clearAllData: () => void;
@@ -130,16 +131,23 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
     });
   }, []);
 
-  const toggleHabitCompletion = useCallback((habitId: string, date: string) => {
+  const toggleHabitCompletion = useCallback((habitId: string, date: string, data?: Partial<HabitCompletionData>) => {
     setHabits(prev => {
       const habit = prev.find(h => h.id === habitId);
       if (!habit) return prev;
 
       const completions = { ...habit.completions };
-      if (completions[date]) {
+      const currentCompletion = completions[date];
+      const isCurrentlyCompleted = currentCompletion === true || (typeof currentCompletion === 'object' && currentCompletion.completed);
+      
+      if (isCurrentlyCompleted) {
         delete completions[date];
       } else {
-        completions[date] = true;
+        if (data) {
+          completions[date] = { completed: true, ...data };
+        } else {
+          completions[date] = true;
+        }
       }
 
       const updated = prev.map(h => 
@@ -249,7 +257,16 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
     const habit = habits.find(h => h.id === habitId);
     if (!habit || !habit.completions) return 0;
     
-    return Object.keys(habit.completions).filter(date => habit.completions[date]).length;
+    return Object.keys(habit.completions).filter(date => {
+      const completion = habit.completions[date];
+      return completion === true || (typeof completion === 'object' && completion.completed);
+    }).length;
+  }, [habits]);
+
+  const getCompletionData = useCallback((habitId: string, date: string): HabitCompletionData | boolean | undefined => {
+    const habit = habits.find(h => h.id === habitId);
+    if (!habit || !habit.completions) return undefined;
+    return habit.completions[date];
   }, [habits]);
 
   const importData = useCallback((jsonString: string) => {
@@ -298,6 +315,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
     getCompletionRate,
     getWeeklyProgress,
     getTotalCompletions,
+    getCompletionData,
     importData,
     exportData,
     clearAllData,

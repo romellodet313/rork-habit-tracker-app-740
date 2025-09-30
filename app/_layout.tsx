@@ -5,6 +5,7 @@ import React, { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { HabitProvider } from "@/providers/HabitProvider";
+import { GamificationProvider } from "@/providers/GamificationProvider";
 import colors from "@/constants/colors";
 
 SplashScreen.preventAutoHideAsync();
@@ -77,7 +78,9 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={styles.container}>
         <HabitProvider>
-          <RootLayoutNav />
+          <GamificationProvider>
+            <RootLayoutNav />
+          </GamificationProvider>
         </HabitProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
