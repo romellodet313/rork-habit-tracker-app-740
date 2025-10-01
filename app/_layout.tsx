@@ -8,6 +8,7 @@ import { HabitProvider } from "@/providers/HabitProvider";
 import { GamificationProvider } from "@/providers/GamificationProvider";
 import { RoutineProvider } from "@/providers/RoutineProvider";
 import colors from "@/constants/colors";
+import { trpc, trpcClient } from "@/lib/trpc";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -76,16 +77,18 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={styles.container}>
-        <HabitProvider>
-          <RoutineProvider>
-            <GamificationProvider>
-              <RootLayoutNav />
-            </GamificationProvider>
-          </RoutineProvider>
-        </HabitProvider>
-      </GestureHandlerRootView>
-    </QueryClientProvider>
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <GestureHandlerRootView style={styles.container}>
+          <HabitProvider>
+            <RoutineProvider>
+              <GamificationProvider>
+                <RootLayoutNav />
+              </GamificationProvider>
+            </RoutineProvider>
+          </HabitProvider>
+        </GestureHandlerRootView>
+      </QueryClientProvider>
+    </trpc.Provider>
   );
 }
