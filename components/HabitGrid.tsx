@@ -84,7 +84,7 @@ export function HabitGrid({ habit, days = 60, compact = false }: HabitGridProps)
     <View style={[styles.container, compact && styles.compact]}>
       {gridData.map((day, index) => (
         <View
-          key={`${day.date}-${index}`}
+          key={day.date}
           style={[
             styles.square,
             getSquareStyle(day, index),

@@ -97,7 +97,9 @@ export default function RoutinesScreen() {
 
   const RoutineCard = ({ routine }: { routine: any }) => {
     const duration = calculateRoutineDuration(routine.habitIds);
-    const routineHabits = routine.habitIds.map(getHabitById).filter(Boolean) as Habit[];
+    const routineHabits = routine.habitIds
+      .map(getHabitById)
+      .filter((h): h is Habit => h !== undefined && h !== null);
     
     return (
       <View style={styles.routineCard}>
@@ -122,7 +124,7 @@ export default function RoutinesScreen() {
         </View>
         
         <View style={styles.habitChain}>
-          {routineHabits.map((habit, index) => (
+          {routineHabits.length > 0 ? routineHabits.map((habit, index) => (
             <View key={habit.id} style={styles.chainItemContainer}>
               <View style={[styles.chainItem, { backgroundColor: habit.color }]}>
                 <Text style={styles.chainIcon}>{habit.icon}</Text>
@@ -141,7 +143,11 @@ export default function RoutinesScreen() {
                 </View>
               )}
             </View>
-          ))}
+          )) : (
+            <View style={styles.emptyChain}>
+              <Text style={styles.emptyChainText}>No habits in this routine</Text>
+            </View>
+          )}
         </View>
         
         <TouchableOpacity
@@ -687,5 +693,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
+  },
+  emptyChain: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  emptyChainText: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontStyle: 'italic',
   },
 });

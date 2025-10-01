@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Platform,
   Alert,
+  StatusBar,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -32,6 +33,7 @@ export default function HabitDetailsScreen() {
   if (!habit) {
     return (
       <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#0A0E27" />
         <Text style={styles.errorText}>Habit not found</Text>
       </View>
     );
@@ -80,10 +82,12 @@ export default function HabitDetailsScreen() {
   };
 
   return (
-    <ScrollView 
-      style={[styles.container, { paddingTop: insets.top }]} 
-      contentContainerStyle={styles.content}
-    >
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#0A0E27" />
+      <ScrollView 
+        style={[styles.scrollView, { paddingTop: insets.top }]} 
+        contentContainerStyle={styles.content}
+      >
       <View style={styles.header}>
         <View style={[styles.iconContainer, { backgroundColor: habit.color }]}>
           <Text style={styles.icon}>{habit.icon}</Text>
@@ -173,7 +177,8 @@ export default function HabitDetailsScreen() {
           <Text style={[styles.actionText, { color: '#EF4444' }]}>Delete</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -181,6 +186,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0A0E27',
+  },
+  scrollView: {
+    flex: 1,
   },
   content: {
     padding: 20,

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Platform,
   Alert,
+  StatusBar,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
@@ -66,6 +67,7 @@ export default function ArchiveScreen() {
   if (archivedHabits.length === 0) {
     return (
       <View style={[styles.emptyContainer, { paddingTop: insets.top, paddingBottom: insets.bottom + 100 }]}>
+        <StatusBar barStyle="light-content" backgroundColor="#0A0E27" />
         <Text style={styles.emptyTitle}>No archived habits</Text>
         <Text style={styles.emptyText}>
           Archived habits will appear here
@@ -75,11 +77,13 @@ export default function ArchiveScreen() {
   }
 
   return (
-    <ScrollView 
-      style={[styles.container, { paddingTop: insets.top }]} 
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
-    >
-      {archivedHabits.map((habit) => (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#0A0E27" />
+      <ScrollView 
+        style={[styles.scrollView, { paddingTop: insets.top }]} 
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
+      >
+        {archivedHabits.map((habit) => (
         <View key={habit.id} style={styles.habitContainer}>
           <HabitCard habit={habit} onToggleCompletion={() => {}} disabled />
           <View style={styles.actions}>
@@ -99,8 +103,9 @@ export default function ArchiveScreen() {
             </TouchableOpacity>
           </View>
         </View>
-      ))}
-    </ScrollView>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -108,6 +113,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0A0E27',
+  },
+  scrollView: {
+    flex: 1,
   },
   content: {
     padding: 16,
