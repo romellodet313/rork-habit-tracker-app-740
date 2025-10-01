@@ -154,7 +154,7 @@ export default function SettingsScreen() {
         <View style={styles.option}>
           <Info size={20} color={colors.dark.tint} />
           <View style={styles.optionContent}>
-            <Text style={styles.optionTitle}>HabitKit Clone</Text>
+            <Text style={styles.optionTitle}>MomentPro</Text>
             <Text style={styles.optionDescription}>
               Version 1.0.0 • Built with React Native
             </Text>
