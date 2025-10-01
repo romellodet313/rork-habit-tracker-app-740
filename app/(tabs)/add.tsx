@@ -34,6 +34,8 @@ export default function AddHabitScreen() {
   const [reminderTime, setReminderTime] = useState("09:00");
   const [selectedDays, setSelectedDays] = useState<string[]>(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('other');
+  const [isMicroHabit, setIsMicroHabit] = useState(false);
+  const [estimatedDuration, setEstimatedDuration] = useState("2");
   
   const handleSave = async () => {
     const trimmedName = name.trim();
@@ -69,6 +71,12 @@ export default function AddHabitScreen() {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
     
+    const parsedDuration = parseInt(estimatedDuration);
+    if (isNaN(parsedDuration) || parsedDuration < 1 || parsedDuration > 120) {
+      console.log("Error: Duration must be between 1 and 120 minutes");
+      return;
+    }
+    
     try {
       addHabit({
         name: trimmedName,
@@ -79,6 +87,8 @@ export default function AddHabitScreen() {
         weeklyGoal: parsedWeeklyGoal,
         targetDays: selectedDays,
         category: selectedCategoryId,
+        isMicroHabit,
+        estimatedDuration: parsedDuration,
         reminders: enableReminders ? [{
           id: Date.now().toString(),
           habitId: '',
@@ -176,6 +186,41 @@ export default function AddHabitScreen() {
           placeholderTextColor="#6B7280"
           keyboardType="number-pad"
         />
+      </View>
+      
+      <View style={styles.section}>
+        <View style={styles.reminderHeader}>
+          <View style={styles.reminderHeaderLeft}>
+            <Sparkles size={20} color="#9CA3AF" />
+            <Text style={styles.label}>Micro-Habit (2-minute rule)</Text>
+          </View>
+          <Switch
+            value={isMicroHabit}
+            onValueChange={setIsMicroHabit}
+            trackColor={{ false: '#4B5563', true: selectedColor }}
+            thumbColor={isMicroHabit ? '#fff' : '#9CA3AF'}
+          />
+        </View>
+        {isMicroHabit && (
+          <Text style={styles.helpText}>
+            Micro-habits are tiny actions that take 2 minutes or less. They&apos;re perfect for building consistency!
+          </Text>
+        )}
+      </View>
+      
+      <View style={styles.section}>
+        <Text style={styles.label}>Estimated Duration (minutes)</Text>
+        <TextInput
+          style={styles.input}
+          value={estimatedDuration}
+          onChangeText={setEstimatedDuration}
+          placeholder="2"
+          placeholderTextColor="#6B7280"
+          keyboardType="number-pad"
+        />
+        <Text style={styles.helpText}>
+          How long does this habit typically take? This helps with routine planning.
+        </Text>
       </View>
       
       <View style={styles.section}>

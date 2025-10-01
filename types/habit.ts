@@ -21,6 +21,10 @@ export interface Habit {
   notes?: Record<string, string>;
   weeklyGoal?: number;
   targetDays?: string[];
+  isMicroHabit?: boolean;
+  estimatedDuration?: number;
+  stackedAfter?: string;
+  stackedBefore?: string;
 }
 
 export interface HabitCompletion {
@@ -78,4 +82,23 @@ export interface Challenge {
   completedDays: number;
   active: boolean;
   completed: boolean;
+}
+
+export interface Routine {
+  id: string;
+  name: string;
+  type: 'morning' | 'evening' | 'custom';
+  habitIds: string[];
+  timeOfDay?: string;
+  enabled: boolean;
+  createdAt: string;
+}
+
+export interface HabitStack {
+  id: string;
+  name: string;
+  description?: string;
+  habitIds: string[];
+  totalDuration: number;
+  createdAt: string;
 }
