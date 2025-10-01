@@ -98,8 +98,8 @@ export default function RoutinesScreen() {
   const RoutineCard = ({ routine }: { routine: any }) => {
     const duration = calculateRoutineDuration(routine.habitIds);
     const routineHabits = routine.habitIds
-      .map(getHabitById)
-      .filter((h): h is Habit => h !== undefined && h !== null);
+      .map((id: string) => getHabitById(id))
+      .filter((h: Habit | undefined): h is Habit => h !== undefined && h !== null);
     
     return (
       <View style={styles.routineCard}>
@@ -124,7 +124,7 @@ export default function RoutinesScreen() {
         </View>
         
         <View style={styles.habitChain}>
-          {routineHabits.length > 0 ? routineHabits.map((habit, index) => (
+          {routineHabits.length > 0 ? routineHabits.map((habit: Habit, index: number) => (
             <View key={habit.id} style={styles.chainItemContainer}>
               <View style={[styles.chainItem, { backgroundColor: habit.color }]}>
                 <Text style={styles.chainIcon}>{habit.icon}</Text>
