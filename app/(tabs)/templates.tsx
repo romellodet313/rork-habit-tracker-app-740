@@ -158,7 +158,7 @@ export default function TemplatesScreen() {
                 <View style={styles.tipsSection}>
                   <Text style={styles.tipsTitle}>Tips:</Text>
                   {template.tips.map((tip, index) => (
-                    <View key={index} style={styles.tipItem}>
+                    <View key={`${template.id}-tip-${index}`} style={styles.tipItem}>
                       <Text style={styles.tipBullet}>•</Text>
                       <Text style={styles.tipText}>{tip}</Text>
                     </View>
