@@ -1,9 +1,13 @@
 {
   "buildCommand": "npx expo export -p web",
   "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "installCommand": "bun install",
   "framework": null,
   "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
