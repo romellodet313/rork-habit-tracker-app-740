@@ -388,6 +388,11 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     antennaMaterial: THREE.MeshStandardMaterial;
     helipadMaterial: THREE.MeshStandardMaterial;
     windowGeometry: THREE.PlaneGeometry;
+    windowMaterials: Map<string, THREE.MeshBasicMaterial>;
+    beaconMaterials: Map<string, THREE.MeshBasicMaterial>;
+    edgeMaterials: Map<string, THREE.LineBasicMaterial>;
+    hCircleMaterials: Map<string, THREE.MeshBasicMaterial>;
+    particleMaterials: Map<string, THREE.PointsMaterial>;
   } | null>(null);
 
   const createBuilding = (
@@ -420,7 +425,12 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
           roughness: 0.5,
           metalness: 0.6
         }),
-        windowGeometry: new THREE.PlaneGeometry(0.18, 0.18 * 1.2)
+        windowGeometry: new THREE.PlaneGeometry(0.18, 0.18 * 1.2),
+        windowMaterials: new Map(),
+        beaconMaterials: new Map(),
+        edgeMaterials: new Map(),
+        hCircleMaterials: new Map(),
+        particleMaterials: new Map()
       };
     }
 
@@ -449,12 +459,19 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     buildingMesh.receiveShadow = true;
     building.add(buildingMesh);
 
+    const colorHex = color.getHex();
+    const colorKey = colorHex.toString();
+    
+    if (!sharedMaterialsRef.current.edgeMaterials.has(colorKey)) {
+      sharedMaterialsRef.current.edgeMaterials.set(colorKey, new THREE.LineBasicMaterial({ 
+        color: colorHex,
+        transparent: true,
+        opacity: 0.6
+      }));
+    }
+    const edgeMaterial = sharedMaterialsRef.current.edgeMaterials.get(colorKey)!;
+    
     const edgeGeometry = new THREE.EdgesGeometry(buildingGeometry);
-    const edgeMaterial = new THREE.LineBasicMaterial({ 
-      color: color.getHex(),
-      transparent: true,
-      opacity: 0.6
-    });
     const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
     edges.position.y = totalHeight / 2;
     building.add(edges);
@@ -466,13 +483,17 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     base.receiveShadow = true;
     building.add(base);
 
+    if (!sharedMaterialsRef.current.windowMaterials.has(colorKey)) {
+      sharedMaterialsRef.current.windowMaterials.set(colorKey, new THREE.MeshBasicMaterial({ 
+        color: colorHex,
+        transparent: true,
+        opacity: 0.95
+      }));
+    }
+    const windowMaterial = sharedMaterialsRef.current.windowMaterials.get(colorKey)!;
+    
     const windowSpacing = 0.35;
     const windowsPerFloor = Math.floor(width / windowSpacing);
-    const windowMaterial = new THREE.MeshBasicMaterial({ 
-      color: color,
-      transparent: true,
-      opacity: 0.95
-    });
     
     for (let floor = 0; floor < floors; floor++) {
       const floorY = baseHeight + floor * floorHeight + floorHeight / 2;
@@ -503,17 +524,21 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       antenna.castShadow = false;
       building.add(antenna);
 
+      if (!sharedMaterialsRef.current.beaconMaterials.has(colorKey)) {
+        sharedMaterialsRef.current.beaconMaterials.set(colorKey, new THREE.MeshBasicMaterial({ 
+          color: colorHex,
+          transparent: true,
+          opacity: 0.9
+        }));
+      }
+      const beaconMaterial = sharedMaterialsRef.current.beaconMaterials.get(colorKey)!;
+      
       const beaconGeometry = new THREE.SphereGeometry(0.15, 12, 12);
-      const beaconMaterial = new THREE.MeshBasicMaterial({ 
-        color: color,
-        transparent: true,
-        opacity: 0.9
-      });
       const beacon = new THREE.Mesh(beaconGeometry, beaconMaterial);
       beacon.position.y = totalHeight + antennaHeight;
       building.add(beacon);
 
-      const beaconLight = new THREE.PointLight(color.getHex(), 3, 15);
+      const beaconLight = new THREE.PointLight(colorHex, 3, 15);
       beaconLight.position.y = totalHeight + antennaHeight;
       beaconLight.castShadow = false;
       building.add(beaconLight);
@@ -525,10 +550,14 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       helipad.position.y = totalHeight + 0.05;
       building.add(helipad);
 
+      if (!sharedMaterialsRef.current.hCircleMaterials.has(colorKey)) {
+        sharedMaterialsRef.current.hCircleMaterials.set(colorKey, new THREE.MeshBasicMaterial({ 
+          color: colorHex
+        }));
+      }
+      const hCircleMaterial = sharedMaterialsRef.current.hCircleMaterials.get(colorKey)!;
+      
       const hCircleGeometry = new THREE.TorusGeometry(width * 0.25, 0.02, 6, 16);
-      const hCircleMaterial = new THREE.MeshBasicMaterial({ 
-        color: color
-      });
       const hCircle = new THREE.Mesh(hCircleGeometry, hCircleMaterial);
       hCircle.position.y = totalHeight + 0.11;
       hCircle.rotation.x = Math.PI / 2;
@@ -547,17 +576,22 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       }
       
       particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      const particlesMaterial = new THREE.PointsMaterial({
-        color: color,
-        size: 0.2,
-        transparent: true,
-        opacity: 0.9,
-        blending: THREE.AdditiveBlending
-      });
+      
+      if (!sharedMaterialsRef.current.particleMaterials.has(colorKey)) {
+        sharedMaterialsRef.current.particleMaterials.set(colorKey, new THREE.PointsMaterial({
+          color: colorHex,
+          size: 0.2,
+          transparent: true,
+          opacity: 0.9,
+          blending: THREE.AdditiveBlending
+        }));
+      }
+      const particlesMaterial = sharedMaterialsRef.current.particleMaterials.get(colorKey)!;
+      
       const particles = new THREE.Points(particlesGeometry, particlesMaterial);
       building.add(particles);
 
-      const beaconLight = new THREE.PointLight(color.getHex(), 4, 25);
+      const beaconLight = new THREE.PointLight(colorHex, 4, 25);
       beaconLight.position.y = totalHeight + 1;
       beaconLight.castShadow = false;
       building.add(beaconLight);
