@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Home, Archive, Settings, Plus, BarChart3, Zap, Sparkles } from "lucide-react-native";
+import { Home, Archive, Settings, Plus, BarChart3 } from "lucide-react-native";
 import React from "react";
 import { Platform } from "react-native";
 import colors from "@/constants/colors";
@@ -62,41 +62,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="routines"
-        options={{
-          title: "Routines",
-          tabBarLabel: "Routines",
-          tabBarIcon: ({ color, focused }) => (
-            <Zap 
-              size={focused ? 26 : 24} 
-              color={color} 
-              strokeWidth={focused ? 2.5 : 2}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="templates"
-        options={{
-          title: "Templates",
-          tabBarLabel: "Templates",
-          tabBarIcon: ({ color, focused }) => (
-            <Sparkles 
-              size={focused ? 26 : 24} 
-              color={color} 
-              strokeWidth={focused ? 2.5 : 2}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="add"
         options={{
           title: "New Habit",
           tabBarLabel: "Add",
           tabBarIcon: ({ color, focused }) => (
             <Plus 
-              size={focused ? 26 : 24} 
+              size={focused ? 28 : 26} 
               color={color} 
               strokeWidth={focused ? 2.5 : 2}
             />
@@ -129,6 +101,18 @@ export default function TabLayout() {
               strokeWidth={focused ? 2.5 : 2}
             />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="routines"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="templates"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

@@ -14,7 +14,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import { HabitCard } from "@/components/HabitCard";
-import { Plus, Settings as SettingsIcon, Sparkles, Target, Search, Filter } from "lucide-react-native";
+import { Plus, Settings as SettingsIcon, Sparkles, Target, Search, Filter, Zap } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import colors from "@/constants/colors";
 import { CATEGORIES } from "@/constants/categories";
@@ -146,6 +146,17 @@ export default function HabitsScreen() {
             </Text>
           </View>
           <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => {
+                if (Platform.OS !== 'web') {
+                  Haptics.selectionAsync();
+                }
+                router.push('/routines');
+              }}
+            >
+              <Zap size={22} color={colors.dark.tabIconDefault} />
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.iconButton}
               onPress={() => setShowFilters(!showFilters)}

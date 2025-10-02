@@ -17,7 +17,7 @@ import colors, { COLORS } from "@/constants/colors";
 import { ICONS } from "@/constants/icons";
 import { CATEGORIES } from "@/constants/categories";
 import * as Haptics from "expo-haptics";
-import { Check, Bell, Sparkles } from "lucide-react-native";
+import { Check, Bell, Sparkles, Lightbulb } from "lucide-react-native";
 
 export default function AddHabitScreen() {
   const router = useRouter();
@@ -140,6 +140,22 @@ export default function AddHabitScreen() {
             Build a habit that sticks. Start small and be consistent.
           </Text>
         </View>
+        
+        <TouchableOpacity
+          style={styles.templatesButton}
+          onPress={() => router.push('/templates')}
+        >
+          <View style={styles.templatesButtonContent}>
+            <View style={styles.templatesIconContainer}>
+              <Lightbulb size={20} color="#F59E0B" />
+            </View>
+            <View style={styles.templatesTextContainer}>
+              <Text style={styles.templatesButtonTitle}>Browse Templates</Text>
+              <Text style={styles.templatesButtonSubtitle}>Start with proven habits</Text>
+            </View>
+          </View>
+          <Text style={styles.templatesArrow}>→</Text>
+        </TouchableOpacity>
       <View style={styles.section}>
         <Text style={styles.label}>Name</Text>
         <TextInput
@@ -604,5 +620,48 @@ const styles = StyleSheet.create({
   },
   selectedCategoryName: {
     color: '#fff',
+  },
+  templatesButton: {
+    backgroundColor: colors.dark.card,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: '#F59E0B',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  templatesButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  templatesIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  templatesTextContainer: {
+    flex: 1,
+  },
+  templatesButtonTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#fff',
+    marginBottom: 2,
+  },
+  templatesButtonSubtitle: {
+    fontSize: 13,
+    color: '#9CA3AF',
+  },
+  templatesArrow: {
+    fontSize: 20,
+    color: '#F59E0B',
+    fontWeight: '700' as const,
   },
 });
