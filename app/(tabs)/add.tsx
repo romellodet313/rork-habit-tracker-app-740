@@ -9,6 +9,7 @@ import {
   Platform,
   Switch,
   StatusBar,
+  Animated,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -36,6 +37,24 @@ export default function AddHabitScreen() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('other');
   const [isMicroHabit, setIsMicroHabit] = useState(false);
   const [estimatedDuration, setEstimatedDuration] = useState("2");
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const slideAnim = React.useRef(new Animated.Value(30)).current;
+
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
   
   const handleSave = async () => {
     const trimmedName = name.trim();
@@ -131,7 +150,15 @@ export default function AddHabitScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
+        <Animated.View 
+          style={[
+            styles.header,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
           <View style={styles.headerIcon}>
             <Sparkles size={24} color="#8B5CF6" />
           </View>
@@ -139,7 +166,7 @@ export default function AddHabitScreen() {
           <Text style={styles.headerSubtitle}>
             Build a habit that sticks. Start small and be consistent.
           </Text>
-        </View>
+        </Animated.View>
         
         <TouchableOpacity
           style={styles.templatesButton}
@@ -505,14 +532,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 32,
     marginBottom: 40,
-    shadowColor: '#000',
+    shadowColor: '#8B5CF6',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 8,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 12,
   },
   saveButtonText: {
     color: '#fff',

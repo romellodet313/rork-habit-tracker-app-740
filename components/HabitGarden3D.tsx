@@ -69,10 +69,10 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     renderer.shadowMap.type = THREE.BasicShadowMap;
     rendererRef.current = renderer;
 
-    const ambientLight = new THREE.AmbientLight(0x4a5a7a, 0.4);
+    const ambientLight = new THREE.AmbientLight(0x4a5a7a, 0.5);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
     directionalLight.position.set(30, 50, 20);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048;
@@ -86,27 +86,27 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     directionalLight.shadow.bias = -0.0005;
     scene.add(directionalLight);
 
-    const moonLight = new THREE.PointLight(0xa0b5ff, 3, 150);
+    const moonLight = new THREE.PointLight(0xa0b5ff, 4, 180);
     moonLight.position.set(-25, 45, -25);
     scene.add(moonLight);
 
-    const cityGlow1 = new THREE.PointLight(0xff3d7f, 2.5, 80);
+    const cityGlow1 = new THREE.PointLight(0xff3d7f, 3, 90);
     cityGlow1.position.set(-10, 10, -10);
     scene.add(cityGlow1);
 
-    const cityGlow2 = new THREE.PointLight(0x00ffcc, 2.5, 80);
+    const cityGlow2 = new THREE.PointLight(0x00ffcc, 3, 90);
     cityGlow2.position.set(10, 10, 10);
     scene.add(cityGlow2);
 
-    const cityGlow3 = new THREE.PointLight(0xffaa00, 2, 70);
+    const cityGlow3 = new THREE.PointLight(0xffaa00, 2.5, 80);
     cityGlow3.position.set(0, 15, 0);
     scene.add(cityGlow3);
 
-    const cityGlow4 = new THREE.PointLight(0x7b2fff, 2, 70);
+    const cityGlow4 = new THREE.PointLight(0x7b2fff, 2.5, 80);
     cityGlow4.position.set(10, 12, -10);
     scene.add(cityGlow4);
 
-    const cityGlow5 = new THREE.PointLight(0xff6b00, 2, 70);
+    const cityGlow5 = new THREE.PointLight(0xff6b00, 2.5, 80);
     cityGlow5.position.set(-10, 12, 10);
     scene.add(cityGlow5);
 
@@ -254,7 +254,7 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       lightBulb.position.set(x + 0.6, lampHeight, z);
       scene.add(lightBulb);
 
-      const streetLight = new THREE.PointLight(lightColor, 2.5, 12);
+      const streetLight = new THREE.PointLight(lightColor, 3, 14);
       streetLight.position.set(x + 0.6, lampHeight, z);
       streetLight.castShadow = false;
       scene.add(streetLight);

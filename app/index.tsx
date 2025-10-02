@@ -83,18 +83,21 @@ export default function LandingPage() {
       role: 'Fitness Enthusiast',
       text: 'This app transformed how I build habits. The 3D city feature is incredibly motivating!',
       rating: 5,
+      avatar: '💪',
     },
     {
       name: 'James K.',
       role: 'Entrepreneur',
       text: 'Finally, a habit tracker that makes consistency fun. Love the gamification elements.',
       rating: 5,
+      avatar: '🚀',
     },
     {
       name: 'Emily R.',
       role: 'Student',
       text: 'The visual progress tracking keeps me accountable. Best habit app I\'ve used.',
       rating: 5,
+      avatar: '📚',
     },
   ];
 
@@ -159,6 +162,20 @@ export default function LandingPage() {
             </View>
           </View>
         </LinearGradient>
+
+        <View style={styles.demoSection}>
+          <View style={styles.demoCard}>
+            <View style={styles.demoImagePlaceholder}>
+              <View style={styles.demoIconContainer}>
+                <Building2 size={48} color="#8B5CF6" />
+              </View>
+              <Text style={styles.demoImageText}>Interactive 3D City Builder</Text>
+            </View>
+            <Text style={styles.demoDescription}>
+              Watch your habits come to life as towering skyscrapers. The longer your streak, the taller your buildings grow!
+            </Text>
+          </View>
+        </View>
 
         <View style={styles.section} nativeID="features">
           <View style={styles.sectionHeader}>
@@ -226,8 +243,8 @@ export default function LandingPage() {
               <View key={index} style={styles.testimonialCard}>
                 <View style={styles.testimonialHeader}>
                   <View style={styles.testimonialAvatar}>
-                    <Text style={styles.testimonialAvatarText}>
-                      {testimonial.name.charAt(0)}
+                    <Text style={styles.testimonialAvatarEmoji}>
+                      {testimonial.avatar}
                     </Text>
                   </View>
                   <View style={styles.testimonialInfo}>
@@ -539,6 +556,9 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
     color: '#fff',
   },
+  testimonialAvatarEmoji: {
+    fontSize: 24,
+  },
   testimonialInfo: {
     flex: 1,
   },
@@ -610,5 +630,49 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
     color: '#6B7280',
+  },
+  demoSection: {
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+  },
+  demoCard: {
+    backgroundColor: colors.dark.card,
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+    maxWidth: 800,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  demoImagePlaceholder: {
+    height: 300,
+    backgroundColor: '#0a0e27',
+    borderRadius: 16,
+    marginBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#2d3561',
+  },
+  demoIconContainer: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#8B5CF620',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  demoImageText: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+    color: '#8B5CF6',
+  },
+  demoDescription: {
+    fontSize: 16,
+    color: '#9CA3AF',
+    lineHeight: 24,
+    textAlign: 'center',
   },
 });

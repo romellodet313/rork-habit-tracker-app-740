@@ -193,8 +193,16 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 20,
     gap: 12,
-    borderWidth: 1,
-    borderColor: colors.dark.border,
+    borderWidth: 2,
+    borderColor: '#8B5CF640',
+    shadowColor: '#8B5CF6',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   infoText: {
     flex: 1,
@@ -267,6 +275,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
     borderColor: colors.dark.border,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   habitColor: {
     width: 40,

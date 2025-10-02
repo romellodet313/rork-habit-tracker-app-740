@@ -9,6 +9,7 @@ import {
   Platform,
   Pressable,
   StatusBar,
+  Animated,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -29,6 +30,23 @@ export default function HabitsScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'name' | 'streak' | 'created'>('created');
   const [showFilters, setShowFilters] = useState(false);
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const slideAnim = React.useRef(new Animated.Value(-20)).current;
+
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
   
   const activeHabits = useMemo(() => {
     let filtered = habits.filter(h => h && h.id && !h.archived);
@@ -139,9 +157,17 @@ export default function HabitsScreen() {
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
+        <Animated.View 
+          style={[
+            styles.header,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
           <View style={styles.headerContent}>
-            <Text style={styles.greeting}>Good {getTimeOfDay()}</Text>
+            <Text style={styles.greeting}>Good {getTimeOfDay()} 👋</Text>
             <Text style={styles.subtitle}>
               {totalCompletionsToday} of {activeHabits.length} habits completed today
             </Text>
@@ -171,7 +197,7 @@ export default function HabitsScreen() {
               <SettingsIcon size={22} color={colors.dark.tabIconDefault} />
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
         
         <View style={styles.searchContainer}>
           <Search size={20} color="#6B7280" style={styles.searchIcon} />
@@ -235,7 +261,15 @@ export default function HabitsScreen() {
         )}
         
         {totalCompletionsToday > 0 && (
-          <View style={styles.progressCard}>
+          <Animated.View 
+            style={[
+              styles.progressCard,
+              {
+                opacity: fadeAnim,
+                transform: [{ scale: fadeAnim }],
+              },
+            ]}
+          >
             <View style={styles.progressHeader}>
               <Target size={20} color="#10B981" />
               <Text style={styles.progressTitle}>Today&apos;s Progress</Text>
@@ -251,7 +285,7 @@ export default function HabitsScreen() {
             <Text style={styles.progressText}>
               {Math.round((totalCompletionsToday / activeHabits.length) * 100)}% complete
             </Text>
-          </View>
+          </Animated.View>
         )}
         
         <View style={styles.habitsSection}>

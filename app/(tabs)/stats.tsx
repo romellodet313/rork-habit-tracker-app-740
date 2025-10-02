@@ -4,6 +4,7 @@ import {
   Text,
   View,
   ScrollView,
+  Animated,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
@@ -18,6 +19,24 @@ export default function StatsScreen() {
   const insets = useSafeAreaInsets();
   const { habits } = useHabits();
   const { level, xp, xpToNextLevel } = useGamification();
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const scaleAnim = React.useRef(new Animated.Value(0.9)).current;
+
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const activeHabits = useMemo(() => habits.filter(h => !h.archived), [habits]);
 
@@ -106,7 +125,15 @@ export default function StatsScreen() {
           <Text style={styles.subtitle}>Track your progress and achievements</Text>
         </View>
 
-        <View style={styles.levelCard}>
+        <Animated.View 
+          style={[
+            styles.levelCard,
+            {
+              opacity: fadeAnim,
+              transform: [{ scale: scaleAnim }],
+            },
+          ]}
+        >
           <View style={styles.levelHeader}>
             <View style={styles.levelBadge}>
               <Zap size={24} color="#FFD700" fill="#FFD700" />
@@ -126,7 +153,7 @@ export default function StatsScreen() {
             />
           </View>
           <Text style={styles.xpText}>{xp % 100} / 100 XP</Text>
-        </View>
+        </Animated.View>
 
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
@@ -253,8 +280,16 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: colors.dark.border,
+    borderWidth: 2,
+    borderColor: '#FFD70040',
+    shadowColor: '#FFD700',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
   },
   levelHeader: {
     flexDirection: 'row',
