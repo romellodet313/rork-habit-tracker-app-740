@@ -15,12 +15,12 @@ import { HabitGarden3D } from '@/components/HabitGarden3D';
 import { Sparkles, Info } from 'lucide-react-native';
 import colors from '@/constants/colors';
 
-export default function GardenScreen() {
+export default function CityBuilderScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { habits, getStreak } = useHabits();
 
-  const gardenHabits = useMemo(() => {
+  const cityHabits = useMemo(() => {
     return habits
       .filter(h => !h.archived)
       .map(habit => ({
@@ -33,14 +33,18 @@ export default function GardenScreen() {
   }, [habits, getStreak]);
 
   const totalStreakDays = useMemo(() => {
-    return gardenHabits.reduce((sum, h) => sum + h.streak, 0);
-  }, [gardenHabits]);
+    return cityHabits.reduce((sum, h) => sum + h.streak, 0);
+  }, [cityHabits]);
+
+  const totalFloors = useMemo(() => {
+    return cityHabits.reduce((sum, h) => sum + Math.min(Math.floor(h.streak / 2) + 1, 20), 0);
+  }, [cityHabits]);
 
   const handleHabitClick = (habitId: string) => {
     router.push(`/habit/${habitId}`);
   };
 
-  if (gardenHabits.length === 0) {
+  if (cityHabits.length === 0) {
     return (
       <View style={[styles.emptyContainer, { paddingTop: insets.top, paddingBottom: insets.bottom + 100 }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.dark.background} />
@@ -48,15 +52,15 @@ export default function GardenScreen() {
           <View style={styles.emptyIconContainer}>
             <Sparkles size={48} color={colors.dark.tint} />
           </View>
-          <Text style={styles.emptyTitle}>Your Garden Awaits</Text>
+          <Text style={styles.emptyTitle}>Build Your City</Text>
           <Text style={styles.emptyText}>
-            Create habits to grow your 3D garden. Each habit becomes a plant that grows taller with your streak!
+            Create habits to build your 3D city. Each habit becomes a skyscraper that grows taller with your streak!
           </Text>
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => router.push('/add')}
           >
-            <Text style={styles.addButtonText}>Plant Your First Habit</Text>
+            <Text style={styles.addButtonText}>Build Your First Tower</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -69,9 +73,9 @@ export default function GardenScreen() {
         <StatusBar barStyle="light-content" backgroundColor={colors.dark.background} />
         <View style={styles.notAvailableContainer}>
           <Info size={48} color={colors.dark.tint} />
-          <Text style={styles.notAvailableTitle}>3D Garden</Text>
+          <Text style={styles.notAvailableTitle}>3D City Builder</Text>
           <Text style={styles.notAvailableText}>
-            The 3D Habit Garden is available on web only. Open this app in your browser to explore your growing garden!
+            The 3D Habit City is available on web only. Open this app in your browser to explore your growing metropolis!
           </Text>
         </View>
       </View>
@@ -88,9 +92,9 @@ export default function GardenScreen() {
       >
         <View style={styles.header}>
           <View style={styles.headerContent}>
-            <Text style={styles.title}>Your Habit Garden</Text>
+            <Text style={styles.title}>Your Habit City</Text>
             <Text style={styles.subtitle}>
-              {gardenHabits.length} plants • {totalStreakDays} total streak days
+              {cityHabits.length} buildings • {totalFloors} floors • {totalStreakDays} total days
             </Text>
           </View>
         </View>
@@ -98,47 +102,50 @@ export default function GardenScreen() {
         <View style={styles.infoCard}>
           <Info size={20} color={colors.dark.tint} />
           <Text style={styles.infoText}>
-            Each plant represents a habit. The taller it grows, the longer your streak! Click on plants to view details.
+            Each building represents a habit. The taller it grows, the longer your streak! Click on buildings to view details.
           </Text>
         </View>
 
-        <View style={styles.gardenContainer}>
-          <HabitGarden3D habits={gardenHabits} onHabitClick={handleHabitClick} />
+        <View style={styles.cityContainer}>
+          <HabitGarden3D habits={cityHabits} onHabitClick={handleHabitClick} />
         </View>
 
         <View style={styles.legendContainer}>
-          <Text style={styles.legendTitle}>Garden Legend</Text>
+          <Text style={styles.legendTitle}>City Legend</Text>
           <View style={styles.legendItems}>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
-              <Text style={styles.legendText}>Seedling (1-7 days)</Text>
+              <Text style={styles.legendText}>Small Building (1-9 days)</Text>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: '#3B82F6' }]} />
-              <Text style={styles.legendText}>Growing (8-21 days)</Text>
+              <Text style={styles.legendText}>Skyscraper (10-19 days)</Text>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: '#8B5CF6' }]} />
-              <Text style={styles.legendText}>Mature (22+ days)</Text>
+              <Text style={styles.legendText}>Mega Tower (20+ days)</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.habitsList}>
-          <Text style={styles.habitsListTitle}>Your Plants</Text>
-          {gardenHabits.map((habit) => (
-            <TouchableOpacity
-              key={habit.id}
-              style={styles.habitItem}
-              onPress={() => handleHabitClick(habit.id)}
-            >
-              <View style={[styles.habitColor, { backgroundColor: habit.color }]} />
-              <View style={styles.habitInfo}>
-                <Text style={styles.habitName}>{habit.name}</Text>
-                <Text style={styles.habitStreak}>{habit.streak} day streak</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          <Text style={styles.habitsListTitle}>Your Buildings</Text>
+          {cityHabits.map((habit) => {
+            const floors = Math.min(Math.floor(habit.streak / 2) + 1, 20);
+            return (
+              <TouchableOpacity
+                key={habit.id}
+                style={styles.habitItem}
+                onPress={() => handleHabitClick(habit.id)}
+              >
+                <View style={[styles.habitColor, { backgroundColor: habit.color }]} />
+                <View style={styles.habitInfo}>
+                  <Text style={styles.habitName}>{habit.name}</Text>
+                  <Text style={styles.habitStreak}>{floors} floors • {habit.streak} day streak</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </ScrollView>
     </View>
@@ -191,14 +198,22 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     lineHeight: 20,
   },
-  gardenContainer: {
-    height: 400,
-    backgroundColor: colors.dark.card,
+  cityContainer: {
+    height: 500,
+    backgroundColor: '#0a0e27',
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 24,
-    borderWidth: 1,
-    borderColor: colors.dark.border,
+    borderWidth: 2,
+    borderColor: '#2d3561',
+    shadowColor: '#6366f1',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
   },
   legendContainer: {
     backgroundColor: colors.dark.card,

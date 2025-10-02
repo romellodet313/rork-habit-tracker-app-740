@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Platform, Dimensions } from 'react-native';
 import * as THREE from 'three';
 
-interface HabitGarden3DProps {
+interface HabitCityBuilderProps {
   habits: Array<{
     id: string;
     name: string;
@@ -12,13 +12,13 @@ interface HabitGarden3DProps {
   onHabitClick?: (habitId: string) => void;
 }
 
-export function HabitGarden3D({ habits, onHabitClick }: HabitGarden3DProps) {
+export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
   const containerRef = useRef<View>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const plantsRef = useRef<Map<string, THREE.Group>>(new Map());
+  const buildingsRef = useRef<Map<string, THREE.Group>>(new Map());
   const animationFrameRef = useRef<number | null>(null);
   const [dimensions, setDimensions] = useState(Dimensions.get('window'));
 
@@ -41,17 +41,17 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitGarden3DProps) {
     canvas.style.display = 'block';
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87CEEB);
-    scene.fog = new THREE.Fog(0x87CEEB, 20, 60);
+    scene.background = new THREE.Color(0x0a0e27);
+    scene.fog = new THREE.Fog(0x0a0e27, 30, 100);
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
-      60,
+      50,
       dimensions.width / (dimensions.height - 200),
       0.1,
       1000
     );
-    camera.position.set(0, 8, 12);
+    camera.position.set(20, 18, 20);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
@@ -66,108 +66,148 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitGarden3DProps) {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     rendererRef.current = renderer;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(0x4a5568, 0.4);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xfff4e6, 1.2);
-    directionalLight.position.set(10, 15, 5);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(20, 30, 10);
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.mapSize.width = 4096;
+    directionalLight.shadow.mapSize.height = 4096;
     directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 50;
-    directionalLight.shadow.camera.left = -20;
-    directionalLight.shadow.camera.right = 20;
-    directionalLight.shadow.camera.top = 20;
-    directionalLight.shadow.camera.bottom = -20;
+    directionalLight.shadow.camera.far = 100;
+    directionalLight.shadow.camera.left = -40;
+    directionalLight.shadow.camera.right = 40;
+    directionalLight.shadow.camera.top = 40;
+    directionalLight.shadow.camera.bottom = -40;
+    directionalLight.shadow.bias = -0.0001;
     scene.add(directionalLight);
 
-    const soilGeometry = new THREE.CircleGeometry(12, 64);
-    const soilMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x4a3520,
-      roughness: 1.0,
-      metalness: 0.0
-    });
-    const soil = new THREE.Mesh(soilGeometry, soilMaterial);
-    soil.rotation.x = -Math.PI / 2;
-    soil.receiveShadow = true;
-    scene.add(soil);
+    const moonLight = new THREE.PointLight(0x6366f1, 1.5, 100);
+    moonLight.position.set(-15, 25, -15);
+    scene.add(moonLight);
 
-    const grassGeometry = new THREE.CircleGeometry(20, 64);
-    const grassMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x4a7c3e,
+    const cityGlow = new THREE.PointLight(0xff6b6b, 0.8, 50);
+    cityGlow.position.set(0, 5, 0);
+    scene.add(cityGlow);
+
+    const groundSize = 50;
+    const groundGeometry = new THREE.PlaneGeometry(groundSize, groundSize);
+    const groundMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0x1a1f3a,
       roughness: 0.9,
-      metalness: 0.0
+      metalness: 0.1
     });
-    const grass = new THREE.Mesh(grassGeometry, grassMaterial);
-    grass.rotation.x = -Math.PI / 2;
-    grass.position.y = -0.01;
-    grass.receiveShadow = true;
-    scene.add(grass);
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
 
-    const fenceRadius = 13;
-    const fencePostCount = 24;
-    for (let i = 0; i < fencePostCount; i++) {
-      const angle = (i / fencePostCount) * Math.PI * 2;
-      const x = Math.cos(angle) * fenceRadius;
-      const z = Math.sin(angle) * fenceRadius;
+    const gridHelper = new THREE.GridHelper(groundSize, 50, 0x2d3561, 0x1e2442);
+    gridHelper.position.y = 0.01;
+    scene.add(gridHelper);
 
-      const postGeometry = new THREE.CylinderGeometry(0.08, 0.08, 1.5, 8);
-      const postMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x8b6f47,
-        roughness: 0.9
-      });
-      const post = new THREE.Mesh(postGeometry, postMaterial);
-      post.position.set(x, 0.75, z);
-      post.castShadow = true;
-      post.receiveShadow = true;
-      scene.add(post);
+    const roadWidth = 2;
+    const roadMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0x2d3561,
+      roughness: 0.8,
+      metalness: 0.2
+    });
 
-      const nextAngle = ((i + 1) / fencePostCount) * Math.PI * 2;
-      const nextX = Math.cos(nextAngle) * fenceRadius;
-      const nextZ = Math.sin(nextAngle) * fenceRadius;
+    const mainRoad1 = new THREE.Mesh(
+      new THREE.PlaneGeometry(groundSize, roadWidth),
+      roadMaterial
+    );
+    mainRoad1.rotation.x = -Math.PI / 2;
+    mainRoad1.position.y = 0.02;
+    mainRoad1.receiveShadow = true;
+    scene.add(mainRoad1);
 
-      const railGeometry = new THREE.CylinderGeometry(0.04, 0.04, 
-        Math.sqrt((nextX - x) ** 2 + (nextZ - z) ** 2), 8);
-      const railMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x8b6f47,
-        roughness: 0.9
-      });
-      const rail = new THREE.Mesh(railGeometry, railMaterial);
-      rail.position.set((x + nextX) / 2, 0.9, (z + nextZ) / 2);
-      rail.rotation.z = Math.PI / 2;
-      rail.rotation.y = -angle - Math.PI / fencePostCount;
-      rail.castShadow = true;
-      scene.add(rail);
+    const mainRoad2 = new THREE.Mesh(
+      new THREE.PlaneGeometry(roadWidth, groundSize),
+      roadMaterial
+    );
+    mainRoad2.rotation.x = -Math.PI / 2;
+    mainRoad2.position.y = 0.02;
+    mainRoad2.receiveShadow = true;
+    scene.add(mainRoad2);
 
-      const lowerRail = rail.clone();
-      lowerRail.position.y = 0.5;
-      scene.add(lowerRail);
+    for (let i = 0; i < 20; i++) {
+      const lineGeometry = new THREE.PlaneGeometry(0.1, 1);
+      const lineMaterial = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+      const line = new THREE.Mesh(lineGeometry, lineMaterial);
+      line.rotation.x = -Math.PI / 2;
+      line.position.set(i * 2.5 - 25, 0.03, 0);
+      scene.add(line);
+
+      const line2 = line.clone();
+      line2.rotation.z = Math.PI / 2;
+      line2.position.set(0, 0.03, i * 2.5 - 25);
+      scene.add(line2);
     }
 
-    const pathSegments = 32;
-    for (let i = 0; i < pathSegments; i++) {
-      const angle = (i / pathSegments) * Math.PI * 2;
-      const radius = 11.5;
-      const x = Math.cos(angle) * radius;
-      const z = Math.sin(angle) * radius;
+    for (let i = 0; i < 15; i++) {
+      const x = (Math.random() - 0.5) * 40;
+      const z = (Math.random() - 0.5) * 40;
+      const distance = Math.sqrt(x * x + z * z);
+      
+      if (distance < 8 || distance > 22) continue;
 
-      const stoneGeometry = new THREE.CylinderGeometry(
-        0.15 + Math.random() * 0.1, 
-        0.15 + Math.random() * 0.1, 
-        0.05, 
-        6
-      );
-      const stoneMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x9ca3af,
+      const lampHeight = 3;
+      const poleGeometry = new THREE.CylinderGeometry(0.08, 0.1, lampHeight, 8);
+      const poleMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x4a5568,
+        roughness: 0.6,
+        metalness: 0.8
+      });
+      const pole = new THREE.Mesh(poleGeometry, poleMaterial);
+      pole.position.set(x, lampHeight / 2, z);
+      pole.castShadow = true;
+      scene.add(pole);
+
+      const lightGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+      const lightMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0xfbbf24,
+        emissive: 0xfbbf24,
+        emissiveIntensity: 2
+      });
+      const lightBulb = new THREE.Mesh(lightGeometry, lightMaterial);
+      lightBulb.position.set(x, lampHeight, z);
+      scene.add(lightBulb);
+
+      const streetLight = new THREE.PointLight(0xfbbf24, 1, 8);
+      streetLight.position.set(x, lampHeight, z);
+      streetLight.castShadow = true;
+      scene.add(streetLight);
+    }
+
+    for (let i = 0; i < 30; i++) {
+      const x = (Math.random() - 0.5) * 45;
+      const z = (Math.random() - 0.5) * 45;
+      const distance = Math.sqrt(x * x + z * z);
+      
+      if (distance < 15) continue;
+
+      const treeHeight = 1.5 + Math.random() * 1;
+      const trunkGeometry = new THREE.CylinderGeometry(0.1, 0.15, treeHeight * 0.3, 8);
+      const trunkMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x3d2817,
+        roughness: 0.9
+      });
+      const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+      trunk.position.set(x, treeHeight * 0.15, z);
+      trunk.castShadow = true;
+      scene.add(trunk);
+
+      const foliageGeometry = new THREE.SphereGeometry(0.5, 8, 8);
+      const foliageMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x1e3a2e,
         roughness: 0.8
       });
-      const stone = new THREE.Mesh(stoneGeometry, stoneMaterial);
-      stone.position.set(x, 0.025, z);
-      stone.rotation.x = -Math.PI / 2;
-      stone.rotation.z = Math.random() * Math.PI;
-      stone.receiveShadow = true;
-      scene.add(stone);
+      const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
+      foliage.position.set(x, treeHeight * 0.3 + 0.4, z);
+      foliage.castShadow = true;
+      scene.add(foliage);
     }
 
     if (containerRef.current) {
@@ -214,16 +254,19 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitGarden3DProps) {
     let time = 0;
     const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate);
-      time += 0.01;
+      time += 0.005;
 
-      camera.position.x = Math.sin(time * 0.1) * 12;
-      camera.position.z = Math.cos(time * 0.1) * 12;
-      camera.lookAt(0, 2, 0);
+      const radius = 25;
+      camera.position.x = Math.sin(time * 0.3) * radius;
+      camera.position.z = Math.cos(time * 0.3) * radius;
+      camera.position.y = 18 + Math.sin(time * 0.2) * 3;
+      camera.lookAt(0, 3, 0);
 
-      plantsRef.current.forEach((plant) => {
-        plant.children.forEach((child, index) => {
-          if (child instanceof THREE.Mesh) {
-            child.rotation.y = Math.sin(time + index * 0.5) * 0.1;
+      buildingsRef.current.forEach((building) => {
+        building.children.forEach((child) => {
+          if (child.userData.isWindow) {
+            const mat = (child as THREE.Mesh).material as THREE.MeshStandardMaterial;
+            mat.emissiveIntensity = 0.8 + Math.sin(time * 2 + child.position.y) * 0.2;
           }
         });
       });
@@ -246,120 +289,154 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitGarden3DProps) {
     if (!sceneRef.current || Platform.OS !== 'web') return;
 
     const scene = sceneRef.current;
-    const currentPlantIds = new Set(habits.map(h => h.id));
+    const currentBuildingIds = new Set(habits.map(h => h.id));
     
-    plantsRef.current.forEach((plant, id) => {
-      if (!currentPlantIds.has(id)) {
-        scene.remove(plant);
-        plantsRef.current.delete(id);
+    buildingsRef.current.forEach((building, id) => {
+      if (!currentBuildingIds.has(id)) {
+        scene.remove(building);
+        buildingsRef.current.delete(id);
       }
     });
 
     habits.forEach((habit, index) => {
-      const existingPlant = plantsRef.current.get(habit.id);
+      const existingBuilding = buildingsRef.current.get(habit.id);
       
-      if (existingPlant) {
-        updatePlant(existingPlant, habit);
+      if (existingBuilding) {
+        updateBuilding(existingBuilding, habit);
       } else {
-        const plant = createPlant(habit, index, habits.length);
-        scene.add(plant);
-        plantsRef.current.set(habit.id, plant);
+        const building = createBuilding(habit, index, habits.length);
+        scene.add(building);
+        buildingsRef.current.set(habit.id, building);
       }
     });
   }, [habits]);
 
-  const createPlant = (
+  const createBuilding = (
     habit: { id: string; name: string; color: string; streak: number },
     index: number,
     total: number
   ): THREE.Group => {
-    const plant = new THREE.Group();
-    plant.userData.habitId = habit.id;
+    const building = new THREE.Group();
+    building.userData.habitId = habit.id;
 
-    const angle = (index / total) * Math.PI * 2;
-    const radius = Math.min(5 + total * 0.3, 10);
-    plant.position.x = Math.cos(angle) * radius;
-    plant.position.z = Math.sin(angle) * radius;
+    const gridSize = Math.ceil(Math.sqrt(total));
+    const spacing = 5;
+    const row = Math.floor(index / gridSize);
+    const col = index % gridSize;
+    const offsetX = (gridSize - 1) * spacing / 2;
+    const offsetZ = (gridSize - 1) * spacing / 2;
+    
+    building.position.x = col * spacing - offsetX;
+    building.position.z = row * spacing - offsetZ;
 
-    const height = Math.max(0.5, Math.min(habit.streak * 0.15, 6));
+    const baseHeight = 0.5;
+    const floorHeight = 0.8;
+    const floors = Math.min(Math.floor(habit.streak / 2) + 1, 20);
+    const totalHeight = baseHeight + floors * floorHeight;
+    const width = 1.5 + Math.min(habit.streak * 0.05, 1);
+    const depth = 1.5 + Math.min(habit.streak * 0.05, 1);
     const color = new THREE.Color(habit.color);
 
-    const trunkGeometry = new THREE.CylinderGeometry(0.1, 0.15, height * 0.4, 8);
-    const trunkMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x4a3728,
-      roughness: 0.9
+    const buildingGeometry = new THREE.BoxGeometry(width, totalHeight, depth);
+    const buildingMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0x2d3561,
+      roughness: 0.7,
+      metalness: 0.3
     });
-    const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-    trunk.position.y = height * 0.2;
-    trunk.castShadow = true;
-    trunk.receiveShadow = true;
-    plant.add(trunk);
+    const buildingMesh = new THREE.Mesh(buildingGeometry, buildingMaterial);
+    buildingMesh.position.y = totalHeight / 2;
+    buildingMesh.castShadow = true;
+    buildingMesh.receiveShadow = true;
+    building.add(buildingMesh);
 
-    const foliageLevels = Math.min(Math.floor(habit.streak / 3) + 1, 5);
-    for (let i = 0; i < foliageLevels; i++) {
-      const levelHeight = height * 0.4 + i * 0.6;
-      const size = (1 - i * 0.15) * (0.5 + habit.streak * 0.05);
+    const windowSize = 0.15;
+    const windowSpacing = 0.3;
+    const windowsPerFloor = Math.floor(width / windowSpacing);
+    
+    for (let floor = 0; floor < floors; floor++) {
+      const floorY = baseHeight + floor * floorHeight + floorHeight / 2;
       
-      const foliageGeometry = new THREE.SphereGeometry(size, 8, 8);
-      const foliageMaterial = new THREE.MeshStandardMaterial({ 
-        color: color,
-        roughness: 0.7,
-        metalness: 0.1,
-        emissive: color,
-        emissiveIntensity: 0.2
-      });
-      const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
-      foliage.position.y = levelHeight;
-      foliage.castShadow = true;
-      foliage.receiveShadow = true;
-      plant.add(foliage);
+      for (let w = 0; w < windowsPerFloor; w++) {
+        const windowX = (w - windowsPerFloor / 2) * windowSpacing + windowSpacing / 2;
+        
+        [1, -1].forEach((side) => {
+          const windowGeometry = new THREE.PlaneGeometry(windowSize, windowSize);
+          const windowMaterial = new THREE.MeshStandardMaterial({ 
+            color: color,
+            emissive: color,
+            emissiveIntensity: 1,
+            transparent: true,
+            opacity: 0.9
+          });
+          const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
+          window1.position.set(windowX, floorY, side * (depth / 2 + 0.01));
+          window1.userData.isWindow = true;
+          building.add(window1);
 
-      if (habit.streak > 7 && i === foliageLevels - 1) {
-        const particleCount = Math.min(habit.streak, 30);
-        const particlesGeometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        
-        for (let j = 0; j < particleCount; j++) {
-          positions[j * 3] = (Math.random() - 0.5) * size * 2;
-          positions[j * 3 + 1] = Math.random() * 0.5;
-          positions[j * 3 + 2] = (Math.random() - 0.5) * size * 2;
-        }
-        
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        const particlesMaterial = new THREE.PointsMaterial({
-          color: color,
-          size: 0.1,
-          transparent: true,
-          opacity: 0.8,
-          blending: THREE.AdditiveBlending
+          const window2 = window1.clone();
+          window2.rotation.y = Math.PI / 2;
+          window2.position.set(side * (width / 2 + 0.01), floorY, windowX);
+          window2.userData.isWindow = true;
+          building.add(window2);
         });
-        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-        particles.position.y = levelHeight;
-        plant.add(particles);
       }
     }
 
-    return plant;
+    if (habit.streak >= 10) {
+      const roofGeometry = new THREE.ConeGeometry(width * 0.7, 1, 4);
+      const roofMaterial = new THREE.MeshStandardMaterial({ 
+        color: color,
+        emissive: color,
+        emissiveIntensity: 0.5,
+        roughness: 0.5,
+        metalness: 0.5
+      });
+      const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+      roof.position.y = totalHeight + 0.5;
+      roof.rotation.y = Math.PI / 4;
+      roof.castShadow = true;
+      building.add(roof);
+
+      const beaconLight = new THREE.PointLight(color.getHex(), 2, 10);
+      beaconLight.position.y = totalHeight + 1;
+      building.add(beaconLight);
+    }
+
+    if (habit.streak >= 20) {
+      const particleCount = 50;
+      const particlesGeometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+      
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * width * 2;
+        positions[i * 3 + 1] = totalHeight + Math.random() * 2;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * depth * 2;
+      }
+      
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const particlesMaterial = new THREE.PointsMaterial({
+        color: color,
+        size: 0.15,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending
+      });
+      const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+      building.add(particles);
+    }
+
+    return building;
   };
 
-  const updatePlant = (
-    plant: THREE.Group,
+  const updateBuilding = (
+    building: THREE.Group,
     habit: { id: string; name: string; color: string; streak: number }
   ) => {
-    const targetHeight = Math.max(0.5, Math.min(habit.streak * 0.15, 6));
     const color = new THREE.Color(habit.color);
 
-    plant.children.forEach((child) => {
+    building.children.forEach((child) => {
       if (child instanceof THREE.Mesh) {
-        if (child.geometry instanceof THREE.CylinderGeometry) {
-          const currentHeight = (child.geometry.parameters as any).height;
-          const newHeight = targetHeight * 0.4;
-          if (Math.abs(currentHeight - newHeight) > 0.1) {
-            child.geometry.dispose();
-            child.geometry = new THREE.CylinderGeometry(0.1, 0.15, newHeight, 8);
-            child.position.y = newHeight / 2;
-          }
-        } else if (child.geometry instanceof THREE.SphereGeometry) {
+        if (child.userData.isWindow) {
           (child.material as THREE.MeshStandardMaterial).color.set(color);
           (child.material as THREE.MeshStandardMaterial).emissive.set(color);
         }
@@ -375,7 +452,7 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitGarden3DProps) {
     <View 
       ref={containerRef}
       style={styles.container}
-      nativeID="garden-container"
+      nativeID="city-container"
     />
   );
 }
