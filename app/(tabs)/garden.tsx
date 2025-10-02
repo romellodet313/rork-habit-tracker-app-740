@@ -14,6 +14,7 @@ import { useHabits } from '@/providers/HabitProvider';
 import { HabitGarden3D } from '@/components/HabitGarden3D';
 import { Sparkles, Info } from 'lucide-react-native';
 import colors from '@/constants/colors';
+import typography from '@/constants/typography';
 
 export default function CityBuilderScreen() {
   const router = useRouter();
@@ -176,15 +177,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '800' as const,
+    ...typography.display,
     color: '#fff',
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
+    ...typography.body,
     color: '#9CA3AF',
-    fontWeight: '500' as const,
   },
   infoCard: {
     flexDirection: 'row',
@@ -255,8 +254,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   habitsListTitle: {
-    fontSize: 20,
-    fontWeight: '700' as const,
+    ...typography.h3,
     color: '#fff',
     marginBottom: 16,
   },
@@ -312,18 +310,16 @@ const styles = StyleSheet.create({
     borderColor: colors.dark.tint,
   },
   emptyTitle: {
-    fontSize: 28,
-    fontWeight: '800' as const,
+    ...typography.h1,
     color: '#fff',
     marginBottom: 12,
     textAlign: 'center',
   },
   emptyText: {
-    fontSize: 16,
+    ...typography.body,
     color: '#9CA3AF',
     marginBottom: 32,
     textAlign: 'center',
-    lineHeight: 24,
   },
   addButton: {
     backgroundColor: colors.dark.tint,

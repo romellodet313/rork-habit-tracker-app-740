@@ -10,6 +10,7 @@ import { useHabits } from "@/providers/HabitProvider";
 import { useGamification } from "@/providers/GamificationProvider";
 import { TrendingUp, Award, Target, Zap } from "lucide-react-native";
 import colors from "@/constants/colors";
+import typography from "@/constants/typography";
 
 const BAR_WIDTH = 8;
 
@@ -239,15 +240,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '800',
+    ...typography.display,
     color: '#fff',
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
+    ...typography.body,
     color: '#9CA3AF',
-    fontWeight: '500',
   },
   levelCard: {
     backgroundColor: colors.dark.card,
@@ -283,8 +282,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   levelTitle: {
-    fontSize: 24,
-    fontWeight: '700',
+    ...typography.h2,
     color: '#fff',
     marginBottom: 4,
   },
@@ -352,8 +350,7 @@ const styles = StyleSheet.create({
     borderColor: colors.dark.border,
   },
   chartTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    ...typography.h4,
     color: '#fff',
     marginBottom: 4,
   },
@@ -395,8 +392,7 @@ const styles = StyleSheet.create({
     borderColor: colors.dark.border,
   },
   insightsTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    ...typography.h4,
     color: '#fff',
     marginBottom: 16,
   },

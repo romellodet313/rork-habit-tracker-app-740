@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Home, Archive, Settings, Plus, BarChart3, Sprout } from "lucide-react-native";
+import { Home, BarChart3, Sprout, Settings } from "lucide-react-native";
 import React from "react";
 import { Platform } from "react-native";
 import colors from "@/constants/colors";
@@ -18,9 +18,9 @@ export default function TabLayout() {
           height: Platform.OS === 'ios' ? 88 : 68,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '600',
-          marginTop: 4,
+          marginTop: 2,
         },
         headerStyle: {
           backgroundColor: colors.dark.background,
@@ -50,8 +50,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="garden"
         options={{
-          title: "Garden",
-          tabBarLabel: "Garden",
+          title: "City",
+          tabBarLabel: "City",
           tabBarIcon: ({ color, focused }) => (
             <Sprout 
               size={focused ? 26 : 24} 
@@ -76,34 +76,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="add"
-        options={{
-          title: "New Habit",
-          tabBarLabel: "Add",
-          tabBarIcon: ({ color, focused }) => (
-            <Plus 
-              size={focused ? 28 : 26} 
-              color={color} 
-              strokeWidth={focused ? 2.5 : 2}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="archive"
-        options={{
-          title: "Archive",
-          tabBarLabel: "Archive",
-          tabBarIcon: ({ color, focused }) => (
-            <Archive 
-              size={focused ? 26 : 24} 
-              color={color} 
-              strokeWidth={focused ? 2.5 : 2}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",
@@ -115,6 +87,18 @@ export default function TabLayout() {
               strokeWidth={focused ? 2.5 : 2}
             />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="add"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="archive"
+        options={{
+          href: null,
         }}
       />
       <Tabs.Screen

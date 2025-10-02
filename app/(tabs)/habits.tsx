@@ -17,6 +17,7 @@ import { HabitCard } from "@/components/HabitCard";
 import { Plus, Settings as SettingsIcon, Sparkles, Target, Search, Filter, Zap } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import colors from "@/constants/colors";
+import typography from "@/constants/typography";
 import { CATEGORIES } from "@/constants/categories";
 
 export default function HabitsScreen() {
@@ -267,9 +268,19 @@ export default function HabitsScreen() {
             </Pressable>
           ))}
         </View>
-        
-
       </ScrollView>
+      
+      <TouchableOpacity
+        style={[styles.fab, { bottom: insets.bottom + 80 }]}
+        onPress={() => {
+          if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          }
+          router.push('/add');
+        }}
+      >
+        <Plus size={28} color="#fff" strokeWidth={2.5} />
+      </TouchableOpacity>
     </View>
   );
 
@@ -297,15 +308,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   greeting: {
-    fontSize: 28,
-    fontWeight: '800',
+    ...typography.h1,
     color: '#fff',
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
+    ...typography.body,
     color: '#9CA3AF',
-    fontWeight: '500',
   },
   headerActions: {
     flexDirection: 'row',
@@ -425,8 +434,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   progressTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.bodyBold,
     color: '#fff',
   },
   progressBar: {
@@ -450,8 +458,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    ...typography.h3,
     color: '#fff',
     marginBottom: 16,
   },
@@ -478,18 +485,16 @@ const styles = StyleSheet.create({
     borderColor: colors.dark.tint,
   },
   emptyTitle: {
-    fontSize: 28,
-    fontWeight: '800',
+    ...typography.h1,
     color: '#fff',
     marginBottom: 12,
     textAlign: 'center',
   },
   emptyText: {
-    fontSize: 16,
+    ...typography.body,
     color: '#9CA3AF',
     marginBottom: 32,
     textAlign: 'center',
-    lineHeight: 24,
   },
   addButton: {
     flexDirection: 'row',
@@ -509,11 +514,28 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   addButtonText: {
+    ...typography.bodyBold,
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
   },
   bottomSpacing: {
     height: 100,
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.dark.tint,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.dark.tint,
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 12,
   },
 });
