@@ -41,8 +41,8 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitGarden3DProps) {
     canvas.style.display = 'block';
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0a0a);
-    scene.fog = new THREE.Fog(0x0a0a0a, 10, 50);
+    scene.background = new THREE.Color(0x87CEEB);
+    scene.fog = new THREE.Fog(0x87CEEB, 20, 60);
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
@@ -66,36 +66,109 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitGarden3DProps) {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     rendererRef.current = renderer;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(5, 10, 5);
+    const directionalLight = new THREE.DirectionalLight(0xfff4e6, 1.2);
+    directionalLight.position.set(10, 15, 5);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048;
     directionalLight.shadow.mapSize.height = 2048;
     directionalLight.shadow.camera.near = 0.5;
     directionalLight.shadow.camera.far = 50;
+    directionalLight.shadow.camera.left = -20;
+    directionalLight.shadow.camera.right = 20;
+    directionalLight.shadow.camera.top = 20;
+    directionalLight.shadow.camera.bottom = -20;
     scene.add(directionalLight);
 
-    const pointLight = new THREE.PointLight(0x6366f1, 0.5, 20);
-    pointLight.position.set(0, 5, 0);
-    scene.add(pointLight);
-
-    const groundGeometry = new THREE.CircleGeometry(15, 64);
-    const groundMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x1a1a1a,
-      roughness: 0.8,
-      metalness: 0.2
+    const soilGeometry = new THREE.CircleGeometry(12, 64);
+    const soilMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0x4a3520,
+      roughness: 1.0,
+      metalness: 0.0
     });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
-    scene.add(ground);
+    const soil = new THREE.Mesh(soilGeometry, soilMaterial);
+    soil.rotation.x = -Math.PI / 2;
+    soil.receiveShadow = true;
+    scene.add(soil);
 
-    const gridHelper = new THREE.GridHelper(30, 30, 0x333333, 0x222222);
-    gridHelper.position.y = 0.01;
-    scene.add(gridHelper);
+    const grassGeometry = new THREE.CircleGeometry(20, 64);
+    const grassMaterial = new THREE.MeshStandardMaterial({ 
+      color: 0x4a7c3e,
+      roughness: 0.9,
+      metalness: 0.0
+    });
+    const grass = new THREE.Mesh(grassGeometry, grassMaterial);
+    grass.rotation.x = -Math.PI / 2;
+    grass.position.y = -0.01;
+    grass.receiveShadow = true;
+    scene.add(grass);
+
+    const fenceRadius = 13;
+    const fencePostCount = 24;
+    for (let i = 0; i < fencePostCount; i++) {
+      const angle = (i / fencePostCount) * Math.PI * 2;
+      const x = Math.cos(angle) * fenceRadius;
+      const z = Math.sin(angle) * fenceRadius;
+
+      const postGeometry = new THREE.CylinderGeometry(0.08, 0.08, 1.5, 8);
+      const postMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x8b6f47,
+        roughness: 0.9
+      });
+      const post = new THREE.Mesh(postGeometry, postMaterial);
+      post.position.set(x, 0.75, z);
+      post.castShadow = true;
+      post.receiveShadow = true;
+      scene.add(post);
+
+      const nextAngle = ((i + 1) / fencePostCount) * Math.PI * 2;
+      const nextX = Math.cos(nextAngle) * fenceRadius;
+      const nextZ = Math.sin(nextAngle) * fenceRadius;
+
+      const railGeometry = new THREE.CylinderGeometry(0.04, 0.04, 
+        Math.sqrt((nextX - x) ** 2 + (nextZ - z) ** 2), 8);
+      const railMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x8b6f47,
+        roughness: 0.9
+      });
+      const rail = new THREE.Mesh(railGeometry, railMaterial);
+      rail.position.set((x + nextX) / 2, 0.9, (z + nextZ) / 2);
+      rail.rotation.z = Math.PI / 2;
+      rail.rotation.y = -angle - Math.PI / fencePostCount;
+      rail.castShadow = true;
+      scene.add(rail);
+
+      const lowerRail = rail.clone();
+      lowerRail.position.y = 0.5;
+      scene.add(lowerRail);
+    }
+
+    const pathSegments = 32;
+    for (let i = 0; i < pathSegments; i++) {
+      const angle = (i / pathSegments) * Math.PI * 2;
+      const radius = 11.5;
+      const x = Math.cos(angle) * radius;
+      const z = Math.sin(angle) * radius;
+
+      const stoneGeometry = new THREE.CylinderGeometry(
+        0.15 + Math.random() * 0.1, 
+        0.15 + Math.random() * 0.1, 
+        0.05, 
+        6
+      );
+      const stoneMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x9ca3af,
+        roughness: 0.8
+      });
+      const stone = new THREE.Mesh(stoneGeometry, stoneMaterial);
+      stone.position.set(x, 0.025, z);
+      stone.rotation.x = -Math.PI / 2;
+      stone.rotation.z = Math.random() * Math.PI;
+      stone.receiveShadow = true;
+      scene.add(stone);
+    }
 
     if (containerRef.current) {
       const viewElement = containerRef.current as any;
