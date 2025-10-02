@@ -43,8 +43,8 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     canvas.style.display = 'block';
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0f1729);
-    scene.fog = new THREE.FogExp2(0x1a2332, 0.015);
+    scene.background = new THREE.Color(0x0a0e1a);
+    scene.fog = new THREE.FogExp2(0x0f1420, 0.012);
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
@@ -69,60 +69,74 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     renderer.shadowMap.type = THREE.BasicShadowMap;
     rendererRef.current = renderer;
 
-    const ambientLight = new THREE.AmbientLight(0x5a6a8a, 0.6);
+    const ambientLight = new THREE.AmbientLight(0x4a5a7a, 0.4);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    directionalLight.position.set(25, 40, 15);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(30, 50, 20);
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 1024;
-    directionalLight.shadow.mapSize.height = 1024;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
     directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 120;
-    directionalLight.shadow.camera.left = -50;
-    directionalLight.shadow.camera.right = 50;
-    directionalLight.shadow.camera.top = 50;
-    directionalLight.shadow.camera.bottom = -50;
-    directionalLight.shadow.bias = -0.0001;
+    directionalLight.shadow.camera.far = 150;
+    directionalLight.shadow.camera.left = -60;
+    directionalLight.shadow.camera.right = 60;
+    directionalLight.shadow.camera.top = 60;
+    directionalLight.shadow.camera.bottom = -60;
+    directionalLight.shadow.bias = -0.0005;
     scene.add(directionalLight);
 
-    const moonLight = new THREE.PointLight(0x8b9dff, 2, 120);
-    moonLight.position.set(-20, 35, -20);
+    const moonLight = new THREE.PointLight(0xa0b5ff, 3, 150);
+    moonLight.position.set(-25, 45, -25);
     scene.add(moonLight);
 
-    const cityGlow1 = new THREE.PointLight(0xff6b9d, 1.2, 60);
-    cityGlow1.position.set(-8, 8, -8);
+    const cityGlow1 = new THREE.PointLight(0xff3d7f, 2.5, 80);
+    cityGlow1.position.set(-10, 10, -10);
     scene.add(cityGlow1);
 
-    const cityGlow2 = new THREE.PointLight(0x6bffd9, 1.2, 60);
-    cityGlow2.position.set(8, 8, 8);
+    const cityGlow2 = new THREE.PointLight(0x00ffcc, 2.5, 80);
+    cityGlow2.position.set(10, 10, 10);
     scene.add(cityGlow2);
 
-    const cityGlow3 = new THREE.PointLight(0xffd96b, 1, 50);
-    cityGlow3.position.set(0, 12, 0);
+    const cityGlow3 = new THREE.PointLight(0xffaa00, 2, 70);
+    cityGlow3.position.set(0, 15, 0);
     scene.add(cityGlow3);
+
+    const cityGlow4 = new THREE.PointLight(0x7b2fff, 2, 70);
+    cityGlow4.position.set(10, 12, -10);
+    scene.add(cityGlow4);
+
+    const cityGlow5 = new THREE.PointLight(0xff6b00, 2, 70);
+    cityGlow5.position.set(-10, 12, 10);
+    scene.add(cityGlow5);
 
     const groundSize = 60;
     const groundGeometry = new THREE.PlaneGeometry(groundSize, groundSize);
     const groundMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x1a2332,
-      roughness: 0.85,
-      metalness: 0.15
+      color: 0x0d1118,
+      roughness: 0.9,
+      metalness: 0.3,
+      emissive: 0x0a0d15,
+      emissiveIntensity: 0.2
     });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    const gridHelper = new THREE.GridHelper(groundSize, 60, 0x3d4a6b, 0x252f45);
+    const gridHelper = new THREE.GridHelper(groundSize, 60, 0x00ffcc, 0x1a2030);
     gridHelper.position.y = 0.01;
+    gridHelper.material.opacity = 0.3;
+    gridHelper.material.transparent = true;
     scene.add(gridHelper);
 
     const roadWidth = 2.5;
     const roadMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x2a3548,
-      roughness: 0.7,
-      metalness: 0.3
+      color: 0x1a2230,
+      roughness: 0.6,
+      metalness: 0.5,
+      emissive: 0x0a1520,
+      emissiveIntensity: 0.3
     });
 
     const mainRoad1 = new THREE.Mesh(
@@ -145,9 +159,11 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
 
     const sidewalkWidth = 0.4;
     const sidewalkMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x3a4558,
-      roughness: 0.9,
-      metalness: 0.1
+      color: 0x2a3545,
+      roughness: 0.8,
+      metalness: 0.2,
+      emissive: 0x1a2535,
+      emissiveIntensity: 0.1
     });
 
     for (let side of [-1, 1]) {
@@ -172,7 +188,9 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
 
     const lineGeometry = new THREE.PlaneGeometry(0.12, 1.2);
     const lineMaterial = new THREE.MeshBasicMaterial({ 
-      color: 0xffd700
+      color: 0x00ffcc,
+      transparent: true,
+      opacity: 0.8
     });
     
     for (let i = 0; i < 24; i++) {
@@ -190,27 +208,29 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     const lampHeight = 3.5;
     const poleGeometry = new THREE.CylinderGeometry(0.06, 0.12, lampHeight, 8);
     const poleMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x2a3548,
-      roughness: 0.4,
-      metalness: 0.9
+      color: 0x1a2535,
+      roughness: 0.3,
+      metalness: 0.95,
+      emissive: 0x0a1520,
+      emissiveIntensity: 0.2
     });
     const lampArmGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.6, 6);
     const lightGeometry = new THREE.SphereGeometry(0.18, 12, 12);
     const glowGeometry = new THREE.SphereGeometry(0.25, 12, 12);
     
-    const lightColors = [0xffd700, 0xff9d6b, 0x6bffd9];
+    const lightColors = [0x00ffcc, 0xff3d7f, 0xffaa00, 0x7b2fff];
     const lightMaterials = lightColors.map(color => new THREE.MeshBasicMaterial({ 
       color,
       transparent: true,
-      opacity: 0.95
+      opacity: 1
     }));
     const glowMaterials = lightColors.map(color => new THREE.MeshBasicMaterial({ 
       color,
       transparent: true,
-      opacity: 0.3
+      opacity: 0.4
     }));
     
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 16; i++) {
       const x = (Math.random() - 0.5) * 45;
       const z = (Math.random() - 0.5) * 45;
       const distance = Math.sqrt(x * x + z * z);
@@ -227,14 +247,14 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       lampArm.position.set(x + 0.3, lampHeight, z);
       scene.add(lampArm);
 
-      const colorIndex = i % 3;
+      const colorIndex = i % 4;
       const lightColor = lightColors[colorIndex];
       
       const lightBulb = new THREE.Mesh(lightGeometry, lightMaterials[colorIndex]);
       lightBulb.position.set(x + 0.6, lampHeight, z);
       scene.add(lightBulb);
 
-      const streetLight = new THREE.PointLight(lightColor, 1.5, 10);
+      const streetLight = new THREE.PointLight(lightColor, 2.5, 12);
       streetLight.position.set(x + 0.6, lampHeight, z);
       streetLight.castShadow = false;
       scene.add(streetLight);
@@ -406,24 +426,32 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     if (!sharedMaterialsRef.current) {
       sharedMaterialsRef.current = {
         buildingMaterial: new THREE.MeshStandardMaterial({ 
-          color: 0x2a3548,
-          roughness: 0.6,
-          metalness: 0.4
+          color: 0x1a2230,
+          roughness: 0.4,
+          metalness: 0.7,
+          emissive: 0x0a1118,
+          emissiveIntensity: 0.3
         }),
         baseMaterial: new THREE.MeshStandardMaterial({ 
-          color: 0x1a2332,
-          roughness: 0.8,
-          metalness: 0.5
+          color: 0x0d1118,
+          roughness: 0.6,
+          metalness: 0.8,
+          emissive: 0x050810,
+          emissiveIntensity: 0.4
         }),
         antennaMaterial: new THREE.MeshStandardMaterial({ 
-          color: 0x4a5568,
-          roughness: 0.3,
-          metalness: 0.9
+          color: 0x3a4558,
+          roughness: 0.2,
+          metalness: 0.95,
+          emissive: 0x1a2230,
+          emissiveIntensity: 0.5
         }),
         helipadMaterial: new THREE.MeshStandardMaterial({ 
-          color: 0x2a3548,
-          roughness: 0.5,
-          metalness: 0.6
+          color: 0x1a2535,
+          roughness: 0.3,
+          metalness: 0.8,
+          emissive: 0x0a1520,
+          emissiveIntensity: 0.4
         }),
         windowGeometry: new THREE.PlaneGeometry(0.18, 0.18 * 1.2),
         windowMaterials: new Map(),
@@ -466,7 +494,8 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       sharedMaterialsRef.current.edgeMaterials.set(colorKey, new THREE.LineBasicMaterial({ 
         color: colorHex,
         transparent: true,
-        opacity: 0.6
+        opacity: 0.9,
+        linewidth: 2
       }));
     }
     const edgeMaterial = sharedMaterialsRef.current.edgeMaterials.get(colorKey)!;
@@ -484,10 +513,11 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     building.add(base);
 
     if (!sharedMaterialsRef.current.windowMaterials.has(colorKey)) {
+      const brighterColor = color.clone().multiplyScalar(1.5);
       sharedMaterialsRef.current.windowMaterials.set(colorKey, new THREE.MeshBasicMaterial({ 
-        color: colorHex,
+        color: brighterColor,
         transparent: true,
-        opacity: 0.95
+        opacity: 1
       }));
     }
     const windowMaterial = sharedMaterialsRef.current.windowMaterials.get(colorKey)!;
@@ -525,10 +555,11 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       building.add(antenna);
 
       if (!sharedMaterialsRef.current.beaconMaterials.has(colorKey)) {
+        const brighterColor = color.clone().multiplyScalar(1.8);
         sharedMaterialsRef.current.beaconMaterials.set(colorKey, new THREE.MeshBasicMaterial({ 
-          color: colorHex,
+          color: brighterColor,
           transparent: true,
-          opacity: 0.9
+          opacity: 1
         }));
       }
       const beaconMaterial = sharedMaterialsRef.current.beaconMaterials.get(colorKey)!;
@@ -538,10 +569,20 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       beacon.position.y = totalHeight + antennaHeight;
       building.add(beacon);
 
-      const beaconLight = new THREE.PointLight(colorHex, 3, 15);
+      const beaconLight = new THREE.PointLight(colorHex, 5, 20);
       beaconLight.position.y = totalHeight + antennaHeight;
       beaconLight.castShadow = false;
       building.add(beaconLight);
+
+      const beaconGlowGeometry = new THREE.SphereGeometry(0.3, 12, 12);
+      const beaconGlowMaterial = new THREE.MeshBasicMaterial({ 
+        color: colorHex,
+        transparent: true,
+        opacity: 0.3
+      });
+      const beaconGlow = new THREE.Mesh(beaconGlowGeometry, beaconGlowMaterial);
+      beaconGlow.position.y = totalHeight + antennaHeight;
+      building.add(beaconGlow);
     }
 
     if (habit.streak >= 15) {
@@ -551,8 +592,9 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       building.add(helipad);
 
       if (!sharedMaterialsRef.current.hCircleMaterials.has(colorKey)) {
+        const brighterColor = color.clone().multiplyScalar(1.6);
         sharedMaterialsRef.current.hCircleMaterials.set(colorKey, new THREE.MeshBasicMaterial({ 
-          color: colorHex
+          color: brighterColor
         }));
       }
       const hCircleMaterial = sharedMaterialsRef.current.hCircleMaterials.get(colorKey)!;
@@ -578,11 +620,12 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
       
       if (!sharedMaterialsRef.current.particleMaterials.has(colorKey)) {
+        const brighterColor = color.clone().multiplyScalar(2);
         sharedMaterialsRef.current.particleMaterials.set(colorKey, new THREE.PointsMaterial({
-          color: colorHex,
-          size: 0.2,
+          color: brighterColor,
+          size: 0.25,
           transparent: true,
-          opacity: 0.9,
+          opacity: 1,
           blending: THREE.AdditiveBlending
         }));
       }
@@ -591,10 +634,21 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       const particles = new THREE.Points(particlesGeometry, particlesMaterial);
       building.add(particles);
 
-      const beaconLight = new THREE.PointLight(colorHex, 4, 25);
-      beaconLight.position.y = totalHeight + 1;
-      beaconLight.castShadow = false;
-      building.add(beaconLight);
+      const epicLight = new THREE.PointLight(colorHex, 6, 30);
+      epicLight.position.y = totalHeight + 1;
+      epicLight.castShadow = false;
+      building.add(epicLight);
+
+      const epicGlowGeometry = new THREE.SphereGeometry(width * 0.8, 16, 16);
+      const epicGlowMaterial = new THREE.MeshBasicMaterial({ 
+        color: colorHex,
+        transparent: true,
+        opacity: 0.15,
+        blending: THREE.AdditiveBlending
+      });
+      const epicGlow = new THREE.Mesh(epicGlowGeometry, epicGlowMaterial);
+      epicGlow.position.y = totalHeight + 1;
+      building.add(epicGlow);
     }
 
     return building;
