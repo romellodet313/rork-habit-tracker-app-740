@@ -99,7 +99,7 @@ export default function RoutinesScreen() {
     const duration = calculateRoutineDuration(routine.habitIds);
     const routineHabits = routine.habitIds
       .map((id: string) => getHabitById(id))
-      .filter((h: Habit | undefined): h is Habit => h !== undefined && h !== null);
+      .filter((h): h is Habit => h !== undefined && h !== null);
     
     return (
       <View style={styles.routineCard}>
@@ -124,8 +124,8 @@ export default function RoutinesScreen() {
         </View>
         
         <View style={styles.habitChain}>
-          {routineHabits.length > 0 ? routineHabits.map((habit, index) => (
-            <View key={habit.id} style={styles.chainItemContainer}>
+          {routineHabits.length > 0 ? routineHabits.map((habit: Habit, index: number) => (
+            <View key={`${routine.id}-habit-${habit.id}-${index}`} style={styles.chainItemContainer}>
               <View style={[styles.chainItem, { backgroundColor: habit.color }]}>
                 <Text style={styles.chainIcon}>{habit.icon}</Text>
                 <View style={styles.chainItemInfo}>
@@ -312,9 +312,9 @@ export default function RoutinesScreen() {
                 <Text style={styles.modalHint}>
                   Tap to add habits to your routine. They&apos;ll be completed in order.
                 </Text>
-                {activeHabits.map((habit, index) => (
+                {activeHabits.map((habit: Habit, index: number) => (
                   <TouchableOpacity
-                    key={habit.id}
+                    key={`habit-option-${habit.id}-${index}`}
                     style={[
                       styles.habitOption,
                       selectedHabits.includes(habit.id) && styles.habitOptionSelected,
