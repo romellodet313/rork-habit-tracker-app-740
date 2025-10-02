@@ -33,6 +33,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
     
     const loadData = async () => {
       try {
+        console.log('[HabitProvider] Loading habits from storage...');
         let stored = null;
         if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
           stored = localStorage.getItem(STORAGE_KEY);
@@ -42,11 +43,14 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
         if (stored && isMounted) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed)) {
+            console.log(`[HabitProvider] Loaded ${parsed.length} habits from storage`);
             setHabits(parsed);
           }
+        } else {
+          console.log('[HabitProvider] No stored habits found, starting fresh');
         }
       } catch (error) {
-        console.error('Failed to load habits:', error);
+        console.error('[HabitProvider] Failed to load habits:', error);
       }
     };
     
@@ -61,7 +65,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
 
   const saveHabits = async (newHabits: Habit[]) => {
     if (!Array.isArray(newHabits)) {
-      console.error('Invalid habits data');
+      console.error('[HabitProvider] Invalid habits data');
       return;
     }
     try {
@@ -72,9 +76,10 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
       } else {
         await AsyncStorage.setItem(STORAGE_KEY, habitData);
       }
+      console.log(`[HabitProvider] Saved ${validatedHabits.length} habits to storage`);
       setHabits(validatedHabits);
     } catch (error) {
-      console.error('Failed to save habits:', error);
+      console.error('[HabitProvider] Failed to save habits:', error);
     }
   };
 

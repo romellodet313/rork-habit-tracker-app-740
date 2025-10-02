@@ -11,7 +11,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import { useGamification } from "@/providers/GamificationProvider";
-import { Download, Upload, Trash2, Info, Lock } from "lucide-react-native";
+import { Download, Upload, Trash2, Info, Lock, Database, CheckCircle } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import colors from "@/constants/colors";
 
@@ -149,6 +149,42 @@ export default function SettingsScreen() {
             </Text>
           </View>
         </TouchableOpacity>
+      </View>
+      
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Storage</Text>
+        
+        <View style={styles.storageCard}>
+          <View style={styles.storageHeader}>
+            <Database size={24} color="#10B981" />
+            <View style={styles.storageHeaderText}>
+              <Text style={styles.storageTitle}>Local Storage Active</Text>
+              <View style={styles.statusBadge}>
+                <CheckCircle size={14} color="#10B981" />
+                <Text style={styles.statusText}>All data saved locally</Text>
+              </View>
+            </View>
+          </View>
+          <Text style={styles.storageDescription}>
+            Your habits and progress are automatically saved to your device. Your data persists across app restarts and is available offline.
+          </Text>
+          <View style={styles.storageStats}>
+            <View style={styles.storageStat}>
+              <Text style={styles.storageStatValue}>{habits.length}</Text>
+              <Text style={styles.storageStatLabel}>Habits Stored</Text>
+            </View>
+            <View style={styles.storageStat}>
+              <Text style={styles.storageStatValue}>
+                {habits.reduce((sum, h) => sum + Object.keys(h.completions || {}).length, 0)}
+              </Text>
+              <Text style={styles.storageStatLabel}>Completions</Text>
+            </View>
+            <View style={styles.storageStat}>
+              <Text style={styles.storageStatValue}>{achievements.length}</Text>
+              <Text style={styles.storageStatLabel}>Achievements</Text>
+            </View>
+          </View>
+        </View>
       </View>
       
       <View style={styles.section}>
@@ -301,5 +337,62 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     marginBottom: 4,
   },
-
+  storageCard: {
+    backgroundColor: colors.dark.card,
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#10B98133',
+  },
+  storageHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    marginBottom: 12,
+  },
+  storageHeaderText: {
+    flex: 1,
+  },
+  storageTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 6,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  statusText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#10B981',
+  },
+  storageDescription: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  storageStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.dark.border,
+  },
+  storageStat: {
+    alignItems: 'center',
+  },
+  storageStatValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#10B981',
+    marginBottom: 4,
+  },
+  storageStatLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
 });
