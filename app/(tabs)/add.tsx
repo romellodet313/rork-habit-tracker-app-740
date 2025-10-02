@@ -13,6 +13,7 @@ import {
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
+import { useSubscription } from "@/providers/SubscriptionProvider";
 import colors, { COLORS } from "@/constants/colors";
 import { ICONS } from "@/constants/icons";
 import { CATEGORIES } from "@/constants/categories";
@@ -22,7 +23,8 @@ import { Check, Bell, Sparkles } from "lucide-react-native";
 export default function AddHabitScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { addHabit } = useHabits();
+  const { habits, addHabit } = useHabits();
+  const { isPremium, features } = useSubscription();
   
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -41,6 +43,12 @@ export default function AddHabitScreen() {
     const trimmedName = name.trim();
     if (!trimmedName || trimmedName.length === 0) {
       console.log("Error: Please enter a habit name");
+      return;
+    }
+    
+    if (!isPremium && habits.length >= features.maxHabits) {
+      console.log(`Error: Free plan limited to ${features.maxHabits} habits. Upgrade to Premium for unlimited habits!`);
+      router.push('/(tabs)/premium');
       return;
     }
     

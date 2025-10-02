@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { HabitProvider } from "@/providers/HabitProvider";
 import { GamificationProvider } from "@/providers/GamificationProvider";
 import { RoutineProvider } from "@/providers/RoutineProvider";
+import { SubscriptionProvider } from "@/providers/SubscriptionProvider";
 import colors from "@/constants/colors";
 import { trpc, trpcClient } from "@/lib/trpc";
 
@@ -80,13 +81,15 @@ export default function RootLayout() {
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView style={styles.container}>
-          <HabitProvider>
-            <RoutineProvider>
-              <GamificationProvider>
-                <RootLayoutNav />
-              </GamificationProvider>
-            </RoutineProvider>
-          </HabitProvider>
+          <SubscriptionProvider>
+            <HabitProvider>
+              <RoutineProvider>
+                <GamificationProvider>
+                  <RootLayoutNav />
+                </GamificationProvider>
+              </RoutineProvider>
+            </HabitProvider>
+          </SubscriptionProvider>
         </GestureHandlerRootView>
       </QueryClientProvider>
     </trpc.Provider>
