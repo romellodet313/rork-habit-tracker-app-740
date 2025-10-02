@@ -16,7 +16,7 @@ import { useRoutines } from "@/providers/RoutineProvider";
 import { Plus, Sunrise, Sunset, Clock, X, Check, Sparkles, Zap } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import colors from "@/constants/colors";
-import { Habit } from "@/types/habit";
+import { Habit, Routine } from "@/types/habit";
 
 export default function RoutinesScreen() {
   const insets = useSafeAreaInsets();
@@ -95,7 +95,7 @@ export default function RoutinesScreen() {
     }, 0);
   };
 
-  const RoutineCard = ({ routine }: { routine: any }) => {
+  const RoutineCard = ({ routine }: { routine: Routine }) => {
     const duration = calculateRoutineDuration(routine.habitIds);
     const routineHabits = routine.habitIds
       .map((id: string) => getHabitById(id))
@@ -124,7 +124,7 @@ export default function RoutinesScreen() {
         </View>
         
         <View style={styles.habitChain}>
-          {routineHabits.length > 0 ? routineHabits.map((habit: Habit, index: number) => (
+          {routineHabits.length > 0 ? routineHabits.map((habit, index) => (
             <View key={habit.id} style={styles.chainItemContainer}>
               <View style={[styles.chainItem, { backgroundColor: habit.color }]}>
                 <Text style={styles.chainIcon}>{habit.icon}</Text>

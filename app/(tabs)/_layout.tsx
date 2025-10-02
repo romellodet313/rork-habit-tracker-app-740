@@ -1,7 +1,6 @@
 import { Tabs } from "expo-router";
-import { Home, Archive, Settings, Plus, BarChart3, Zap } from "lucide-react-native";
+import { Home, Archive, Settings, Plus, BarChart3, Zap, Sparkles } from "lucide-react-native";
 import React from "react";
-import { Platform } from "react-native";
 import colors from "@/constants/colors";
 
 export default function TabLayout() {
@@ -14,8 +13,6 @@ export default function TabLayout() {
           backgroundColor: colors.dark.card,
           borderTopColor: colors.dark.border,
           borderTopWidth: 1,
-          paddingBottom: Platform.OS === 'web' ? 20 : 0,
-          height: Platform.OS === 'web' ? 80 : 60,
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -68,6 +65,20 @@ export default function TabLayout() {
           tabBarLabel: "Routines",
           tabBarIcon: ({ color, focused }) => (
             <Zap 
+              size={focused ? 26 : 24} 
+              color={color} 
+              strokeWidth={focused ? 2.5 : 2}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="templates"
+        options={{
+          title: "Templates",
+          tabBarLabel: "Templates",
+          tabBarIcon: ({ color, focused }) => (
+            <Sparkles 
               size={focused ? 26 : 24} 
               color={color} 
               strokeWidth={focused ? 2.5 : 2}
