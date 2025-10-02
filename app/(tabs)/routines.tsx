@@ -125,7 +125,7 @@ export default function RoutinesScreen() {
         
         <View style={styles.habitChain}>
           {routineHabits.length > 0 ? routineHabits.map((habit: Habit, index: number) => (
-            <View key={`${routine.id}-habit-${habit.id}-${index}`} style={styles.chainItemContainer}>
+            <View key={`routine-${routine.id}-habit-${habit.id}-index-${index}`} style={styles.chainItemContainer}>
               <View style={[styles.chainItem, { backgroundColor: habit.color }]}>
                 <Text style={styles.chainIcon}>{habit.icon}</Text>
                 <View style={styles.chainItemInfo}>
@@ -312,9 +312,9 @@ export default function RoutinesScreen() {
                 <Text style={styles.modalHint}>
                   Tap to add habits to your routine. They&apos;ll be completed in order.
                 </Text>
-                {activeHabits.map((habit: Habit, index: number) => (
+                {activeHabits.map((habit: Habit) => (
                   <TouchableOpacity
-                    key={`habit-option-${habit.id}-${index}`}
+                    key={`modal-habit-${habit.id}`}
                     style={[
                       styles.habitOption,
                       selectedHabits.includes(habit.id) && styles.habitOptionSelected,
