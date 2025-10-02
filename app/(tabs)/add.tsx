@@ -13,7 +13,6 @@ import {
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
-import { useSubscription } from "@/providers/SubscriptionProvider";
 import colors, { COLORS } from "@/constants/colors";
 import { ICONS } from "@/constants/icons";
 import { CATEGORIES } from "@/constants/categories";
@@ -23,8 +22,7 @@ import { Check, Bell, Sparkles } from "lucide-react-native";
 export default function AddHabitScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { habits, addHabit } = useHabits();
-  const { isPremium, features } = useSubscription();
+  const { addHabit } = useHabits();
   
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -46,11 +44,6 @@ export default function AddHabitScreen() {
       return;
     }
     
-    if (!isPremium && habits.length >= features.maxHabits) {
-      console.log(`Error: Free plan limited to ${features.maxHabits} habits. Upgrade to Premium for unlimited habits!`);
-      router.push('/(tabs)/premium');
-      return;
-    }
     
     if (trimmedName.length > 100) {
       console.log("Error: Habit name is too long (max 100 characters)");

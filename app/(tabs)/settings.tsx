@@ -11,18 +11,14 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import { useGamification } from "@/providers/GamificationProvider";
-import { useSubscription } from "@/providers/SubscriptionProvider";
-import { useRouter } from "expo-router";
 import { Download, Upload, Trash2, Info, Lock } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import colors from "@/constants/colors";
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
-  const router = useRouter();
   const { habits, importData, exportData, clearAllData } = useHabits();
   const { achievements, getUnlockedAchievements, getLockedAchievements } = useGamification();
-  const { isPremium, tier } = useSubscription();
 
   const unlockedAchievements = getUnlockedAchievements();
   const lockedAchievements = getLockedAchievements();
@@ -119,30 +115,17 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Data Management</Text>
-          {isPremium && (
-            <View style={styles.premiumBadgeSmall}>
-              <Text style={styles.premiumBadgeText}>PREMIUM</Text>
-            </View>
-          )}
-        </View>
+        <Text style={styles.sectionTitle}>Data Management</Text>
         
         <TouchableOpacity 
           style={styles.option} 
-          onPress={() => {
-            if (!isPremium) {
-              router.push('/(tabs)/premium');
-            } else {
-              handleExport();
-            }
-          }}
+          onPress={handleExport}
         >
           <Download size={20} color={colors.dark.tint} />
           <View style={styles.optionContent}>
             <Text style={styles.optionTitle}>Export Data</Text>
             <Text style={styles.optionDescription}>
-              {isPremium ? 'Save your habits and progress as JSON' : 'Premium feature - Upgrade to export'}
+              Save your habits and progress as JSON
             </Text>
           </View>
         </TouchableOpacity>
@@ -184,9 +167,6 @@ export default function SettingsScreen() {
       
       <View style={styles.stats}>
         <Text style={styles.statsTitle}>Statistics</Text>
-        <Text style={styles.statsText}>
-          Subscription: {tier === 'free' ? 'Free' : tier === 'premium' ? 'Premium' : 'Lifetime'}
-        </Text>
         <Text style={styles.statsText}>
           Total Habits: {habits.length}
         </Text>
@@ -321,22 +301,5 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     marginBottom: 4,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  premiumBadgeSmall: {
-    backgroundColor: '#FFD700',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  premiumBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#000',
-    letterSpacing: 0.5,
-  },
+
 });
