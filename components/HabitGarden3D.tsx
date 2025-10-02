@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Platform, Dimensions } from 'react-native';
+import { View, StyleSheet, Platform, Dimensions, Text } from 'react-native';
 import * as THREE from 'three';
 
 interface HabitCityBuilderProps {
-  habits: Array<{
+  habits: {
     id: string;
     name: string;
     color: string;
     streak: number;
-  }>;
+  }[];
   onHabitClick?: (habitId: string) => void;
 }
 
@@ -21,6 +21,7 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
   const buildingsRef = useRef<Map<string, THREE.Group>>(new Map());
   const animationFrameRef = useRef<number | null>(null);
   const [dimensions, setDimensions] = useState(Dimensions.get('window'));
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const subscription = Dimensions.addEventListener('change', ({ window }) => {
@@ -34,7 +35,8 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       return;
     }
 
-    const canvas = document.createElement('canvas');
+    try {
+      const canvas = document.createElement('canvas');
     canvasRef.current = canvas;
     canvas.style.width = '100%';
     canvas.style.height = '100%';
@@ -283,6 +285,10 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       renderer.dispose();
       scene.clear();
     };
+    } catch (err) {
+      console.error('Error initializing 3D scene:', err);
+      setError('Failed to initialize 3D scene. Your browser may not support WebGL.');
+    }
   }, [dimensions, onHabitClick]);
 
   useEffect(() => {
@@ -448,11 +454,19 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     return null;
   }
 
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
+
   return (
     <View 
       ref={containerRef}
       style={styles.container}
-      nativeID="city-container"
+      nativeID="garden-container"
     />
   );
 }
@@ -462,5 +476,18 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+  },
+  errorContainer: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: '#9CA3AF',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });

@@ -21,8 +21,13 @@ export default function CityBuilderScreen() {
   const { habits, getStreak } = useHabits();
 
   const cityHabits = useMemo(() => {
-    return habits
-      .filter(h => !h.archived)
+    const uniqueHabits = habits
+      .filter(h => h && h.id && !h.archived)
+      .filter((habit, index, self) => 
+        index === self.findIndex(h => h.id === habit.id)
+      );
+    
+    return uniqueHabits
       .map(habit => ({
         id: habit.id,
         name: habit.name,
