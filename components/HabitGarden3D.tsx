@@ -382,6 +382,14 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     });
   }, [habits]);
 
+  const sharedMaterialsRef = useRef<{
+    buildingMaterial: THREE.MeshStandardMaterial;
+    baseMaterial: THREE.MeshStandardMaterial;
+    antennaMaterial: THREE.MeshStandardMaterial;
+    helipadMaterial: THREE.MeshStandardMaterial;
+    windowGeometry: THREE.PlaneGeometry;
+  } | null>(null);
+
   const createBuilding = (
     habit: { id: string; name: string; color: string; streak: number },
     index: number,
@@ -389,6 +397,32 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
   ): THREE.Group => {
     const building = new THREE.Group();
     building.userData.habitId = habit.id;
+
+    if (!sharedMaterialsRef.current) {
+      sharedMaterialsRef.current = {
+        buildingMaterial: new THREE.MeshStandardMaterial({ 
+          color: 0x2a3548,
+          roughness: 0.6,
+          metalness: 0.4
+        }),
+        baseMaterial: new THREE.MeshStandardMaterial({ 
+          color: 0x1a2332,
+          roughness: 0.8,
+          metalness: 0.5
+        }),
+        antennaMaterial: new THREE.MeshStandardMaterial({ 
+          color: 0x4a5568,
+          roughness: 0.3,
+          metalness: 0.9
+        }),
+        helipadMaterial: new THREE.MeshStandardMaterial({ 
+          color: 0x2a3548,
+          roughness: 0.5,
+          metalness: 0.6
+        }),
+        windowGeometry: new THREE.PlaneGeometry(0.18, 0.18 * 1.2)
+      };
+    }
 
     const gridSize = Math.ceil(Math.sqrt(total));
     const spacing = 5;
@@ -409,12 +443,7 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     const color = new THREE.Color(habit.color);
 
     const buildingGeometry = new THREE.BoxGeometry(width, totalHeight, depth);
-    const buildingMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x2a3548,
-      roughness: 0.6,
-      metalness: 0.4
-    });
-    const buildingMesh = new THREE.Mesh(buildingGeometry, buildingMaterial);
+    const buildingMesh = new THREE.Mesh(buildingGeometry, sharedMaterialsRef.current.buildingMaterial);
     buildingMesh.position.y = totalHeight / 2;
     buildingMesh.castShadow = true;
     buildingMesh.receiveShadow = true;
@@ -431,20 +460,19 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     building.add(edges);
 
     const baseGeometry = new THREE.BoxGeometry(width + 0.2, baseHeight, depth + 0.2);
-    const baseMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x1a2332,
-      roughness: 0.8,
-      metalness: 0.5
-    });
-    const base = new THREE.Mesh(baseGeometry, baseMaterial);
+    const base = new THREE.Mesh(baseGeometry, sharedMaterialsRef.current.baseMaterial);
     base.position.y = baseHeight / 2;
     base.castShadow = true;
     base.receiveShadow = true;
     building.add(base);
 
-    const windowSize = 0.18;
     const windowSpacing = 0.35;
     const windowsPerFloor = Math.floor(width / windowSpacing);
+    const windowMaterial = new THREE.MeshBasicMaterial({ 
+      color: color,
+      transparent: true,
+      opacity: 0.95
+    });
     
     for (let floor = 0; floor < floors; floor++) {
       const floorY = baseHeight + floor * floorHeight + floorHeight / 2;
@@ -452,20 +480,13 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       for (let w = 0; w < windowsPerFloor; w++) {
         const windowX = (w - windowsPerFloor / 2) * windowSpacing + windowSpacing / 2;
         
-        const windowGeometry = new THREE.PlaneGeometry(windowSize, windowSize * 1.2);
-        const windowMaterial = new THREE.MeshBasicMaterial({ 
-          color: color,
-          transparent: true,
-          opacity: 0.95
-        });
-        
         [1, -1].forEach((side) => {
-          const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
+          const window1 = new THREE.Mesh(sharedMaterialsRef.current!.windowGeometry, windowMaterial);
           window1.position.set(windowX, floorY, side * (depth / 2 + 0.01));
           window1.userData.isWindow = true;
           building.add(window1);
 
-          const window2 = new THREE.Mesh(windowGeometry, windowMaterial);
+          const window2 = new THREE.Mesh(sharedMaterialsRef.current!.windowGeometry, windowMaterial);
           window2.rotation.y = Math.PI / 2;
           window2.position.set(side * (width / 2 + 0.01), floorY, windowX);
           window2.userData.isWindow = true;
@@ -477,12 +498,7 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     if (habit.streak >= 10) {
       const antennaHeight = 1.5;
       const antennaGeometry = new THREE.CylinderGeometry(0.03, 0.05, antennaHeight, 6);
-      const antennaMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x4a5568,
-        roughness: 0.3,
-        metalness: 0.9
-      });
-      const antenna = new THREE.Mesh(antennaGeometry, antennaMaterial);
+      const antenna = new THREE.Mesh(antennaGeometry, sharedMaterialsRef.current.antennaMaterial);
       antenna.position.y = totalHeight + antennaHeight / 2;
       antenna.castShadow = false;
       building.add(antenna);
@@ -505,12 +521,7 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
 
     if (habit.streak >= 15) {
       const helipadsGeometry = new THREE.CylinderGeometry(width * 0.4, width * 0.4, 0.1, 12);
-      const helipadMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x2a3548,
-        roughness: 0.5,
-        metalness: 0.6
-      });
-      const helipad = new THREE.Mesh(helipadsGeometry, helipadMaterial);
+      const helipad = new THREE.Mesh(helipadsGeometry, sharedMaterialsRef.current.helipadMaterial);
       helipad.position.y = totalHeight + 0.05;
       building.add(helipad);
 
