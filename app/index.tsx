@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -32,6 +32,16 @@ const { width } = Dimensions.get('window');
 export default function LandingPage() {
   const router = useRouter();
   const [activeFeature, setActiveFeature] = useState(0);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') {
+      router.replace('/habits');
+    }
+  }, []);
+
+  if (Platform.OS !== 'web') {
+    return null;
+  }
 
   const features = [
     {
