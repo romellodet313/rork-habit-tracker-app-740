@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import createContextHook from "@nkzw/create-context-hook";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
@@ -163,8 +163,14 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
     });
   }, []);
 
+  const habitsMap = useMemo(() => {
+    const map = new Map<string, Habit>();
+    habits.forEach(h => map.set(h.id, h));
+    return map;
+  }, [habits]);
+
   const getStreak = useCallback((habitId: string): number => {
-    const habit = habits.find(h => h.id === habitId);
+    const habit = habitsMap.get(habitId);
     if (!habit || !habit.completions) return 0;
 
     let streak = 0;
@@ -183,10 +189,10 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
     }
     
     return streak;
-  }, [habits]);
+  }, [habitsMap]);
   
   const getLongestStreak = useCallback((habitId: string): number => {
-    const habit = habits.find(h => h.id === habitId);
+    const habit = habitsMap.get(habitId);
     if (!habit || !habit.completions) return 0;
     
     const completionDates = Object.keys(habit.completions)
@@ -212,10 +218,10 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
     }
     
     return Math.max(longestStreak, currentStreak);
-  }, [habits]);
+  }, [habitsMap]);
   
   const getCompletionRate = useCallback((habitId: string, days: number = 30): number => {
-    const habit = habits.find(h => h.id === habitId);
+    const habit = habitsMap.get(habitId);
     if (!habit || !habit.completions) return 0;
     
     const today = new Date();
@@ -232,10 +238,10 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
     }
     
     return Math.round((completedDays / days) * 100);
-  }, [habits]);
+  }, [habitsMap]);
   
   const getWeeklyProgress = useCallback((habitId: string): number => {
-    const habit = habits.find(h => h.id === habitId);
+    const habit = habitsMap.get(habitId);
     if (!habit || !habit.completions) return 0;
     
     const today = new Date();
@@ -256,23 +262,23 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
     
     const weeklyGoal = habit.weeklyGoal || 7;
     return Math.round((completedThisWeek / weeklyGoal) * 100);
-  }, [habits]);
+  }, [habitsMap]);
   
   const getTotalCompletions = useCallback((habitId: string): number => {
-    const habit = habits.find(h => h.id === habitId);
+    const habit = habitsMap.get(habitId);
     if (!habit || !habit.completions) return 0;
     
     return Object.keys(habit.completions).filter(date => {
       const completion = habit.completions[date];
       return completion === true || (typeof completion === 'object' && completion.completed);
     }).length;
-  }, [habits]);
+  }, [habitsMap]);
 
   const getCompletionData = useCallback((habitId: string, date: string): HabitCompletionData | boolean | undefined => {
-    const habit = habits.find(h => h.id === habitId);
+    const habit = habitsMap.get(habitId);
     if (!habit || !habit.completions) return undefined;
     return habit.completions[date];
-  }, [habits]);
+  }, [habitsMap]);
 
   const importData = useCallback((jsonString: string) => {
     if (!jsonString || typeof jsonString !== 'string' || jsonString.trim().length === 0) {

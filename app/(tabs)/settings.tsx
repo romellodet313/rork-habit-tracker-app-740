@@ -11,14 +11,16 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import { useGamification } from "@/providers/GamificationProvider";
-import { Download, Upload, Trash2, Info, Lock, Database, CheckCircle } from "lucide-react-native";
+import { useTheme } from "@/providers/ThemeProvider";
+import { Download, Upload, Trash2, Info, Lock, Database, CheckCircle, Sun, Moon, Monitor } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
-import colors from "@/constants/colors";
+import { StatusBar } from "expo-status-bar";
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { habits, importData, exportData, clearAllData } = useHabits();
   const { achievements, getUnlockedAchievements, getLockedAchievements } = useGamification();
+  const { theme, themeMode, setThemeMode, colors } = useTheme();
 
   const unlockedAchievements = getUnlockedAchievements();
   const lockedAchievements = getLockedAchievements();
@@ -78,13 +80,72 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView 
-      style={[styles.container, { paddingTop: insets.top }]} 
-      contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
-    >
-      <View style={styles.header}>
-        <Text style={styles.title}>Settings</Text>
-      </View>
+    <>
+      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+      <ScrollView 
+        style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.background }]} 
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
+      >
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Appearance</Text>
+          
+          <View style={styles.themeOptions}>
+            <TouchableOpacity 
+              style={[
+                styles.themeOption,
+                { backgroundColor: colors.card, borderColor: colors.border },
+                themeMode === 'light' && { borderColor: colors.tint, borderWidth: 2 }
+              ]} 
+              onPress={() => {
+                if (Platform.OS !== 'web') {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
+                setThemeMode('light');
+              }}
+            >
+              <Sun size={24} color={themeMode === 'light' ? colors.tint : colors.textSecondary} />
+              <Text style={[styles.themeOptionText, { color: themeMode === 'light' ? colors.text : colors.textSecondary }]}>Light</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[
+                styles.themeOption,
+                { backgroundColor: colors.card, borderColor: colors.border },
+                themeMode === 'dark' && { borderColor: colors.tint, borderWidth: 2 }
+              ]} 
+              onPress={() => {
+                if (Platform.OS !== 'web') {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
+                setThemeMode('dark');
+              }}
+            >
+              <Moon size={24} color={themeMode === 'dark' ? colors.tint : colors.textSecondary} />
+              <Text style={[styles.themeOptionText, { color: themeMode === 'dark' ? colors.text : colors.textSecondary }]}>Dark</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[
+                styles.themeOption,
+                { backgroundColor: colors.card, borderColor: colors.border },
+                themeMode === 'auto' && { borderColor: colors.tint, borderWidth: 2 }
+              ]} 
+              onPress={() => {
+                if (Platform.OS !== 'web') {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
+                setThemeMode('auto');
+              }}
+            >
+              <Monitor size={24} color={themeMode === 'auto' ? colors.tint : colors.textSecondary} />
+              <Text style={[styles.themeOptionText, { color: themeMode === 'auto' ? colors.text : colors.textSecondary }]}>Auto</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Achievements</Text>
@@ -94,19 +155,19 @@ export default function SettingsScreen() {
         
         <View style={styles.achievementsGrid}>
           {unlockedAchievements.map(achievement => (
-            <View key={achievement.id} style={styles.achievementCard}>
+            <View key={achievement.id} style={[styles.achievementCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <Text style={styles.achievementIcon}>{achievement.icon}</Text>
-              <Text style={styles.achievementName}>{achievement.name}</Text>
-              <Text style={styles.achievementProgress}>
+              <Text style={[styles.achievementName, { color: colors.text }]}>{achievement.name}</Text>
+              <Text style={[styles.achievementProgress, { color: colors.textSecondary }]}>
                 {achievement.progress}/{achievement.target}
               </Text>
             </View>
           ))}
           {lockedAchievements.slice(0, 6).map(achievement => (
-            <View key={achievement.id} style={[styles.achievementCard, styles.lockedAchievement]}>
-              <Lock size={24} color="#6B7280" />
-              <Text style={styles.lockedAchievementName}>{achievement.name}</Text>
-              <Text style={styles.achievementProgress}>
+            <View key={achievement.id} style={[styles.achievementCard, styles.lockedAchievement, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Lock size={24} color={colors.textSecondary} />
+              <Text style={[styles.lockedAchievementName, { color: colors.textSecondary }]}>{achievement.name}</Text>
+              <Text style={[styles.achievementProgress, { color: colors.textSecondary }]}>
                 {achievement.progress}/{achievement.target}
               </Text>
             </View>
@@ -115,36 +176,36 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Data Management</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Data Management</Text>
         
         <TouchableOpacity 
-          style={styles.option} 
+          style={[styles.option, { backgroundColor: colors.card, borderColor: colors.border }]} 
           onPress={handleExport}
         >
-          <Download size={20} color={colors.dark.tint} />
+          <Download size={20} color={colors.tint} />
           <View style={styles.optionContent}>
-            <Text style={styles.optionTitle}>Export Data</Text>
-            <Text style={styles.optionDescription}>
+            <Text style={[styles.optionTitle, { color: colors.text }]}>Export Data</Text>
+            <Text style={[styles.optionDescription, { color: colors.textSecondary }]}>
               Save your habits and progress as JSON
             </Text>
           </View>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.option} onPress={handleImport}>
-          <Upload size={20} color={colors.dark.tint} />
+        <TouchableOpacity style={[styles.option, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={handleImport}>
+          <Upload size={20} color={colors.tint} />
           <View style={styles.optionContent}>
-            <Text style={styles.optionTitle}>Import Data</Text>
-            <Text style={styles.optionDescription}>
+            <Text style={[styles.optionTitle, { color: colors.text }]}>Import Data</Text>
+            <Text style={[styles.optionDescription, { color: colors.textSecondary }]}>
               Restore from a previous export
             </Text>
           </View>
         </TouchableOpacity>
         
-        <TouchableOpacity style={[styles.option, styles.dangerOption]} onPress={handleClearAll}>
-          <Trash2 size={20} color="#EF4444" />
+        <TouchableOpacity style={[styles.option, styles.dangerOption, { backgroundColor: colors.card }]} onPress={handleClearAll}>
+          <Trash2 size={20} color={colors.error} />
           <View style={styles.optionContent}>
-            <Text style={[styles.optionTitle, styles.dangerText]}>Clear All Data</Text>
-            <Text style={styles.optionDescription}>
+            <Text style={[styles.optionTitle, { color: colors.error }]}>Clear All Data</Text>
+            <Text style={[styles.optionDescription, { color: colors.textSecondary }]}>
               Delete all habits and progress
             </Text>
           </View>
@@ -152,75 +213,75 @@ export default function SettingsScreen() {
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Storage</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Storage</Text>
         
-        <View style={styles.storageCard}>
+        <View style={[styles.storageCard, { backgroundColor: colors.card }]}>
           <View style={styles.storageHeader}>
-            <Database size={24} color="#10B981" />
+            <Database size={24} color={colors.success} />
             <View style={styles.storageHeaderText}>
-              <Text style={styles.storageTitle}>Local Storage Active</Text>
+              <Text style={[styles.storageTitle, { color: colors.text }]}>Local Storage Active</Text>
               <View style={styles.statusBadge}>
-                <CheckCircle size={14} color="#10B981" />
-                <Text style={styles.statusText}>All data saved locally</Text>
+                <CheckCircle size={14} color={colors.success} />
+                <Text style={[styles.statusText, { color: colors.success }]}>All data saved locally</Text>
               </View>
             </View>
           </View>
-          <Text style={styles.storageDescription}>
+          <Text style={[styles.storageDescription, { color: colors.textSecondary }]}>
             Your habits and progress are automatically saved to your device. Your data persists across app restarts and is available offline.
           </Text>
-          <View style={styles.storageStats}>
+          <View style={[styles.storageStats, { borderTopColor: colors.border }]}>
             <View style={styles.storageStat}>
-              <Text style={styles.storageStatValue}>{habits.length}</Text>
-              <Text style={styles.storageStatLabel}>Habits Stored</Text>
+              <Text style={[styles.storageStatValue, { color: colors.success }]}>{habits.length}</Text>
+              <Text style={[styles.storageStatLabel, { color: colors.textSecondary }]}>Habits Stored</Text>
             </View>
             <View style={styles.storageStat}>
-              <Text style={styles.storageStatValue}>
+              <Text style={[styles.storageStatValue, { color: colors.success }]}>
                 {habits.reduce((sum, h) => sum + Object.keys(h.completions || {}).length, 0)}
               </Text>
-              <Text style={styles.storageStatLabel}>Completions</Text>
+              <Text style={[styles.storageStatLabel, { color: colors.textSecondary }]}>Completions</Text>
             </View>
             <View style={styles.storageStat}>
-              <Text style={styles.storageStatValue}>{achievements.length}</Text>
-              <Text style={styles.storageStatLabel}>Achievements</Text>
+              <Text style={[styles.storageStatValue, { color: colors.success }]}>{achievements.length}</Text>
+              <Text style={[styles.storageStatLabel, { color: colors.textSecondary }]}>Achievements</Text>
             </View>
           </View>
         </View>
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>About</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>About</Text>
         
-        <View style={styles.option}>
-          <Info size={20} color={colors.dark.tint} />
+        <View style={[styles.option, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Info size={20} color={colors.tint} />
           <View style={styles.optionContent}>
-            <Text style={styles.optionTitle}>MomentPro</Text>
-            <Text style={styles.optionDescription}>
+            <Text style={[styles.optionTitle, { color: colors.text }]}>MomentPro</Text>
+            <Text style={[styles.optionDescription, { color: colors.textSecondary }]}>
               Version 1.0.0 • Built with React Native
             </Text>
           </View>
         </View>
       </View>
       
-      <View style={styles.stats}>
-        <Text style={styles.statsTitle}>Statistics</Text>
-        <Text style={styles.statsText}>
+      <View style={[styles.stats, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.statsTitle, { color: colors.text }]}>Statistics</Text>
+        <Text style={[styles.statsText, { color: colors.textSecondary }]}>
           Total Habits: {habits.length}
         </Text>
-        <Text style={styles.statsText}>
+        <Text style={[styles.statsText, { color: colors.textSecondary }]}>
           Active Habits: {habits.filter(h => !h.archived).length}
         </Text>
-        <Text style={styles.statsText}>
+        <Text style={[styles.statsText, { color: colors.textSecondary }]}>
           Archived Habits: {habits.filter(h => h.archived).length}
         </Text>
       </View>
     </ScrollView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.dark.background,
   },
   content: {
     padding: 20,
@@ -230,24 +291,37 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: '800',
-    color: '#fff',
+    fontWeight: '800' as const,
   },
   section: {
     marginBottom: 32,
   },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#9CA3AF',
+    fontWeight: '600' as const,
     marginBottom: 4,
-    textTransform: 'uppercase',
+    textTransform: 'uppercase' as const,
     letterSpacing: 0.5,
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: '#6B7280',
     marginBottom: 16,
+  },
+  themeOptions: {
+    flexDirection: 'row' as const,
+    gap: 12,
+  },
+  themeOption: {
+    flex: 1,
+    alignItems: 'center' as const,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+  },
+  themeOptionText: {
+    fontSize: 14,
+    fontWeight: '600' as const,
   },
   achievementsGrid: {
     flexDirection: 'row',
@@ -256,12 +330,10 @@ const styles = StyleSheet.create({
   },
   achievementCard: {
     width: '31%',
-    backgroundColor: colors.dark.card,
     borderRadius: 12,
     padding: 12,
-    alignItems: 'center',
+    alignItems: 'center' as const,
     borderWidth: 1,
-    borderColor: colors.dark.border,
   },
   lockedAchievement: {
     opacity: 0.5,
@@ -272,32 +344,27 @@ const styles = StyleSheet.create({
   },
   achievementName: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#fff',
-    textAlign: 'center',
+    fontWeight: '600' as const,
+    textAlign: 'center' as const,
     marginBottom: 4,
   },
   lockedAchievementName: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#6B7280',
-    textAlign: 'center',
+    fontWeight: '600' as const,
+    textAlign: 'center' as const,
     marginBottom: 4,
   },
   achievementProgress: {
     fontSize: 10,
-    color: '#9CA3AF',
   },
   option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.dark.card,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
     gap: 16,
     borderWidth: 1,
-    borderColor: colors.dark.border,
   },
   dangerOption: {
     borderColor: '#EF444433',
@@ -307,46 +374,36 @@ const styles = StyleSheet.create({
   },
   optionTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
+    fontWeight: '600' as const,
     marginBottom: 4,
   },
   optionDescription: {
     fontSize: 14,
-    color: '#9CA3AF',
-  },
-  dangerText: {
-    color: '#EF4444',
   },
   stats: {
-    backgroundColor: colors.dark.card,
     padding: 20,
     borderRadius: 12,
     marginBottom: 40,
     borderWidth: 1,
-    borderColor: colors.dark.border,
   },
   statsTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
+    fontWeight: '600' as const,
     marginBottom: 12,
   },
   statsText: {
     fontSize: 14,
-    color: '#9CA3AF',
     marginBottom: 4,
   },
   storageCard: {
-    backgroundColor: colors.dark.card,
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
     borderColor: '#10B98133',
   },
   storageHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: 'row' as const,
+    alignItems: 'flex-start' as const,
     gap: 12,
     marginBottom: 12,
   },
@@ -355,44 +412,38 @@ const styles = StyleSheet.create({
   },
   storageTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
+    fontWeight: '700' as const,
     marginBottom: 6,
   },
   statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
     gap: 6,
   },
   statusText: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#10B981',
+    fontWeight: '600' as const,
   },
   storageDescription: {
     fontSize: 14,
-    color: '#9CA3AF',
     lineHeight: 20,
     marginBottom: 16,
   },
   storageStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: colors.dark.border,
   },
   storageStat: {
-    alignItems: 'center',
+    alignItems: 'center' as const,
   },
   storageStatValue: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#10B981',
+    fontWeight: '700' as const,
     marginBottom: 4,
   },
   storageStatLabel: {
     fontSize: 12,
-    color: '#6B7280',
   },
 });

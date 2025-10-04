@@ -27,21 +27,31 @@ export const COLORS = [
 
 export default {
   light: {
-    text: '#12355B',
-    background: '#FFFFFF',
+    text: '#1E293B',
+    background: '#F8FAFC',
     tint: '#D72638',
     tabIconDefault: '#94A3B8',
     tabIconSelected: '#D72638',
-    card: '#F8FAFC',
+    card: '#FFFFFF',
     border: '#E2E8F0',
+    cardSecondary: '#F1F5F9',
+    textSecondary: '#64748B',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
   },
   dark: {
     text: '#FFFFFF',
-    background: '#0F1729', // darker navy
+    background: '#0F1729',
     tint: '#D72638',
     tabIconDefault: '#64748B',
     tabIconSelected: '#FF570A',
-    card: '#1A2332', // dark card
+    card: '#1A2332',
     border: '#2A3544',
+    cardSecondary: '#141B2B',
+    textSecondary: '#94A3B8',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444',
   },
 };

@@ -7,7 +7,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { HabitProvider } from "@/providers/HabitProvider";
 import { GamificationProvider } from "@/providers/GamificationProvider";
 import { RoutineProvider } from "@/providers/RoutineProvider";
-import colors from "@/constants/colors";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import { trpc, trpcClient } from "@/lib/trpc";
 
 SplashScreen.preventAutoHideAsync();
@@ -19,13 +19,6 @@ function RootLayoutNav() {
     <Stack 
       screenOptions={{ 
         headerBackTitle: "Back",
-        headerStyle: {
-          backgroundColor: colors.dark.background,
-        },
-        headerTintColor: colors.dark.text,
-        contentStyle: {
-          backgroundColor: colors.dark.background,
-        }
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -80,15 +73,17 @@ export default function RootLayout() {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <GestureHandlerRootView style={styles.container}>
-          <HabitProvider>
-            <RoutineProvider>
-              <GamificationProvider>
-                <RootLayoutNav />
-              </GamificationProvider>
-            </RoutineProvider>
-          </HabitProvider>
-        </GestureHandlerRootView>
+        <ThemeProvider>
+          <GestureHandlerRootView style={styles.container}>
+            <HabitProvider>
+              <RoutineProvider>
+                <GamificationProvider>
+                  <RootLayoutNav />
+                </GamificationProvider>
+              </RoutineProvider>
+            </HabitProvider>
+          </GestureHandlerRootView>
+        </ThemeProvider>
       </QueryClientProvider>
     </trpc.Provider>
   );
