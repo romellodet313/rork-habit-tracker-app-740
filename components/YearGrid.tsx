@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { Habit } from "@/types/habit";
+import { useTheme } from "@/providers/ThemeProvider";
 
 interface YearGridProps {
   habit: Habit;
@@ -8,6 +9,7 @@ interface YearGridProps {
 }
 
 export function YearGrid({ habit, days = 365 }: YearGridProps) {
+  const { colors, theme } = useTheme();
   const gridData = useMemo(() => {
     const today = new Date();
     const data: { date: string; completed: boolean }[] = [];
@@ -40,7 +42,7 @@ export function YearGrid({ habit, days = 365 }: YearGridProps) {
                 borderRadius: squareSize / 3,
                 backgroundColor: item.completed 
                   ? habit.color 
-                  : 'rgba(255, 255, 255, 0.05)',
+                  : theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
                 opacity: item.completed ? 1 : 0.3,
               },
             ]}

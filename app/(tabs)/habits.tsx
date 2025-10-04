@@ -17,7 +17,7 @@ import { useHabits } from "@/providers/HabitProvider";
 import { HabitCard } from "@/components/HabitCard";
 import { Plus, Settings as SettingsIcon, Sparkles, Target, Search, Filter, Zap, Grid3x3, List, Check } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
-import colors from "@/constants/colors";
+import { useTheme } from "@/providers/ThemeProvider";
 import typography from "@/constants/typography";
 import { CATEGORIES } from "@/constants/categories";
 
@@ -25,6 +25,7 @@ export default function HabitsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { habits, toggleHabitCompletion } = useHabits();
+  const { colors, theme } = useTheme();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -131,18 +132,18 @@ export default function HabitsScreen() {
 
   if (activeHabits.length === 0) {
     return (
-      <View style={[styles.emptyContainer, { paddingTop: insets.top, paddingBottom: insets.bottom + 100 }]}>
-        <StatusBar barStyle="light-content" backgroundColor={colors.dark.background} />
+      <View style={[styles.emptyContainer, { paddingTop: insets.top, paddingBottom: insets.bottom + 100, backgroundColor: colors.background }]}>
+        <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
         <View style={styles.emptyContent}>
-          <View style={styles.emptyIconContainer}>
-            <Sparkles size={48} color={colors.dark.tint} />
+          <View style={[styles.emptyIconContainer, { backgroundColor: colors.card, borderColor: colors.tint }]}>
+            <Sparkles size={48} color={colors.tint} />
           </View>
-          <Text style={styles.emptyTitle}>Ready to build better habits?</Text>
-          <Text style={styles.emptyText}>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>Ready to build better habits?</Text>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
             Start your journey to a better you. Create your first habit and watch your progress grow day by day.
           </Text>
           <TouchableOpacity
-            style={styles.addButton}
+            style={[styles.addButton, { backgroundColor: colors.tint }]}
             onPress={() => router.push('/add')}
           >
             <Plus size={20} color="#fff" />
@@ -156,8 +157,8 @@ export default function HabitsScreen() {
 
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.dark.background} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
       <ScrollView 
         style={[styles.scrollView, { paddingTop: insets.top }]} 
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
@@ -173,8 +174,8 @@ export default function HabitsScreen() {
           ]}
         >
           <View style={styles.headerContent}>
-            <Text style={styles.greeting}>Good {getTimeOfDay()} 👋</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.greeting, { color: colors.text }]}>Good {getTimeOfDay()} 👋</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
               {totalCompletionsToday} of {activeHabits.length} habits completed today
             </Text>
           </View>
@@ -189,80 +190,80 @@ export default function HabitsScreen() {
               }}
             >
               {viewMode === 'list' ? (
-                <Grid3x3 size={22} color={colors.dark.tabIconDefault} />
+                <Grid3x3 size={22} color={colors.tabIconDefault} />
               ) : (
-                <List size={22} color={colors.dark.tabIconDefault} />
+                <List size={22} color={colors.tabIconDefault} />
               )}
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.iconButton}
+              style={[styles.iconButton, { backgroundColor: colors.card }]}
               onPress={() => setShowFilters(!showFilters)}
             >
-              <Filter size={22} color={showFilters ? colors.dark.tint : colors.dark.tabIconDefault} />
+              <Filter size={22} color={showFilters ? colors.tint : colors.tabIconDefault} />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.iconButton}
+              style={[styles.iconButton, { backgroundColor: colors.card }]}
               onPress={() => router.push('/settings')}
             >
-              <SettingsIcon size={22} color={colors.dark.tabIconDefault} />
+              <SettingsIcon size={22} color={colors.tabIconDefault} />
             </TouchableOpacity>
           </View>
         </Animated.View>
         
-        <View style={styles.searchContainer}>
-          <Search size={20} color="#6B7280" style={styles.searchIcon} />
+        <View style={[styles.searchContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Search size={20} color={colors.textSecondary} style={styles.searchIcon} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholder="Search habits..."
-            placeholderTextColor="#6B7280"
+            placeholderTextColor={colors.textSecondary}
           />
         </View>
         
         {showFilters && (
-          <View style={styles.filtersContainer}>
+          <View style={[styles.filtersContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.filterSection}>
-              <Text style={styles.filterLabel}>Sort by</Text>
+              <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>Sort by</Text>
               <View style={styles.sortButtons}>
                 <TouchableOpacity
-                  style={[styles.sortButton, sortBy === 'created' && styles.sortButtonActive]}
+                  style={[styles.sortButton, { backgroundColor: colors.background, borderColor: colors.border }, sortBy === 'created' && { backgroundColor: colors.tint, borderColor: colors.tint }]}
                   onPress={() => setSortBy('created')}
                 >
-                  <Text style={[styles.sortButtonText, sortBy === 'created' && styles.sortButtonTextActive]}>Recent</Text>
+                  <Text style={[styles.sortButtonText, { color: colors.textSecondary }, sortBy === 'created' && { color: '#fff' }]}>Recent</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.sortButton, sortBy === 'name' && styles.sortButtonActive]}
+                  style={[styles.sortButton, { backgroundColor: colors.background, borderColor: colors.border }, sortBy === 'name' && { backgroundColor: colors.tint, borderColor: colors.tint }]}
                   onPress={() => setSortBy('name')}
                 >
-                  <Text style={[styles.sortButtonText, sortBy === 'name' && styles.sortButtonTextActive]}>Name</Text>
+                  <Text style={[styles.sortButtonText, { color: colors.textSecondary }, sortBy === 'name' && { color: '#fff' }]}>Name</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.sortButton, sortBy === 'streak' && styles.sortButtonActive]}
+                  style={[styles.sortButton, { backgroundColor: colors.background, borderColor: colors.border }, sortBy === 'streak' && { backgroundColor: colors.tint, borderColor: colors.tint }]}
                   onPress={() => setSortBy('streak')}
                 >
-                  <Text style={[styles.sortButtonText, sortBy === 'streak' && styles.sortButtonTextActive]}>Streak</Text>
+                  <Text style={[styles.sortButtonText, { color: colors.textSecondary }, sortBy === 'streak' && { color: '#fff' }]}>Streak</Text>
                 </TouchableOpacity>
               </View>
             </View>
             
             <View style={styles.filterSection}>
-              <Text style={styles.filterLabel}>Category</Text>
+              <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>Category</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
                 <TouchableOpacity
-                  style={[styles.categoryChip, !selectedCategory && styles.categoryChipActive]}
+                  style={[styles.categoryChip, { backgroundColor: colors.background, borderColor: colors.border }, !selectedCategory && { backgroundColor: colors.tint, borderColor: colors.tint }]}
                   onPress={() => setSelectedCategory(null)}
                 >
-                  <Text style={[styles.categoryChipText, !selectedCategory && styles.categoryChipTextActive]}>All</Text>
+                  <Text style={[styles.categoryChipText, { color: colors.textSecondary }, !selectedCategory && { color: '#fff' }]}>All</Text>
                 </TouchableOpacity>
                 {CATEGORIES.map(cat => (
                   <TouchableOpacity
                     key={cat.id}
-                    style={[styles.categoryChip, selectedCategory === cat.id && styles.categoryChipActive]}
+                    style={[styles.categoryChip, { backgroundColor: colors.background, borderColor: colors.border }, selectedCategory === cat.id && { backgroundColor: colors.tint, borderColor: colors.tint }]}
                     onPress={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
                   >
                     <Text style={styles.categoryIcon}>{cat.icon}</Text>
-                    <Text style={[styles.categoryChipText, selectedCategory === cat.id && styles.categoryChipTextActive]}>{cat.name}</Text>
+                    <Text style={[styles.categoryChipText, { color: colors.textSecondary }, selectedCategory === cat.id && { color: '#fff' }]}>{cat.name}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -274,6 +275,7 @@ export default function HabitsScreen() {
           <Animated.View 
             style={[
               styles.progressCard,
+              { backgroundColor: colors.card, borderColor: colors.border },
               {
                 opacity: fadeAnim,
                 transform: [{ scale: fadeAnim }],
@@ -282,9 +284,9 @@ export default function HabitsScreen() {
           >
             <View style={styles.progressHeader}>
               <Target size={20} color="#10B981" />
-              <Text style={styles.progressTitle}>Today&apos;s Progress</Text>
+              <Text style={[styles.progressTitle, { color: colors.text }]}>Today&apos;s Progress</Text>
             </View>
-            <View style={styles.progressBar}>
+            <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
               <View 
                 style={[
                   styles.progressFill, 
@@ -299,7 +301,7 @@ export default function HabitsScreen() {
         )}
         
         <View style={styles.habitsSection}>
-          <Text style={styles.sectionTitle}>Your Habits</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Your Habits</Text>
           {viewMode === 'list' ? (
             activeHabits.map((habit) => (
               <Pressable
@@ -320,11 +322,11 @@ export default function HabitsScreen() {
                   onPress={() => handleHabitPress(habit.id)}
                   style={styles.gridItem}
                 >
-                  <View style={[styles.gridCard, { borderColor: habit.color }]}>
+                  <View style={[styles.gridCard, { backgroundColor: colors.card, borderColor: habit.color }]}>
                     <View style={[styles.gridIconContainer, { backgroundColor: `${habit.color}20` }]}>
                       <Text style={styles.gridIcon}>{habit.icon}</Text>
                     </View>
-                    <Text style={styles.gridName} numberOfLines={2}>{habit.name}</Text>
+                    <Text style={[styles.gridName, { color: colors.text }]} numberOfLines={2}>{habit.name}</Text>
                     <TouchableOpacity
                       style={[
                         styles.gridCheckButton,
@@ -351,7 +353,7 @@ export default function HabitsScreen() {
       </ScrollView>
       
       <TouchableOpacity
-        style={[styles.fab, { bottom: insets.bottom + 80 }]}
+        style={[styles.fab, { bottom: insets.bottom + 80, backgroundColor: colors.tint }]}
         onPress={() => {
           if (Platform.OS !== 'web') {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -369,7 +371,6 @@ export default function HabitsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.dark.background,
   },
   scrollView: {
     flex: 1,
@@ -389,12 +390,10 @@ const styles = StyleSheet.create({
   },
   greeting: {
     ...typography.h1,
-    color: '#fff',
     marginBottom: 4,
   },
   subtitle: {
     ...typography.body,
-    color: '#9CA3AF',
   },
   headerActions: {
     flexDirection: 'row',
@@ -403,17 +402,14 @@ const styles = StyleSheet.create({
   iconButton: {
     padding: 12,
     borderRadius: 12,
-    backgroundColor: colors.dark.card,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.dark.card,
     borderRadius: 16,
     paddingHorizontal: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: colors.dark.border,
   },
   searchIcon: {
     marginRight: 12,
@@ -422,15 +418,12 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     fontSize: 16,
-    color: '#fff',
   },
   filtersContainer: {
-    backgroundColor: colors.dark.card,
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: colors.dark.border,
   },
   filterSection: {
     marginBottom: 16,
@@ -438,7 +431,6 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#9CA3AF',
     marginBottom: 12,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -452,22 +444,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 10,
-    backgroundColor: colors.dark.background,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.dark.border,
-  },
-  sortButtonActive: {
-    backgroundColor: colors.dark.tint,
-    borderColor: colors.dark.tint,
   },
   sortButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#9CA3AF',
-  },
-  sortButtonTextActive: {
-    color: '#fff',
   },
   categoryScroll: {
     flexDirection: 'row',
@@ -478,14 +460,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 20,
-    backgroundColor: colors.dark.background,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: colors.dark.border,
-  },
-  categoryChipActive: {
-    backgroundColor: colors.dark.tint,
-    borderColor: colors.dark.tint,
   },
   categoryIcon: {
     fontSize: 16,
@@ -494,18 +470,12 @@ const styles = StyleSheet.create({
   categoryChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#9CA3AF',
-  },
-  categoryChipTextActive: {
-    color: '#fff',
   },
   progressCard: {
-    backgroundColor: colors.dark.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: colors.dark.border,
   },
   progressHeader: {
     flexDirection: 'row',
@@ -515,11 +485,9 @@ const styles = StyleSheet.create({
   },
   progressTitle: {
     ...typography.bodyBold,
-    color: '#fff',
   },
   progressBar: {
     height: 8,
-    backgroundColor: colors.dark.border,
     borderRadius: 4,
     marginBottom: 8,
     overflow: 'hidden',
@@ -539,12 +507,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     ...typography.h3,
-    color: '#fff',
     marginBottom: 16,
   },
   emptyContainer: {
     flex: 1,
-    backgroundColor: colors.dark.background,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 32,
@@ -557,34 +523,28 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: colors.dark.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
     borderWidth: 2,
-    borderColor: colors.dark.tint,
   },
   emptyTitle: {
     ...typography.h1,
-    color: '#fff',
     marginBottom: 12,
     textAlign: 'center',
   },
   emptyText: {
     ...typography.body,
-    color: '#9CA3AF',
     marginBottom: 32,
     textAlign: 'center',
   },
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.dark.tint,
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 16,
     gap: 8,
-    shadowColor: colors.dark.tint,
     shadowOffset: {
       width: 0,
       height: 4,
@@ -606,10 +566,8 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: colors.dark.tint,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.dark.tint,
     shadowOffset: {
       width: 0,
       height: 8,
@@ -628,11 +586,9 @@ const styles = StyleSheet.create({
     width: '48%',
   },
   gridCard: {
-    backgroundColor: colors.dark.card,
     borderRadius: 16,
     padding: 16,
     borderWidth: 2,
-    borderColor: colors.dark.border,
     alignItems: 'center',
     minHeight: 160,
     justifyContent: 'space-between',
@@ -651,7 +607,6 @@ const styles = StyleSheet.create({
   gridName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#fff',
     textAlign: 'center',
     marginBottom: 12,
     minHeight: 36,

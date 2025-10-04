@@ -12,6 +12,7 @@ import { YearGrid } from "./YearGrid";
 import { Check, Plus } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { CATEGORIES } from "@/constants/categories";
+import { useTheme } from "@/providers/ThemeProvider";
 
 interface HabitCardProps {
   habit: Habit;
@@ -20,6 +21,7 @@ interface HabitCardProps {
 }
 
 export const HabitCard = memo(function HabitCard({ habit, onToggleCompletion, disabled }: HabitCardProps) {
+  const { colors } = useTheme();
   const today = new Date().toISOString().split('T')[0];
   const isCompletedToday = habit.completions?.[today] || false;
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
@@ -131,7 +133,7 @@ export const HabitCard = memo(function HabitCard({ habit, onToggleCompletion, di
     : isCompletedToday ? 1 : 0;
 
   return (
-    <View style={[styles.container, disabled && styles.disabled]}>
+    <View style={[styles.container, { backgroundColor: colors.card, borderColor: colors.border }, disabled && styles.disabled]}>
       <View style={styles.header}>
         <View style={styles.topRow}>
           <View style={styles.leftSection}>
@@ -139,17 +141,17 @@ export const HabitCard = memo(function HabitCard({ habit, onToggleCompletion, di
               <Text style={styles.icon}>{habit.icon}</Text>
             </View>
             <View style={styles.textInfo}>
-              <Text style={styles.name} numberOfLines={1}>{habit.name}</Text>
+              <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>{habit.name}</Text>
               {categories.length > 0 && (
                 <View style={styles.categoriesRow}>
                   {categories.slice(0, 2).map((cat: any) => (
-                    <View key={cat.id} style={styles.categoryTag}>
+                    <View key={cat.id} style={[styles.categoryTag, { backgroundColor: `${colors.border}80` }]}>
                       <Text style={styles.categoryIcon}>{cat.icon}</Text>
-                      <Text style={styles.categoryText}>{cat.name}</Text>
+                      <Text style={[styles.categoryText, { color: colors.textSecondary }]}>{cat.name}</Text>
                     </View>
                   ))}
                   {habit.timeOfDay && habit.timeOfDay.length > 0 && (
-                    <View style={styles.timeTag}>
+                    <View style={[styles.timeTag, { backgroundColor: `${colors.border}80` }]}>
                       <Text style={styles.timeText}>
                         {habit.timeOfDay[0] === 'morning' ? '🌅' : habit.timeOfDay[0] === 'day' ? '☀️' : '🌙'}
                       </Text>
@@ -196,8 +198,8 @@ export const HabitCard = memo(function HabitCard({ habit, onToggleCompletion, di
       <YearGrid habit={habit} days={365} />
       
       {habit.streakInterval && habit.streakInterval !== 'none' && (
-        <View style={styles.streakGoalRow}>
-          <Text style={styles.streakGoalText}>
+        <View style={[styles.streakGoalRow, { borderTopColor: colors.border }]}>
+          <Text style={[styles.streakGoalText, { color: colors.textSecondary }]}>
             {habit.completionsPerInterval || 3} / {habit.streakInterval === 'daily' ? 'Day' : habit.streakInterval === 'week' ? 'Week' : 'Month'}
           </Text>
           {stats.currentStreak > 0 && (
@@ -214,12 +216,10 @@ export const HabitCard = memo(function HabitCard({ habit, onToggleCompletion, di
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#1A1F3A',
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
   },
   disabled: {
     opacity: 0.6,
@@ -256,7 +256,6 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
     marginBottom: 4,
   },
   categoriesRow: {
@@ -271,7 +270,6 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 8,
   },
   categoryIcon: {
@@ -279,13 +277,11 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 11,
-    color: '#9CA3AF',
     fontWeight: '500',
   },
   timeTag: {
     paddingHorizontal: 6,
     paddingVertical: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 8,
   },
   timeText: {
@@ -319,11 +315,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.05)',
   },
   streakGoalText: {
     fontSize: 13,
-    color: '#9CA3AF',
     fontWeight: '500',
   },
   streakBadge: {
