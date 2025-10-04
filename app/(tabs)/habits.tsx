@@ -15,7 +15,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import { HabitCard } from "@/components/HabitCard";
-import { Plus, Settings as SettingsIcon, Sparkles, Target, Search, Filter, Zap } from "lucide-react-native";
+import { Plus, Settings as SettingsIcon, Sparkles, Target, Search, Filter, Zap, Grid3x3, List, Check } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import colors from "@/constants/colors";
 import typography from "@/constants/typography";
@@ -30,6 +30,7 @@ export default function HabitsScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'name' | 'streak' | 'created'>('created');
   const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(-20)).current;
 
@@ -179,10 +180,14 @@ export default function HabitsScreen() {
                 if (Platform.OS !== 'web') {
                   Haptics.selectionAsync();
                 }
-                router.push('/routines');
+                setViewMode(viewMode === 'list' ? 'grid' : 'list');
               }}
             >
-              <Zap size={22} color={colors.dark.tabIconDefault} />
+              {viewMode === 'list' ? (
+                <Grid3x3 size={22} color={colors.dark.tabIconDefault} />
+              ) : (
+                <List size={22} color={colors.dark.tabIconDefault} />
+              )}
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.iconButton}
@@ -290,17 +295,53 @@ export default function HabitsScreen() {
         
         <View style={styles.habitsSection}>
           <Text style={styles.sectionTitle}>Your Habits</Text>
-          {activeHabits.map((habit) => (
-            <Pressable
-              key={habit.id}
-              onPress={() => handleHabitPress(habit.id)}
-            >
-              <HabitCard
-                habit={habit}
-                onToggleCompletion={() => handleToggleCompletion(habit.id)}
-              />
-            </Pressable>
-          ))}
+          {viewMode === 'list' ? (
+            activeHabits.map((habit) => (
+              <Pressable
+                key={habit.id}
+                onPress={() => handleHabitPress(habit.id)}
+              >
+                <HabitCard
+                  habit={habit}
+                  onToggleCompletion={() => handleToggleCompletion(habit.id)}
+                />
+              </Pressable>
+            ))
+          ) : (
+            <View style={styles.gridContainer}>
+              {activeHabits.map((habit) => (
+                <Pressable
+                  key={habit.id}
+                  onPress={() => handleHabitPress(habit.id)}
+                  style={styles.gridItem}
+                >
+                  <View style={[styles.gridCard, { borderColor: habit.color }]}>
+                    <View style={[styles.gridIconContainer, { backgroundColor: `${habit.color}20` }]}>
+                      <Text style={styles.gridIcon}>{habit.icon}</Text>
+                    </View>
+                    <Text style={styles.gridName} numberOfLines={2}>{habit.name}</Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.gridCheckButton,
+                        habit.completions?.[new Date().toISOString().split('T')[0]] && 
+                        { backgroundColor: habit.color }
+                      ]}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleToggleCompletion(habit.id);
+                      }}
+                    >
+                      {habit.completions?.[new Date().toISOString().split('T')[0]] ? (
+                        <Check size={16} color="#fff" strokeWidth={3} />
+                      ) : (
+                        <Plus size={16} color={habit.color} strokeWidth={3} />
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
       
@@ -571,5 +612,53 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 12,
     elevation: 12,
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginHorizontal: -2,
+  },
+  gridItem: {
+    width: '48%',
+  },
+  gridCard: {
+    backgroundColor: colors.dark.card,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 2,
+    borderColor: colors.dark.border,
+    alignItems: 'center',
+    minHeight: 160,
+    justifyContent: 'space-between',
+  },
+  gridIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  gridIcon: {
+    fontSize: 28,
+  },
+  gridName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 12,
+    minHeight: 36,
+  },
+  gridCheckButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
 });

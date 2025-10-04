@@ -18,6 +18,7 @@ export interface Habit {
   streaks?: Record<string, number>;
   reminders?: HabitReminder[];
   category?: string;
+  categories?: string[];
   notes?: Record<string, string>;
   weeklyGoal?: number;
   targetDays?: string[];
@@ -25,6 +26,11 @@ export interface Habit {
   estimatedDuration?: number;
   stackedAfter?: string;
   stackedBefore?: string;
+  streakInterval?: 'none' | 'daily' | 'week' | 'month';
+  completionsPerInterval?: number;
+  trackingMode?: 'step-by-step' | 'custom-value';
+  completionsPerDay?: number;
+  timeOfDay?: ('morning' | 'day' | 'evening')[];
 }
 
 export interface HabitCompletion {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import {
   StyleSheet,
   Text,
@@ -12,15 +12,18 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
-import { Calendar, Share2, Archive, Trash2, Edit } from "lucide-react-native";
-import { HabitGrid } from "@/components/HabitGrid";
+import { Calendar, Share2, Archive, Trash2, Edit, ChevronLeft, ChevronRight, Heart } from "lucide-react-native";
+import { YearGrid } from "@/components/YearGrid";
 import * as Haptics from "expo-haptics";
+import { CATEGORIES } from "@/constants/categories";
 
 export default function HabitDetailsScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { habits, archiveHabit, deleteHabit, getStreak, getLongestStreak, getCompletionRate, getTotalCompletions, getWeeklyProgress } = useHabits();
+  
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   
   const habit = habits.find(h => h.id === id);
   
@@ -29,6 +32,12 @@ export default function HabitDetailsScreen() {
   const completionRate = habit ? getCompletionRate(habit.id, 30) : 0;
   const totalCompletions = habit ? getTotalCompletions(habit.id) : 0;
   const weeklyProgress = habit ? getWeeklyProgress(habit.id) : 0;
+  
+  const categories = useMemo(() => {
+    if (!habit) return [];
+    const cats = habit.categories || (habit.category ? [habit.category] : []);
+    return cats.map(catId => CATEGORIES.find(c => c.id === catId)).filter(Boolean);
+  }, [habit]);
   
   if (!habit) {
     return (
@@ -81,6 +90,40 @@ export default function HabitDetailsScreen() {
     }
   };
 
+  const calendarDays = useMemo(() => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    const days: Array<{ date: Date | null; dateStr: string | null; completed: boolean }> = [];
+    
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push({ date: null, dateStr: null, completed: false });
+    }
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const dateStr = date.toISOString().split('T')[0];
+      const completed = !!habit?.completions?.[dateStr];
+      days.push({ date, dateStr, completed });
+    }
+    
+    return days;
+  }, [currentMonth, habit]);
+  
+  const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  
+  const goToPreviousMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  };
+  
+  const goToNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0A0E27" />
@@ -89,23 +132,40 @@ export default function HabitDetailsScreen() {
         contentContainerStyle={styles.content}
       >
       <View style={styles.header}>
-        <View style={[styles.iconContainer, { backgroundColor: habit.color }]}>
+        <View style={[styles.iconContainer, { backgroundColor: `${habit.color}20` }]}>
           <Text style={styles.icon}>{habit.icon}</Text>
         </View>
         <Text style={styles.name}>{habit.name}</Text>
         {habit.description ? (
           <Text style={styles.description}>{habit.description}</Text>
         ) : null}
+        {categories.length > 0 && (
+          <View style={styles.categoriesRow}>
+            {categories.map((cat: any) => (
+              <View key={cat.id} style={styles.categoryTag}>
+                <Text style={styles.categoryIcon}>{cat.icon}</Text>
+                <Text style={styles.categoryText}>{cat.name}</Text>
+              </View>
+            ))}
+            {habit.timeOfDay && habit.timeOfDay.length > 0 && (
+              <View style={styles.timeTag}>
+                <Text style={styles.timeText}>
+                  {habit.timeOfDay.map(t => t === 'morning' ? '🌅' : t === 'day' ? '☀️' : '🌙').join(' ')}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
       </View>
       
       <View style={styles.statsContainer}>
         <View style={styles.stat}>
-          <Text style={styles.statValue}>{currentStreak}</Text>
+          <Text style={[styles.statValue, { color: habit.color }]}>{currentStreak}</Text>
           <Text style={styles.statLabel}>Current Streak</Text>
         </View>
         <View style={styles.stat}>
           <Text style={styles.statValue}>{longestStreak}</Text>
-          <Text style={styles.statLabel}>Longest Streak</Text>
+          <Text style={styles.statLabel}>Best Streak</Text>
         </View>
         <View style={styles.stat}>
           <Text style={styles.statValue}>{totalCompletions}</Text>
@@ -113,27 +173,58 @@ export default function HabitDetailsScreen() {
         </View>
       </View>
       
-      <View style={styles.progressContainer}>
-        <View style={styles.progressItem}>
-          <Text style={styles.progressLabel}>30-Day Completion Rate</Text>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${completionRate}%`, backgroundColor: habit.color }]} />
-          </View>
-          <Text style={styles.progressText}>{completionRate}%</Text>
+      {habit.streakInterval && habit.streakInterval !== 'none' && (
+        <View style={styles.goalCard}>
+          <Heart size={20} color={habit.color} />
+          <Text style={styles.goalText}>
+            Goal: {habit.completionsPerInterval || 3} times per {habit.streakInterval === 'daily' ? 'day' : habit.streakInterval}
+          </Text>
         </View>
-        
-        <View style={styles.progressItem}>
-          <Text style={styles.progressLabel}>Weekly Progress</Text>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${Math.min(weeklyProgress, 100)}%`, backgroundColor: habit.color }]} />
-          </View>
-          <Text style={styles.progressText}>{weeklyProgress}%</Text>
-        </View>
-      </View>
+      )}
       
       <View style={styles.gridSection}>
-        <Text style={styles.sectionTitle}>Last 365 Days</Text>
-        <HabitGrid habit={habit} days={365} />
+        <Text style={styles.sectionTitle}>Year at a Glance</Text>
+        <YearGrid habit={habit} days={365} />
+      </View>
+      
+      <View style={styles.calendarSection}>
+        <View style={styles.calendarHeader}>
+          <TouchableOpacity onPress={goToPreviousMonth} style={styles.monthButton}>
+            <ChevronLeft size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.monthTitle}>{monthName}</Text>
+          <TouchableOpacity onPress={goToNextMonth} style={styles.monthButton}>
+            <ChevronRight size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+        
+        <View style={styles.weekDaysRow}>
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+            <Text key={day} style={styles.weekDayText}>{day}</Text>
+          ))}
+        </View>
+        
+        <View style={styles.calendarGrid}>
+          {calendarDays.map((day, index) => (
+            <View key={index} style={styles.calendarDay}>
+              {day.date && (
+                <View style={[
+                  styles.dayCircle,
+                  day.completed && { backgroundColor: habit.color },
+                  day.date.toDateString() === new Date().toDateString() && styles.todayCircle,
+                ]}>
+                  <Text style={[
+                    styles.dayText,
+                    day.completed && styles.completedDayText,
+                    day.date.toDateString() === new Date().toDateString() && styles.todayText,
+                  ]}>
+                    {day.date.getDate()}
+                  </Text>
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
       </View>
       
       <View style={styles.actions}>
@@ -143,14 +234,6 @@ export default function HabitDetailsScreen() {
         >
           <Edit size={20} color="#8B5CF6" />
           <Text style={styles.actionText}>Edit</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => router.push(`/calendar/${habit.id}`)}
-        >
-          <Calendar size={20} color="#8B5CF6" />
-          <Text style={styles.actionText}>Calendar</Text>
         </TouchableOpacity>
         
         <TouchableOpacity
@@ -206,13 +289,46 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 80,
     height: 80,
-    borderRadius: 20,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
   },
   icon: {
     fontSize: 40,
+  },
+  categoriesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+    marginTop: 12,
+  },
+  categoryTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+  },
+  categoryIcon: {
+    fontSize: 14,
+  },
+  categoryText: {
+    fontSize: 13,
+    color: '#9CA3AF',
+    fontWeight: '500',
+  },
+  timeTag: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+  },
+  timeText: {
+    fontSize: 14,
   },
   name: {
     fontSize: 24,
@@ -238,10 +354,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 32,
+    fontWeight: '800',
     color: '#fff',
     marginBottom: 4,
+  },
+  goalCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#1A1F3A',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+  },
+  goalText: {
+    fontSize: 15,
+    color: '#fff',
+    fontWeight: '600',
   },
   statLabel: {
     fontSize: 12,
@@ -311,5 +441,69 @@ const styles = StyleSheet.create({
     color: '#8B5CF6',
     fontWeight: '600',
     fontSize: 14,
+  },
+  calendarSection: {
+    marginBottom: 32,
+  },
+  calendarHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  monthButton: {
+    padding: 8,
+    backgroundColor: '#1A1F3A',
+    borderRadius: 12,
+  },
+  monthTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  weekDaysRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 12,
+  },
+  weekDayText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    fontWeight: '600',
+    width: 40,
+    textAlign: 'center',
+  },
+  calendarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  calendarDay: {
+    width: '14.28%',
+    aspectRatio: 1,
+    padding: 2,
+  },
+  dayCircle: {
+    flex: 1,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  todayCircle: {
+    borderWidth: 2,
+    borderColor: '#8B5CF6',
+  },
+  dayText: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    fontWeight: '500',
+  },
+  completedDayText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  todayText: {
+    color: '#8B5CF6',
+    fontWeight: '700',
   },
 });

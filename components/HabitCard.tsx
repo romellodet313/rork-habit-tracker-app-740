@@ -8,9 +8,10 @@ import {
   Animated,
 } from "react-native";
 import { Habit } from "@/types/habit";
-import { HabitGrid } from "./HabitGrid";
-import { Check, TrendingUp, Calendar } from "lucide-react-native";
+import { YearGrid } from "./YearGrid";
+import { Check, Plus } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
+import { CATEGORIES } from "@/constants/categories";
 
 interface HabitCardProps {
   habit: Habit;
@@ -119,68 +120,94 @@ export const HabitCard = memo(function HabitCard({ habit, onToggleCompletion, di
     onToggleCompletion();
   };
 
+  const categories = useMemo(() => {
+    const cats = habit.categories || (habit.category ? [habit.category] : []);
+    return cats.map(catId => CATEGORIES.find(c => c.id === catId)).filter(Boolean);
+  }, [habit.categories, habit.category]);
+
+  const completionsPerDay = habit.completionsPerDay || 1;
+  const todayCompletionCount = typeof habit.completions?.[today] === 'object' 
+    ? (habit.completions[today] as any).count || 1
+    : isCompletedToday ? 1 : 0;
+
   return (
     <View style={[styles.container, disabled && styles.disabled]}>
       <View style={styles.header}>
-        <View style={styles.info}>
-          <View style={[styles.iconContainer, { backgroundColor: `${habit.color}20` }]}>
-            <Text style={styles.icon}>{habit.icon}</Text>
-          </View>
-          <View style={styles.textInfo}>
-            <Text style={styles.name}>{habit.name}</Text>
-            {habit.description ? (
-              <Text style={styles.description} numberOfLines={1}>
-                {habit.description}
-              </Text>
-            ) : null}
-            <View style={styles.statsRow}>
-              <View style={styles.statItem}>
-                <Calendar size={12} color="#9CA3AF" />
-                <Text style={styles.statText}>{stats.totalCompletions} total</Text>
-              </View>
-              <View style={styles.statItem}>
-                <TrendingUp size={12} color="#9CA3AF" />
-                <Text style={styles.statText}>{stats.weeklyProgress}% this week</Text>
-              </View>
+        <View style={styles.topRow}>
+          <View style={styles.leftSection}>
+            <View style={[styles.iconContainer, { backgroundColor: `${habit.color}15` }]}>
+              <Text style={styles.icon}>{habit.icon}</Text>
+            </View>
+            <View style={styles.textInfo}>
+              <Text style={styles.name} numberOfLines={1}>{habit.name}</Text>
+              {categories.length > 0 && (
+                <View style={styles.categoriesRow}>
+                  {categories.slice(0, 2).map((cat: any) => (
+                    <View key={cat.id} style={styles.categoryTag}>
+                      <Text style={styles.categoryIcon}>{cat.icon}</Text>
+                      <Text style={styles.categoryText}>{cat.name}</Text>
+                    </View>
+                  ))}
+                  {habit.timeOfDay && habit.timeOfDay.length > 0 && (
+                    <View style={styles.timeTag}>
+                      <Text style={styles.timeText}>
+                        {habit.timeOfDay[0] === 'morning' ? '🌅' : habit.timeOfDay[0] === 'day' ? '☀️' : '🌙'}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              )}
             </View>
           </View>
+          {!disabled && (
+            <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+              <TouchableOpacity
+                style={[
+                  styles.checkButton,
+                  isCompletedToday && { backgroundColor: habit.color },
+                ]}
+                onPress={handleComplete}
+              >
+                {isCompletedToday ? (
+                  <Check size={18} color="#fff" strokeWidth={3} />
+                ) : (
+                  <Plus size={18} color={habit.color} strokeWidth={3} />
+                )}
+              </TouchableOpacity>
+            </Animated.View>
+          )}
         </View>
-        {!disabled && (
-          <Animated.View style={[styles.animatedButton, { transform: [{ scale: scaleAnim }] }]}>
-            <TouchableOpacity
+      </View>
+      
+      {completionsPerDay > 1 && (
+        <View style={styles.completionProgress}>
+          {Array.from({ length: completionsPerDay }).map((_, i) => (
+            <View
+              key={i}
               style={[
-                styles.checkButton,
-                isCompletedToday ? 
-                  { backgroundColor: habit.color, borderWidth: 0 } :
-                  { backgroundColor: '#2A2F4A', borderColor: habit.color, borderWidth: 2 }
+                styles.completionDot,
+                i < todayCompletionCount && { backgroundColor: habit.color },
               ]}
-              onPress={handleComplete}
-            >
-              <Check 
-                size={20} 
-                color={isCompletedToday ? "#fff" : habit.color}
-                strokeWidth={isCompletedToday ? 2 : 3}
-              />
-            </TouchableOpacity>
-          </Animated.View>
-        )}
-      </View>
+            />
+          ))}
+        </View>
+      )}
       
-      <HabitGrid habit={habit} days={84} />
+      <YearGrid habit={habit} days={365} />
       
-      <View style={styles.footer}>
-        {stats.currentStreak > 0 && (
-          <View style={styles.streakContainer}>
-            <Text style={styles.streakEmoji}>🔥</Text>
-            <Text style={styles.streakText}>{stats.currentStreak} day streak</Text>
-          </View>
-        )}
-        {stats.longestStreak > stats.currentStreak && (
-          <View style={styles.bestContainer}>
-            <Text style={styles.bestText}>Best: {stats.longestStreak} days</Text>
-          </View>
-        )}
-      </View>
+      {habit.streakInterval && habit.streakInterval !== 'none' && (
+        <View style={styles.streakGoalRow}>
+          <Text style={styles.streakGoalText}>
+            {habit.completionsPerInterval || 3} / {habit.streakInterval === 'daily' ? 'Day' : habit.streakInterval === 'week' ? 'Week' : 'Month'}
+          </Text>
+          {stats.currentStreak > 0 && (
+            <View style={styles.streakBadge}>
+              <Text style={styles.streakEmoji}>🔥</Text>
+              <Text style={styles.streakText}>{stats.currentStreak}</Text>
+            </View>
+          )}
+        </View>
+      )}
     </View>
   );
 });
@@ -188,132 +215,132 @@ export const HabitCard = memo(function HabitCard({ habit, onToggleCompletion, di
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#1A1F3A',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#2A2F4A',
-    shadowColor: '#8B5CF6',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
   },
   disabled: {
     opacity: 0.6,
   },
   header: {
+    marginBottom: 12,
+  },
+  topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 20,
   },
-  info: {
+  leftSection: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     flex: 1,
+    marginRight: 12,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    marginRight: 12,
   },
   icon: {
-    fontSize: 24,
+    fontSize: 20,
   },
   textInfo: {
     flex: 1,
-    paddingTop: 2,
+    justifyContent: 'center',
   },
   name: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
     color: '#fff',
     marginBottom: 4,
   },
-  description: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    marginBottom: 8,
-    lineHeight: 20,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  statText: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    fontWeight: '500',
-  },
-  checkButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#2A2F4A',
-  },
-  streakContainer: {
+  categoriesRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    flexWrap: 'wrap',
   },
-  streakEmoji: {
-    fontSize: 16,
-  },
-  streakText: {
-    fontSize: 14,
-    color: '#F59E0B',
-    fontWeight: '700',
-  },
-  bestContainer: {
+  categoryTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     paddingHorizontal: 8,
-    paddingVertical: 4,
-    backgroundColor: '#2A2F4A',
+    paddingVertical: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 8,
   },
-  bestText: {
+  categoryIcon: {
     fontSize: 12,
-    color: '#9CA3AF',
-    fontWeight: '600',
   },
-  animatedButton: {
-    // Empty style for animated view
+  categoryText: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    fontWeight: '500',
+  },
+  timeTag: {
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 8,
+  },
+  timeText: {
+    fontSize: 12,
+  },
+  checkButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  completionProgress: {
+    flexDirection: 'row',
+    gap: 4,
+    marginBottom: 12,
+  },
+  completionDot: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  streakGoalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  streakGoalText: {
+    fontSize: 13,
+    color: '#9CA3AF',
+    fontWeight: '500',
+  },
+  streakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    borderRadius: 8,
+  },
+  streakEmoji: {
+    fontSize: 14,
+  },
+  streakText: {
+    fontSize: 13,
+    color: '#F59E0B',
+    fontWeight: '700',
   },
 });

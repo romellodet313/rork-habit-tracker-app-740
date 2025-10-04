@@ -18,7 +18,7 @@ import colors, { COLORS } from "@/constants/colors";
 import { ICONS } from "@/constants/icons";
 import { CATEGORIES } from "@/constants/categories";
 import * as Haptics from "expo-haptics";
-import { Check, Bell, Sparkles, Lightbulb } from "lucide-react-native";
+import { Check, Bell, Sparkles, Lightbulb, ChevronDown } from "lucide-react-native";
 
 export default function AddHabitScreen() {
   const router = useRouter();
@@ -35,8 +35,15 @@ export default function AddHabitScreen() {
   const [reminderTime, setReminderTime] = useState("09:00");
   const [selectedDays, setSelectedDays] = useState<string[]>(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('other');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isMicroHabit, setIsMicroHabit] = useState(false);
   const [estimatedDuration, setEstimatedDuration] = useState("2");
+  const [streakInterval, setStreakInterval] = useState<'none' | 'daily' | 'week' | 'month'>('week');
+  const [completionsPerInterval, setCompletionsPerInterval] = useState("3");
+  const [trackingMode, setTrackingMode] = useState<'step-by-step' | 'custom-value'>('step-by-step');
+  const [completionsPerDay, setCompletionsPerDay] = useState("1");
+  const [timeOfDay, setTimeOfDay] = useState<('morning' | 'day' | 'evening')[]>([]);
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(30)).current;
 
@@ -98,6 +105,9 @@ export default function AddHabitScreen() {
     }
     
     try {
+      const parsedCompletionsPerInterval = parseInt(completionsPerInterval);
+      const parsedCompletionsPerDay = parseInt(completionsPerDay);
+      
       addHabit({
         name: trimmedName,
         description: description.trim(),
@@ -107,8 +117,14 @@ export default function AddHabitScreen() {
         weeklyGoal: parsedWeeklyGoal,
         targetDays: selectedDays,
         category: selectedCategoryId,
+        categories: selectedCategories.length > 0 ? selectedCategories : [selectedCategoryId],
         isMicroHabit,
         estimatedDuration: parsedDuration,
+        streakInterval,
+        completionsPerInterval: parsedCompletionsPerInterval,
+        trackingMode,
+        completionsPerDay: parsedCompletionsPerDay,
+        timeOfDay: timeOfDay.length > 0 ? timeOfDay : undefined,
         reminders: enableReminders ? [{
           id: Date.now().toString(),
           habitId: '',
@@ -208,29 +224,139 @@ export default function AddHabitScreen() {
         />
       </View>
       
-      <View style={styles.section}>
-        <Text style={styles.label}>Streak Goal (days)</Text>
-        <TextInput
-          style={styles.input}
-          value={streakGoal}
-          onChangeText={setStreakGoal}
-          placeholder="7"
-          placeholderTextColor="#6B7280"
-          keyboardType="number-pad"
-        />
-      </View>
+      <TouchableOpacity
+        style={styles.advancedToggle}
+        onPress={() => setShowAdvancedOptions(!showAdvancedOptions)}
+      >
+        <Text style={styles.advancedToggleText}>Advanced Options</Text>
+        <Text style={styles.advancedToggleIcon}>{showAdvancedOptions ? '▲' : '▼'}</Text>
+      </TouchableOpacity>
       
-      <View style={styles.section}>
-        <Text style={styles.label}>Weekly Goal (days)</Text>
-        <TextInput
-          style={styles.input}
-          value={weeklyGoal}
-          onChangeText={setWeeklyGoal}
-          placeholder="7"
-          placeholderTextColor="#6B7280"
-          keyboardType="number-pad"
-        />
-      </View>
+      {showAdvancedOptions && (
+        <>
+          <View style={styles.section}>
+            <Text style={styles.label}>Streak Goal</Text>
+            <View style={styles.streakGoalContainer}>
+              <View style={styles.intervalButtons}>
+                {(['none', 'daily', 'week', 'month'] as const).map((interval) => (
+                  <TouchableOpacity
+                    key={interval}
+                    style={[
+                      styles.intervalButton,
+                      streakInterval === interval && [styles.intervalButtonActive, { backgroundColor: selectedColor }],
+                    ]}
+                    onPress={() => {
+                      if (Platform.OS !== 'web') {
+                        Haptics.selectionAsync();
+                      }
+                      setStreakInterval(interval);
+                    }}
+                  >
+                    <Text style={[
+                      styles.intervalButtonText,
+                      streakInterval === interval && styles.intervalButtonTextActive,
+                    ]}>
+                      {interval === 'none' ? 'None' : interval === 'daily' ? 'Daily' : interval === 'week' ? 'Week' : 'Month'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              
+              {streakInterval !== 'none' && (
+                <View style={styles.completionsInputContainer}>
+                  <TextInput
+                    style={styles.completionsInput}
+                    value={completionsPerInterval}
+                    onChangeText={setCompletionsPerInterval}
+                    placeholder="3"
+                    placeholderTextColor="#6B7280"
+                    keyboardType="number-pad"
+                  />
+                  <Text style={styles.completionsLabel}>/ {streakInterval === 'daily' ? 'Day' : streakInterval === 'week' ? 'Week' : 'Month'}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+          
+          <View style={styles.section}>
+            <Text style={styles.label}>How should completions be tracked?</Text>
+            <View style={styles.trackingModeButtons}>
+              <TouchableOpacity
+                style={[
+                  styles.trackingModeButton,
+                  trackingMode === 'step-by-step' && [styles.trackingModeButtonActive, { borderColor: selectedColor }],
+                ]}
+                onPress={() => {
+                  if (Platform.OS !== 'web') {
+                    Haptics.selectionAsync();
+                  }
+                  setTrackingMode('step-by-step');
+                }}
+              >
+                <Text style={[
+                  styles.trackingModeButtonText,
+                  trackingMode === 'step-by-step' && styles.trackingModeButtonTextActive,
+                ]}>
+                  Step By Step
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.trackingModeButton,
+                  trackingMode === 'custom-value' && [styles.trackingModeButtonActive, { borderColor: selectedColor }],
+                ]}
+                onPress={() => {
+                  if (Platform.OS !== 'web') {
+                    Haptics.selectionAsync();
+                  }
+                  setTrackingMode('custom-value');
+                }}
+              >
+                <Text style={[
+                  styles.trackingModeButtonText,
+                  trackingMode === 'custom-value' && styles.trackingModeButtonTextActive,
+                ]}>
+                  Custom Value
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.helpText}>
+              {trackingMode === 'step-by-step' 
+                ? 'Increment by 1 with each completion' 
+                : 'Track custom values like minutes, reps, or pages'}
+            </Text>
+          </View>
+          
+          <View style={styles.section}>
+            <Text style={styles.label}>Completions Per Day</Text>
+            <View style={styles.completionsPerDayContainer}>
+              <TextInput
+                style={styles.completionsInput}
+                value={completionsPerDay}
+                onChangeText={setCompletionsPerDay}
+                placeholder="1"
+                placeholderTextColor="#6B7280"
+                keyboardType="number-pad"
+              />
+              <Text style={styles.completionsLabel}>/ Day</Text>
+            </View>
+            <View style={styles.completionPreview}>
+              {Array.from({ length: Math.min(parseInt(completionsPerDay) || 1, 10) }).map((_, i) => (
+                <View
+                  key={i}
+                  style={[
+                    styles.completionSquare,
+                    i < 2 && { backgroundColor: selectedColor },
+                  ]}
+                />
+              ))}
+            </View>
+            <Text style={styles.helpText}>
+              The square will be filled completely when this number is met
+            </Text>
+          </View>
+        </>
+      )}
       
       <View style={styles.section}>
         <View style={styles.reminderHeader}>
@@ -328,31 +454,74 @@ export default function AddHabitScreen() {
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Category</Text>
+        <Text style={styles.label}>Categories</Text>
+        <Text style={styles.subLabel}>Pick one or multiple categories that your habit fits in</Text>
         <View style={styles.categoryGrid}>
           {CATEGORIES.map((cat) => (
             <TouchableOpacity
               key={cat.id}
               style={[
                 styles.categoryButton,
-                selectedCategoryId === cat.id && [styles.selectedCategory, { borderColor: cat.color }],
+                selectedCategories.includes(cat.id) && [styles.selectedCategory, { borderColor: cat.color }],
               ]}
               onPress={() => {
                 if (Platform.OS !== 'web') {
                   Haptics.selectionAsync();
                 }
-                setSelectedCategoryId(cat.id);
+                if (selectedCategories.includes(cat.id)) {
+                  setSelectedCategories(selectedCategories.filter(c => c !== cat.id));
+                } else {
+                  setSelectedCategories([...selectedCategories, cat.id]);
+                }
+                if (!selectedCategoryId || selectedCategoryId === 'other') {
+                  setSelectedCategoryId(cat.id);
+                }
               }}
             >
               <Text style={styles.categoryEmoji}>{cat.icon}</Text>
               <Text style={[
                 styles.categoryName,
-                selectedCategoryId === cat.id && styles.selectedCategoryName,
+                selectedCategories.includes(cat.id) && styles.selectedCategoryName,
               ]}>
                 {cat.name}
               </Text>
             </TouchableOpacity>
           ))}
+        </View>
+        
+        <View style={styles.timeOfDaySection}>
+          <Text style={styles.subLabel}>Time of Day (Optional)</Text>
+          <View style={styles.timeOfDayButtons}>
+            {(['morning', 'day', 'evening'] as const).map((time) => (
+              <TouchableOpacity
+                key={time}
+                style={[
+                  styles.timeOfDayButton,
+                  timeOfDay.includes(time) && [styles.timeOfDayButtonActive, { backgroundColor: selectedColor }],
+                ]}
+                onPress={() => {
+                  if (Platform.OS !== 'web') {
+                    Haptics.selectionAsync();
+                  }
+                  if (timeOfDay.includes(time)) {
+                    setTimeOfDay(timeOfDay.filter(t => t !== time));
+                  } else {
+                    setTimeOfDay([...timeOfDay, time]);
+                  }
+                }}
+              >
+                <Text style={styles.timeOfDayIcon}>
+                  {time === 'morning' ? '🌅' : time === 'day' ? '☀️' : '🌙'}
+                </Text>
+                <Text style={[
+                  styles.timeOfDayButtonText,
+                  timeOfDay.includes(time) && styles.timeOfDayButtonTextActive,
+                ]}>
+                  {time.charAt(0).toUpperCase() + time.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </View>
       
@@ -690,5 +859,149 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#F59E0B',
     fontWeight: '700' as const,
+  },
+  advancedToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.dark.card,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+  },
+  advancedToggleText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  advancedToggleIcon: {
+    fontSize: 14,
+    color: '#9CA3AF',
+  },
+  streakGoalContainer: {
+    gap: 16,
+  },
+  intervalButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  intervalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: colors.dark.card,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.dark.border,
+  },
+  intervalButtonActive: {
+    borderColor: 'transparent',
+  },
+  intervalButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#9CA3AF',
+  },
+  intervalButtonTextActive: {
+    color: '#fff',
+  },
+  completionsInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  completionsInput: {
+    flex: 1,
+    backgroundColor: colors.dark.card,
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: '#fff',
+    borderWidth: 2,
+    borderColor: colors.dark.border,
+  },
+  completionsLabel: {
+    fontSize: 16,
+    color: '#9CA3AF',
+    fontWeight: '600',
+  },
+  trackingModeButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  trackingModeButton: {
+    flex: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    backgroundColor: colors.dark.card,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.dark.border,
+  },
+  trackingModeButtonActive: {
+    backgroundColor: colors.dark.border,
+  },
+  trackingModeButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#9CA3AF',
+  },
+  trackingModeButtonTextActive: {
+    color: '#fff',
+  },
+  completionsPerDayContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 16,
+  },
+  completionPreview: {
+    flexDirection: 'row',
+    gap: 6,
+    marginBottom: 8,
+  },
+  completionSquare: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    backgroundColor: colors.dark.border,
+  },
+  timeOfDaySection: {
+    marginTop: 20,
+  },
+  timeOfDayButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  timeOfDayButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: colors.dark.card,
+    borderWidth: 2,
+    borderColor: colors.dark.border,
+  },
+  timeOfDayButtonActive: {
+    borderColor: 'transparent',
+  },
+  timeOfDayIcon: {
+    fontSize: 18,
+  },
+  timeOfDayButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#9CA3AF',
+  },
+  timeOfDayButtonTextActive: {
+    color: '#fff',
   },
 });
