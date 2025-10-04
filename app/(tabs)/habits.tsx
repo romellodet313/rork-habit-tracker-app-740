@@ -52,6 +52,14 @@ export default function HabitsScreen() {
   const activeHabits = useMemo(() => {
     let filtered = habits.filter(h => h && h.id && !h.archived);
     
+    const uniqueById = new Map<string, typeof filtered[0]>();
+    filtered.forEach(habit => {
+      if (habit.id && !uniqueById.has(habit.id)) {
+        uniqueById.set(habit.id, habit);
+      }
+    });
+    filtered = Array.from(uniqueById.values());
+    
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(h => 
@@ -76,10 +84,7 @@ export default function HabitsScreen() {
       }
     });
     
-    const uniqueHabits = filtered.filter((habit, index, self) => 
-      index === self.findIndex(h => h.id === habit.id)
-    );
-    return uniqueHabits;
+    return filtered;
   }, [habits, searchQuery, selectedCategory, sortBy]);
   
   const getStreakForHabit = (habit: any) => {

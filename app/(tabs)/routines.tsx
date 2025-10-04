@@ -125,7 +125,7 @@ export default function RoutinesScreen() {
         
         <View style={styles.habitChain}>
           {routineHabits.length > 0 ? routineHabits.map((habit: Habit, index: number) => (
-            <View key={`${routine.id}-${habit.id}-${index}`} style={styles.chainItemContainer}>
+            <View key={`routine-${routine.id}-habit-${habit?.id || index}-${index}`} style={styles.chainItemContainer}>
               <View style={[styles.chainItem, { backgroundColor: habit.color }]}>
                 <Text style={styles.chainIcon}>{habit.icon}</Text>
                 <View style={styles.chainItemInfo}>
