@@ -170,8 +170,8 @@ export default function TemplatesScreen() {
               {template.tips && template.tips.length > 0 && (
                 <View style={[styles.tipsSection, { borderTopColor: colors.border }]}>
                   <Text style={[styles.tipsTitle, { color: colors.text }]}>Tips:</Text>
-                  {template.tips.map((tip, index) => (
-                    <View key={`template-${template.id}-tip-${index}`} style={styles.tipItem}>
+                  {template.tips.map((tip, tipIndex) => (
+                    <View key={`${template.id}-tip-${tipIndex}`} style={styles.tipItem}>
                       <Text style={[styles.tipBullet, { color: colors.textSecondary }]}>•</Text>
                       <Text style={[styles.tipText, { color: colors.textSecondary }]}>{tip}</Text>
                     </View>
