@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import { HabitCard } from "@/components/HabitCard";
 import { RotateCcw, Trash2 } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -18,6 +19,7 @@ import * as Haptics from "expo-haptics";
 export default function ArchiveScreen() {
   const insets = useSafeAreaInsets();
   const { habits, restoreHabit, deleteHabit } = useHabits();
+  const { colors, theme } = useTheme();
   
   const archivedHabits = useMemo(() => {
     const filtered = habits.filter(h => h && h.id && h.archived);
@@ -66,10 +68,10 @@ export default function ArchiveScreen() {
 
   if (archivedHabits.length === 0) {
     return (
-      <View style={[styles.emptyContainer, { paddingTop: insets.top, paddingBottom: insets.bottom + 100 }]}>
-        <StatusBar barStyle="light-content" backgroundColor="#0A0E27" />
-        <Text style={styles.emptyTitle}>No archived habits</Text>
-        <Text style={styles.emptyText}>
+      <View style={[styles.emptyContainer, { paddingTop: insets.top, paddingBottom: insets.bottom + 100, backgroundColor: colors.background }]}>
+        <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+        <Text style={[styles.emptyTitle, { color: colors.text }]}>No archived habits</Text>
+        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
           Archived habits will appear here
         </Text>
       </View>
@@ -77,8 +79,8 @@ export default function ArchiveScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0A0E27" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
       <ScrollView 
         style={[styles.scrollView, { paddingTop: insets.top }]} 
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
@@ -88,18 +90,18 @@ export default function ArchiveScreen() {
           <HabitCard habit={habit} onToggleCompletion={() => {}} disabled />
           <View style={styles.actions}>
             <TouchableOpacity
-              style={styles.actionButton}
+              style={[styles.actionButton, { backgroundColor: colors.card }]}
               onPress={() => handleRestore(habit.id)}
             >
-              <RotateCcw size={20} color="#10B981" />
-              <Text style={styles.restoreText}>Restore</Text>
+              <RotateCcw size={20} color={colors.success} />
+              <Text style={[styles.restoreText, { color: colors.success }]}>Restore</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.actionButton}
+              style={[styles.actionButton, { backgroundColor: colors.card }]}
               onPress={() => handleDelete(habit.id, habit.name)}
             >
-              <Trash2 size={20} color="#EF4444" />
-              <Text style={styles.deleteText}>Delete</Text>
+              <Trash2 size={20} color={colors.error} />
+              <Text style={[styles.deleteText, { color: colors.error }]}>Delete</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -112,7 +114,6 @@ export default function ArchiveScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0E27',
   },
   scrollView: {
     flex: 1,
@@ -122,7 +123,6 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
-    backgroundColor: '#0A0E27',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 32,
@@ -130,12 +130,10 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#fff',
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 16,
-    color: '#9CA3AF',
     textAlign: 'center',
   },
   habitContainer: {
@@ -154,14 +152,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,
-    backgroundColor: '#1A1F3A',
   },
   restoreText: {
-    color: '#10B981',
     fontWeight: '600',
   },
   deleteText: {
-    color: '#EF4444',
     fontWeight: '600',
   },
 });

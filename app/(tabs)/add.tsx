@@ -14,7 +14,8 @@ import {
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
-import colors, { COLORS } from "@/constants/colors";
+import { useTheme } from "@/providers/ThemeProvider";
+import { COLORS } from "@/constants/colors";
 import { ICONS } from "@/constants/icons";
 import { CATEGORIES } from "@/constants/categories";
 import * as Haptics from "expo-haptics";
@@ -24,6 +25,7 @@ export default function AddHabitScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { addHabit } = useHabits();
+  const { colors, theme } = useTheme();
   
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -159,8 +161,8 @@ export default function AddHabitScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.dark.background} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
       <ScrollView 
         style={[styles.scrollView, { paddingTop: insets.top }]} 
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
@@ -175,17 +177,17 @@ export default function AddHabitScreen() {
             },
           ]}
         >
-          <View style={styles.headerIcon}>
-            <Sparkles size={24} color="#8B5CF6" />
+          <View style={[styles.headerIcon, { backgroundColor: colors.card, borderColor: colors.tint }]}>
+            <Sparkles size={24} color={colors.tint} />
           </View>
-          <Text style={styles.headerTitle}>Create New Habit</Text>
-          <Text style={styles.headerSubtitle}>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Create New Habit</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
             Build a habit that sticks. Start small and be consistent.
           </Text>
         </Animated.View>
         
         <TouchableOpacity
-          style={styles.templatesButton}
+          style={[styles.templatesButton, { backgroundColor: colors.card }]}
           onPress={() => router.push('/templates')}
         >
           <View style={styles.templatesButtonContent}>
@@ -193,49 +195,49 @@ export default function AddHabitScreen() {
               <Lightbulb size={20} color="#F59E0B" />
             </View>
             <View style={styles.templatesTextContainer}>
-              <Text style={styles.templatesButtonTitle}>Browse Templates</Text>
-              <Text style={styles.templatesButtonSubtitle}>Start with proven habits</Text>
+              <Text style={[styles.templatesButtonTitle, { color: colors.text }]}>Browse Templates</Text>
+              <Text style={[styles.templatesButtonSubtitle, { color: colors.textSecondary }]}>Start with proven habits</Text>
             </View>
           </View>
           <Text style={styles.templatesArrow}>→</Text>
         </TouchableOpacity>
       <View style={styles.section}>
-        <Text style={styles.label}>Name</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Name</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
           value={name}
           onChangeText={setName}
           placeholder="e.g., Morning Meditation"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={colors.textSecondary}
           autoFocus
         />
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Description</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Description</Text>
         <TextInput
-          style={[styles.input, styles.textArea]}
+          style={[styles.input, styles.textArea, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
           value={description}
           onChangeText={setDescription}
           placeholder="What's your goal with this habit?"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={colors.textSecondary}
           multiline
           numberOfLines={3}
         />
       </View>
       
       <TouchableOpacity
-        style={styles.advancedToggle}
+        style={[styles.advancedToggle, { backgroundColor: colors.card, borderColor: colors.border }]}
         onPress={() => setShowAdvancedOptions(!showAdvancedOptions)}
       >
-        <Text style={styles.advancedToggleText}>Advanced Options</Text>
-        <Text style={styles.advancedToggleIcon}>{showAdvancedOptions ? '▲' : '▼'}</Text>
+        <Text style={[styles.advancedToggleText, { color: colors.text }]}>Advanced Options</Text>
+        <Text style={[styles.advancedToggleIcon, { color: colors.textSecondary }]}>{showAdvancedOptions ? '▲' : '▼'}</Text>
       </TouchableOpacity>
       
       {showAdvancedOptions && (
         <>
           <View style={styles.section}>
-            <Text style={styles.label}>Streak Goal</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Streak Goal</Text>
             <View style={styles.streakGoalContainer}>
               <View style={styles.intervalButtons}>
                 {(['none', 'daily', 'week', 'month'] as const).map((interval) => (
@@ -243,6 +245,7 @@ export default function AddHabitScreen() {
                     key={interval}
                     style={[
                       styles.intervalButton,
+                      { backgroundColor: colors.card, borderColor: colors.border },
                       streakInterval === interval && [styles.intervalButtonActive, { backgroundColor: selectedColor }],
                     ]}
                     onPress={() => {
@@ -254,6 +257,7 @@ export default function AddHabitScreen() {
                   >
                     <Text style={[
                       styles.intervalButtonText,
+                      { color: colors.textSecondary },
                       streakInterval === interval && styles.intervalButtonTextActive,
                     ]}>
                       {interval === 'none' ? 'None' : interval === 'daily' ? 'Daily' : interval === 'week' ? 'Week' : 'Month'}
@@ -265,25 +269,26 @@ export default function AddHabitScreen() {
               {streakInterval !== 'none' && (
                 <View style={styles.completionsInputContainer}>
                   <TextInput
-                    style={styles.completionsInput}
+                    style={[styles.completionsInput, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
                     value={completionsPerInterval}
                     onChangeText={setCompletionsPerInterval}
                     placeholder="3"
-                    placeholderTextColor="#6B7280"
+                    placeholderTextColor={colors.textSecondary}
                     keyboardType="number-pad"
                   />
-                  <Text style={styles.completionsLabel}>/ {streakInterval === 'daily' ? 'Day' : streakInterval === 'week' ? 'Week' : 'Month'}</Text>
+                  <Text style={[styles.completionsLabel, { color: colors.textSecondary }]}>/ {streakInterval === 'daily' ? 'Day' : streakInterval === 'week' ? 'Week' : 'Month'}</Text>
                 </View>
               )}
             </View>
           </View>
           
           <View style={styles.section}>
-            <Text style={styles.label}>How should completions be tracked?</Text>
+            <Text style={[styles.label, { color: colors.text }]}>How should completions be tracked?</Text>
             <View style={styles.trackingModeButtons}>
               <TouchableOpacity
                 style={[
                   styles.trackingModeButton,
+                  { backgroundColor: colors.card, borderColor: colors.border },
                   trackingMode === 'step-by-step' && [styles.trackingModeButtonActive, { borderColor: selectedColor }],
                 ]}
                 onPress={() => {
@@ -295,6 +300,7 @@ export default function AddHabitScreen() {
               >
                 <Text style={[
                   styles.trackingModeButtonText,
+                  { color: colors.textSecondary },
                   trackingMode === 'step-by-step' && styles.trackingModeButtonTextActive,
                 ]}>
                   Step By Step
@@ -303,6 +309,7 @@ export default function AddHabitScreen() {
               <TouchableOpacity
                 style={[
                   styles.trackingModeButton,
+                  { backgroundColor: colors.card, borderColor: colors.border },
                   trackingMode === 'custom-value' && [styles.trackingModeButtonActive, { borderColor: selectedColor }],
                 ]}
                 onPress={() => {
@@ -314,13 +321,14 @@ export default function AddHabitScreen() {
               >
                 <Text style={[
                   styles.trackingModeButtonText,
+                  { color: colors.textSecondary },
                   trackingMode === 'custom-value' && styles.trackingModeButtonTextActive,
                 ]}>
                   Custom Value
                 </Text>
               </TouchableOpacity>
             </View>
-            <Text style={styles.helpText}>
+            <Text style={[styles.helpText, { color: colors.textSecondary }]}>
               {trackingMode === 'step-by-step' 
                 ? 'Increment by 1 with each completion' 
                 : 'Track custom values like minutes, reps, or pages'}
@@ -328,17 +336,17 @@ export default function AddHabitScreen() {
           </View>
           
           <View style={styles.section}>
-            <Text style={styles.label}>Completions Per Day</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Completions Per Day</Text>
             <View style={styles.completionsPerDayContainer}>
               <TextInput
-                style={styles.completionsInput}
+                style={[styles.completionsInput, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
                 value={completionsPerDay}
                 onChangeText={setCompletionsPerDay}
                 placeholder="1"
-                placeholderTextColor="#6B7280"
+                placeholderTextColor={colors.textSecondary}
                 keyboardType="number-pad"
               />
-              <Text style={styles.completionsLabel}>/ Day</Text>
+              <Text style={[styles.completionsLabel, { color: colors.textSecondary }]}>/ Day</Text>
             </View>
             <View style={styles.completionPreview}>
               {Array.from({ length: Math.min(parseInt(completionsPerDay) || 1, 10) }).map((_, i) => (
@@ -346,12 +354,13 @@ export default function AddHabitScreen() {
                   key={i}
                   style={[
                     styles.completionSquare,
+                    { backgroundColor: colors.border },
                     i < 2 && { backgroundColor: selectedColor },
                   ]}
                 />
               ))}
             </View>
-            <Text style={styles.helpText}>
+            <Text style={[styles.helpText, { color: colors.textSecondary }]}>
               The square will be filled completely when this number is met
             </Text>
           </View>
@@ -359,10 +368,10 @@ export default function AddHabitScreen() {
       )}
       
       <View style={styles.section}>
-        <View style={styles.reminderHeader}>
+        <View style={[styles.reminderHeader, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.reminderHeaderLeft}>
-            <Sparkles size={20} color="#9CA3AF" />
-            <Text style={styles.label}>Micro-Habit (2-minute rule)</Text>
+            <Sparkles size={20} color={colors.textSecondary} />
+            <Text style={[styles.label, { color: colors.text }]}>Micro-Habit (2-minute rule)</Text>
           </View>
           <Switch
             value={isMicroHabit}
@@ -372,35 +381,36 @@ export default function AddHabitScreen() {
           />
         </View>
         {isMicroHabit && (
-          <Text style={styles.helpText}>
+          <Text style={[styles.helpText, { color: colors.textSecondary }]}>
             Micro-habits are tiny actions that take 2 minutes or less. They&apos;re perfect for building consistency!
           </Text>
         )}
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Estimated Duration (minutes)</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Estimated Duration (minutes)</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
           value={estimatedDuration}
           onChangeText={setEstimatedDuration}
           placeholder="2"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={colors.textSecondary}
           keyboardType="number-pad"
         />
-        <Text style={styles.helpText}>
+        <Text style={[styles.helpText, { color: colors.textSecondary }]}>
           How long does this habit typically take? This helps with routine planning.
         </Text>
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Target Days</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Target Days</Text>
         <View style={styles.daysGrid}>
           {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
             <TouchableOpacity
               key={day}
               style={[
                 styles.dayButton,
+                { backgroundColor: colors.card, borderColor: colors.border },
                 selectedDays.includes(day) && [styles.selectedDay, { backgroundColor: selectedColor }],
               ]}
               onPress={() => {
@@ -413,6 +423,7 @@ export default function AddHabitScreen() {
             >
               <Text style={[
                 styles.dayText,
+                { color: colors.textSecondary },
                 selectedDays.includes(day) && styles.selectedDayText,
               ]}>
                 {day}
@@ -423,10 +434,10 @@ export default function AddHabitScreen() {
       </View>
       
       <View style={styles.section}>
-        <View style={styles.reminderHeader}>
+        <View style={[styles.reminderHeader, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.reminderHeaderLeft}>
-            <Bell size={20} color="#9CA3AF" />
-            <Text style={styles.label}>Reminders</Text>
+            <Bell size={20} color={colors.textSecondary} />
+            <Text style={[styles.label, { color: colors.text }]}>Reminders</Text>
           </View>
           <Switch
             value={enableReminders}
@@ -438,15 +449,15 @@ export default function AddHabitScreen() {
         
         {enableReminders && (
           <View style={styles.reminderSettings}>
-            <Text style={styles.subLabel}>Reminder Time</Text>
+            <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Reminder Time</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
               value={reminderTime}
               onChangeText={setReminderTime}
               placeholder="09:00"
-              placeholderTextColor="#6B7280"
+              placeholderTextColor={colors.textSecondary}
             />
-            <Text style={styles.helpText}>
+            <Text style={[styles.helpText, { color: colors.textSecondary }]}>
               You&apos;ll get notifications on your selected days at this time
             </Text>
           </View>
@@ -454,14 +465,15 @@ export default function AddHabitScreen() {
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Categories</Text>
-        <Text style={styles.subLabel}>Pick one or multiple categories that your habit fits in</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Categories</Text>
+        <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Pick one or multiple categories that your habit fits in</Text>
         <View style={styles.categoryGrid}>
           {CATEGORIES.map((cat) => (
             <TouchableOpacity
               key={cat.id}
               style={[
                 styles.categoryButton,
+                { backgroundColor: colors.card, borderColor: colors.border },
                 selectedCategories.includes(cat.id) && [styles.selectedCategory, { borderColor: cat.color }],
               ]}
               onPress={() => {
@@ -481,6 +493,7 @@ export default function AddHabitScreen() {
               <Text style={styles.categoryEmoji}>{cat.icon}</Text>
               <Text style={[
                 styles.categoryName,
+                { color: colors.textSecondary },
                 selectedCategories.includes(cat.id) && styles.selectedCategoryName,
               ]}>
                 {cat.name}
@@ -490,13 +503,14 @@ export default function AddHabitScreen() {
         </View>
         
         <View style={styles.timeOfDaySection}>
-          <Text style={styles.subLabel}>Time of Day (Optional)</Text>
+          <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Time of Day (Optional)</Text>
           <View style={styles.timeOfDayButtons}>
             {(['morning', 'day', 'evening'] as const).map((time) => (
               <TouchableOpacity
                 key={time}
                 style={[
                   styles.timeOfDayButton,
+                  { backgroundColor: colors.card, borderColor: colors.border },
                   timeOfDay.includes(time) && [styles.timeOfDayButtonActive, { backgroundColor: selectedColor }],
                 ]}
                 onPress={() => {
@@ -515,6 +529,7 @@ export default function AddHabitScreen() {
                 </Text>
                 <Text style={[
                   styles.timeOfDayButtonText,
+                  { color: colors.textSecondary },
                   timeOfDay.includes(time) && styles.timeOfDayButtonTextActive,
                 ]}>
                   {time.charAt(0).toUpperCase() + time.slice(1)}
@@ -526,14 +541,15 @@ export default function AddHabitScreen() {
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Icon</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Icon</Text>
         <View style={styles.iconGrid}>
           {ICONS.map((icon) => (
             <TouchableOpacity
               key={icon}
               style={[
                 styles.iconButton,
-                selectedIcon === icon && styles.selectedIcon,
+                { backgroundColor: colors.card },
+                selectedIcon === icon && [styles.selectedIcon, { borderColor: colors.tint, backgroundColor: colors.border }],
               ]}
               onPress={() => selectIcon(icon)}
             >
@@ -544,7 +560,7 @@ export default function AddHabitScreen() {
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Color</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Color</Text>
         <View style={styles.colorGrid}>
           {COLORS.map((color) => (
             <TouchableOpacity
@@ -578,7 +594,6 @@ export default function AddHabitScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.dark.background,
   },
   scrollView: {
     flex: 1,
@@ -595,23 +610,19 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: colors.dark.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
     borderWidth: 2,
-    borderColor: colors.dark.tint,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#fff',
     marginBottom: 8,
     textAlign: 'center',
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#9CA3AF',
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -621,17 +632,13 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#fff',
     marginBottom: 12,
   },
   input: {
-    backgroundColor: colors.dark.card,
     borderRadius: 16,
     padding: 18,
     fontSize: 16,
-    color: '#fff',
     borderWidth: 2,
-    borderColor: colors.dark.border,
   },
   textArea: {
     minHeight: 80,
@@ -646,7 +653,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 16,
-    backgroundColor: colors.dark.card,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -661,9 +667,6 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   selectedIcon: {
-    borderColor: colors.dark.tint,
-    backgroundColor: colors.dark.border,
-    shadowColor: colors.dark.tint,
     shadowOpacity: 0.3,
   },
   iconText: {
@@ -724,9 +727,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 12,
-    backgroundColor: colors.dark.card,
     borderWidth: 2,
-    borderColor: colors.dark.border,
   },
   selectedDay: {
     borderColor: 'transparent',
@@ -741,7 +742,6 @@ const styles = StyleSheet.create({
   },
   dayText: {
     fontSize: 14,
-    color: '#9CA3AF',
     fontWeight: '500',
   },
   selectedDayText: {
@@ -754,10 +754,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 16,
     padding: 16,
-    backgroundColor: colors.dark.card,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.dark.border,
   },
   reminderHeaderLeft: {
     flexDirection: 'row',
@@ -769,12 +767,10 @@ const styles = StyleSheet.create({
   },
   subLabel: {
     fontSize: 14,
-    color: '#9CA3AF',
     marginBottom: 8,
   },
   helpText: {
     fontSize: 12,
-    color: '#6B7280',
     marginTop: 8,
     fontStyle: 'italic',
   },
@@ -789,12 +785,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 12,
-    backgroundColor: colors.dark.card,
     borderWidth: 2,
-    borderColor: colors.dark.border,
   },
   selectedCategory: {
-    backgroundColor: colors.dark.border,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -810,7 +803,6 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     fontSize: 13,
-    color: '#9CA3AF',
     fontWeight: '600',
     flex: 1,
   },
@@ -818,7 +810,6 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   templatesButton: {
-    backgroundColor: colors.dark.card,
     borderRadius: 16,
     padding: 16,
     marginBottom: 24,
@@ -848,12 +839,10 @@ const styles = StyleSheet.create({
   templatesButtonTitle: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: '#fff',
     marginBottom: 2,
   },
   templatesButtonSubtitle: {
     fontSize: 13,
-    color: '#9CA3AF',
   },
   templatesArrow: {
     fontSize: 20,
@@ -864,21 +853,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.dark.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: colors.dark.border,
   },
   advancedToggleText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
   },
   advancedToggleIcon: {
     fontSize: 14,
-    color: '#9CA3AF',
   },
   streakGoalContainer: {
     gap: 16,
@@ -892,10 +877,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
-    backgroundColor: colors.dark.card,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: colors.dark.border,
   },
   intervalButtonActive: {
     borderColor: 'transparent',
@@ -903,7 +886,6 @@ const styles = StyleSheet.create({
   intervalButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#9CA3AF',
   },
   intervalButtonTextActive: {
     color: '#fff',
@@ -915,17 +897,13 @@ const styles = StyleSheet.create({
   },
   completionsInput: {
     flex: 1,
-    backgroundColor: colors.dark.card,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: '#fff',
     borderWidth: 2,
-    borderColor: colors.dark.border,
   },
   completionsLabel: {
     fontSize: 16,
-    color: '#9CA3AF',
     fontWeight: '600',
   },
   trackingModeButtons: {
@@ -937,18 +915,14 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderRadius: 12,
-    backgroundColor: colors.dark.card,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: colors.dark.border,
   },
   trackingModeButtonActive: {
-    backgroundColor: colors.dark.border,
   },
   trackingModeButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#9CA3AF',
   },
   trackingModeButtonTextActive: {
     color: '#fff',
@@ -968,7 +942,6 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 6,
-    backgroundColor: colors.dark.border,
   },
   timeOfDaySection: {
     marginTop: 20,
@@ -986,9 +959,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
-    backgroundColor: colors.dark.card,
     borderWidth: 2,
-    borderColor: colors.dark.border,
   },
   timeOfDayButtonActive: {
     borderColor: 'transparent',
@@ -999,7 +970,6 @@ const styles = StyleSheet.create({
   timeOfDayButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#9CA3AF',
   },
   timeOfDayButtonTextActive: {
     color: '#fff',
