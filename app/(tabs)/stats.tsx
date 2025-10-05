@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import { useGamification } from "@/providers/GamificationProvider";
 import { TrendingUp, Award, Target, Zap } from "lucide-react-native";
-import colors from "@/constants/colors";
+import { useTheme } from "@/providers/ThemeProvider";
 import typography from "@/constants/typography";
 
 const BAR_WIDTH = 8;
@@ -19,6 +19,7 @@ export default function StatsScreen() {
   const insets = useSafeAreaInsets();
   const { habits } = useHabits();
   const { level, xp, xpToNextLevel } = useGamification();
+  const { colors } = useTheme();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const scaleAnim = React.useRef(new Animated.Value(0.9)).current;
 
@@ -114,21 +115,23 @@ export default function StatsScreen() {
   }, [activeHabits, last30DaysData]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView 
         style={[styles.scrollView, { paddingTop: insets.top }]} 
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Statistics</Text>
-          <Text style={styles.subtitle}>Track your progress and achievements</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Statistics</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Track your progress and achievements</Text>
         </View>
 
         <Animated.View 
           style={[
             styles.levelCard,
             {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
               opacity: fadeAnim,
               transform: [{ scale: scaleAnim }],
             },
@@ -140,8 +143,8 @@ export default function StatsScreen() {
               <Text style={styles.levelNumber}>{level}</Text>
             </View>
             <View style={styles.levelInfo}>
-              <Text style={styles.levelTitle}>Level {level}</Text>
-              <Text style={styles.levelSubtitle}>{xpToNextLevel} XP to next level</Text>
+              <Text style={[styles.levelTitle, { color: colors.text }]}>Level {level}</Text>
+              <Text style={[styles.levelSubtitle, { color: colors.textSecondary }]}>{xpToNextLevel} XP to next level</Text>
             </View>
           </View>
           <View style={styles.xpBar}>
@@ -152,38 +155,38 @@ export default function StatsScreen() {
               ]} 
             />
           </View>
-          <Text style={styles.xpText}>{xp % 100} / 100 XP</Text>
+          <Text style={[styles.xpText, { color: colors.textSecondary }]}>{xp % 100} / 100 XP</Text>
         </Animated.View>
 
         <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={[styles.statIcon, { backgroundColor: '#8B5CF620' }]}>
               <Target size={24} color="#8B5CF6" />
             </View>
-            <Text style={styles.statValue}>{stats.completedToday}/{stats.totalHabits}</Text>
-            <Text style={styles.statLabel}>Today</Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>{stats.completedToday}/{stats.totalHabits}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Today</Text>
           </View>
 
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={[styles.statIcon, { backgroundColor: '#F59E0B20' }]}>
               <TrendingUp size={24} color="#F59E0B" />
             </View>
-            <Text style={styles.statValue}>{stats.maxStreak}</Text>
-            <Text style={styles.statLabel}>Best Streak</Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>{stats.maxStreak}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Best Streak</Text>
           </View>
 
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={[styles.statIcon, { backgroundColor: '#10B98120' }]}>
               <Award size={24} color="#10B981" />
             </View>
-            <Text style={styles.statValue}>{stats.totalCompletions}</Text>
-            <Text style={styles.statLabel}>Total</Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>{stats.totalCompletions}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total</Text>
           </View>
         </View>
 
-        <View style={styles.chartCard}>
-          <Text style={styles.chartTitle}>Last 30 Days</Text>
-          <Text style={styles.chartSubtitle}>Average: {stats.avgPerDay} per day</Text>
+        <View style={[styles.chartCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.chartTitle, { color: colors.text }]}>Last 30 Days</Text>
+          <Text style={[styles.chartSubtitle, { color: colors.textSecondary }]}>Average: {stats.avgPerDay} per day</Text>
           
           <View style={styles.chart}>
             <View style={styles.chartBars}>
@@ -196,7 +199,7 @@ export default function StatsScreen() {
                         styles.bar,
                         { 
                           height: Math.max(height, 4),
-                          backgroundColor: day.completions > 0 ? colors.dark.tint : '#2A2F4A',
+                          backgroundColor: day.completions > 0 ? colors.tint : colors.border,
                         }
                       ]} 
                     />
@@ -210,13 +213,13 @@ export default function StatsScreen() {
           </View>
         </View>
 
-        <View style={styles.insightsCard}>
-          <Text style={styles.insightsTitle}>Insights</Text>
+        <View style={[styles.insightsCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.insightsTitle, { color: colors.text }]}>Insights</Text>
           <View style={styles.insightItem}>
             <Text style={styles.insightIcon}>📈</Text>
             <View style={styles.insightText}>
-              <Text style={styles.insightTitle}>Consistency</Text>
-              <Text style={styles.insightDescription}>
+              <Text style={[styles.insightTitle, { color: colors.text }]}>Consistency</Text>
+              <Text style={[styles.insightDescription, { color: colors.textSecondary }]}>
                 You&apos;ve completed {stats.totalCompletions} habits across {activeHabits.length} different habits
               </Text>
             </View>
@@ -226,8 +229,8 @@ export default function StatsScreen() {
             <View style={styles.insightItem}>
               <Text style={styles.insightIcon}>🔥</Text>
               <View style={styles.insightText}>
-                <Text style={styles.insightTitle}>Streak Master</Text>
-                <Text style={styles.insightDescription}>
+                <Text style={[styles.insightTitle, { color: colors.text }]}>Streak Master</Text>
+                <Text style={[styles.insightDescription, { color: colors.textSecondary }]}>
                   Your longest streak is {stats.maxStreak} days! Keep it up!
                 </Text>
               </View>
@@ -238,8 +241,8 @@ export default function StatsScreen() {
             <View style={styles.insightItem}>
               <Text style={styles.insightIcon}>⚡</Text>
               <View style={styles.insightText}>
-                <Text style={styles.insightTitle}>High Performer</Text>
-                <Text style={styles.insightDescription}>
+                <Text style={[styles.insightTitle, { color: colors.text }]}>High Performer</Text>
+                <Text style={[styles.insightDescription, { color: colors.textSecondary }]}>
                   You&apos;re averaging {stats.avgPerDay} completions per day this month
                 </Text>
               </View>
@@ -254,7 +257,6 @@ export default function StatsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.dark.background,
   },
   scrollView: {
     flex: 1,
@@ -268,20 +270,16 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.display,
-    color: '#fff',
     marginBottom: 4,
   },
   subtitle: {
     ...typography.body,
-    color: '#9CA3AF',
   },
   levelCard: {
-    backgroundColor: colors.dark.card,
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
-    borderWidth: 2,
-    borderColor: '#FFD70040',
+    borderWidth: 1,
     shadowColor: '#FFD700',
     shadowOffset: {
       width: 0,
@@ -318,12 +316,10 @@ const styles = StyleSheet.create({
   },
   levelTitle: {
     ...typography.h2,
-    color: '#fff',
     marginBottom: 4,
   },
   levelSubtitle: {
     fontSize: 14,
-    color: '#9CA3AF',
   },
   xpBar: {
     height: 8,
@@ -339,7 +335,6 @@ const styles = StyleSheet.create({
   },
   xpText: {
     fontSize: 12,
-    color: '#9CA3AF',
     textAlign: 'right',
   },
   statsGrid: {
@@ -349,12 +344,10 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: colors.dark.card,
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.dark.border,
   },
   statIcon: {
     width: 48,
@@ -367,31 +360,25 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#fff',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: '#9CA3AF',
     textTransform: 'uppercase',
     fontWeight: '600',
   },
   chartCard: {
-    backgroundColor: colors.dark.card,
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: colors.dark.border,
   },
   chartTitle: {
     ...typography.h4,
-    color: '#fff',
     marginBottom: 4,
   },
   chartSubtitle: {
     fontSize: 14,
-    color: '#9CA3AF',
     marginBottom: 20,
   },
   chart: {
@@ -419,16 +406,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   insightsCard: {
-    backgroundColor: colors.dark.card,
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: colors.dark.border,
   },
   insightsTitle: {
     ...typography.h4,
-    color: '#fff',
     marginBottom: 16,
   },
   insightItem: {
@@ -445,12 +429,10 @@ const styles = StyleSheet.create({
   insightTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
     marginBottom: 4,
   },
   insightDescription: {
     fontSize: 14,
-    color: '#9CA3AF',
     lineHeight: 20,
   },
 });
