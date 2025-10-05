@@ -160,6 +160,23 @@ export default function LandingPage() {
                 <Text style={styles.socialProofBold}>2,500+</Text> people building better habits
               </Text>
             </View>
+
+            {Platform.OS === 'web' && (
+              <View style={styles.productHuntBadge}>
+                <a 
+                  href="https://www.producthunt.com/products/momentpro?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-momentpro" 
+                  target="_blank"
+                >
+                  <img 
+                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1023307&theme=dark&t=1759692862397" 
+                    alt="MomentPro - A beautiful habit tracker makes your progress look like art. | Product Hunt" 
+                    style={{ width: '250px', height: '54px' }} 
+                    width="250" 
+                    height="54" 
+                  />
+                </a>
+              </View>
+            )}
           </View>
         </LinearGradient>
 
@@ -630,6 +647,10 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
     color: '#6B7280',
+  },
+  productHuntBadge: {
+    marginTop: 24,
+    alignItems: 'center',
   },
   demoSection: {
     paddingHorizontal: 20,
