@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -32,15 +32,28 @@ const { width } = Dimensions.get('window');
 export default function LandingPage() {
   const router = useRouter();
   const [activeFeature, setActiveFeature] = useState(0);
+  const hasRedirected = useRef(false);
 
   useEffect(() => {
-    if (Platform.OS !== 'web') {
-      router.replace('/habits');
+    if (Platform.OS !== 'web' && !hasRedirected.current) {
+      hasRedirected.current = true;
+      const timer = setTimeout(() => {
+        try {
+          router.replace('/(tabs)/habits');
+        } catch (error) {
+          console.error('[LandingPage] Navigation error:', error);
+        }
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [router]);
 
   if (Platform.OS !== 'web') {
-    return null;
+    return (
+      <View style={[styles.container, { backgroundColor: colors.dark.background }]}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.dark.background} />
+      </View>
+    );
   }
 
   const features = [
