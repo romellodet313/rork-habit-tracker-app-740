@@ -12,6 +12,7 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import { Calendar, Share2, Archive, Trash2, Edit, ChevronLeft, ChevronRight, Heart } from "lucide-react-native";
 import { YearGrid } from "@/components/YearGrid";
 import * as Haptics from "expo-haptics";
@@ -21,6 +22,7 @@ export default function HabitDetailsScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { theme, colors } = useTheme();
   const { habits, archiveHabit, deleteHabit, getStreak, getLongestStreak, getCompletionRate, getTotalCompletions, getWeeklyProgress } = useHabits();
   
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -41,9 +43,9 @@ export default function HabitDetailsScreen() {
   
   if (!habit) {
     return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#0A0E27" />
-        <Text style={styles.errorText}>Habit not found</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
+        <Text style={[styles.errorText, { color: colors.error }]}>Habit not found</Text>
       </View>
     );
   }
@@ -125,8 +127,8 @@ export default function HabitDetailsScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0A0E27" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
       <ScrollView 
         style={[styles.scrollView, { paddingTop: insets.top }]} 
         contentContainerStyle={styles.content}
@@ -135,20 +137,20 @@ export default function HabitDetailsScreen() {
         <View style={[styles.iconContainer, { backgroundColor: `${habit.color}20` }]}>
           <Text style={styles.icon}>{habit.icon}</Text>
         </View>
-        <Text style={styles.name}>{habit.name}</Text>
+        <Text style={[styles.name, { color: colors.text }]}>{habit.name}</Text>
         {habit.description ? (
-          <Text style={styles.description}>{habit.description}</Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>{habit.description}</Text>
         ) : null}
         {categories.length > 0 && (
           <View style={styles.categoriesRow}>
             {categories.map((cat: any) => (
-              <View key={cat.id} style={styles.categoryTag}>
+              <View key={cat.id} style={[styles.categoryTag, { backgroundColor: colors.cardSecondary }]}>
                 <Text style={styles.categoryIcon}>{cat.icon}</Text>
-                <Text style={styles.categoryText}>{cat.name}</Text>
+                <Text style={[styles.categoryText, { color: colors.textSecondary }]}>{cat.name}</Text>
               </View>
             ))}
             {habit.timeOfDay && habit.timeOfDay.length > 0 && (
-              <View style={styles.timeTag}>
+              <View style={[styles.timeTag, { backgroundColor: colors.cardSecondary }]}>
                 <Text style={styles.timeText}>
                   {habit.timeOfDay.map(t => t === 'morning' ? '🌅' : t === 'day' ? '☀️' : '🌙').join(' ')}
                 </Text>
@@ -158,49 +160,49 @@ export default function HabitDetailsScreen() {
         )}
       </View>
       
-      <View style={styles.statsContainer}>
+      <View style={[styles.statsContainer, { backgroundColor: colors.card }]}>
         <View style={styles.stat}>
           <Text style={[styles.statValue, { color: habit.color }]}>{currentStreak}</Text>
-          <Text style={styles.statLabel}>Current Streak</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Current Streak</Text>
         </View>
         <View style={styles.stat}>
-          <Text style={styles.statValue}>{longestStreak}</Text>
-          <Text style={styles.statLabel}>Best Streak</Text>
+          <Text style={[styles.statValue, { color: colors.text }]}>{longestStreak}</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Best Streak</Text>
         </View>
         <View style={styles.stat}>
-          <Text style={styles.statValue}>{totalCompletions}</Text>
-          <Text style={styles.statLabel}>Total Days</Text>
+          <Text style={[styles.statValue, { color: colors.text }]}>{totalCompletions}</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total Days</Text>
         </View>
       </View>
       
       {habit.streakInterval && habit.streakInterval !== 'none' && (
-        <View style={styles.goalCard}>
+        <View style={[styles.goalCard, { backgroundColor: colors.card }]}>
           <Heart size={20} color={habit.color} />
-          <Text style={styles.goalText}>
+          <Text style={[styles.goalText, { color: colors.text }]}>
             Goal: {habit.completionsPerInterval || 3} times per {habit.streakInterval === 'daily' ? 'day' : habit.streakInterval}
           </Text>
         </View>
       )}
       
       <View style={styles.gridSection}>
-        <Text style={styles.sectionTitle}>Year at a Glance</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Year at a Glance</Text>
         <YearGrid habit={habit} days={365} />
       </View>
       
       <View style={styles.calendarSection}>
         <View style={styles.calendarHeader}>
-          <TouchableOpacity onPress={goToPreviousMonth} style={styles.monthButton}>
-            <ChevronLeft size={24} color="#fff" />
+          <TouchableOpacity onPress={goToPreviousMonth} style={[styles.monthButton, { backgroundColor: colors.card }]}>
+            <ChevronLeft size={24} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.monthTitle}>{monthName}</Text>
-          <TouchableOpacity onPress={goToNextMonth} style={styles.monthButton}>
-            <ChevronRight size={24} color="#fff" />
+          <Text style={[styles.monthTitle, { color: colors.text }]}>{monthName}</Text>
+          <TouchableOpacity onPress={goToNextMonth} style={[styles.monthButton, { backgroundColor: colors.card }]}>
+            <ChevronRight size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
         
         <View style={styles.weekDaysRow}>
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <Text key={day} style={styles.weekDayText}>{day}</Text>
+            <Text key={day} style={[styles.weekDayText, { color: colors.textSecondary }]}>{day}</Text>
           ))}
         </View>
         
@@ -210,13 +212,15 @@ export default function HabitDetailsScreen() {
               {day.date && (
                 <View style={[
                   styles.dayCircle,
+                  { backgroundColor: colors.cardSecondary },
                   day.completed && { backgroundColor: habit.color },
-                  day.date.toDateString() === new Date().toDateString() && styles.todayCircle,
+                  day.date.toDateString() === new Date().toDateString() && { borderWidth: 2, borderColor: colors.primary },
                 ]}>
                   <Text style={[
                     styles.dayText,
+                    { color: colors.textSecondary },
                     day.completed && styles.completedDayText,
-                    day.date.toDateString() === new Date().toDateString() && styles.todayText,
+                    day.date.toDateString() === new Date().toDateString() && { color: colors.primary, fontWeight: '700' },
                   ]}>
                     {day.date.getDate()}
                   </Text>
@@ -229,23 +233,23 @@ export default function HabitDetailsScreen() {
       
       <View style={styles.actions}>
         <TouchableOpacity
-          style={styles.actionButton}
+          style={[styles.actionButton, { backgroundColor: colors.card }]}
           onPress={() => router.push(`/edit/${habit.id}`)}
         >
-          <Edit size={20} color="#8B5CF6" />
-          <Text style={styles.actionText}>Edit</Text>
+          <Edit size={20} color={colors.primary} />
+          <Text style={[styles.actionText, { color: colors.primary }]}>Edit</Text>
         </TouchableOpacity>
         
         <TouchableOpacity
-          style={styles.actionButton}
+          style={[styles.actionButton, { backgroundColor: colors.card }]}
           onPress={() => router.push(`/share/${habit.id}`)}
         >
-          <Share2 size={20} color="#8B5CF6" />
-          <Text style={styles.actionText}>Share</Text>
+          <Share2 size={20} color={colors.primary} />
+          <Text style={[styles.actionText, { color: colors.primary }]}>Share</Text>
         </TouchableOpacity>
         
         <TouchableOpacity
-          style={styles.actionButton}
+          style={[styles.actionButton, { backgroundColor: colors.card }]}
           onPress={handleArchive}
         >
           <Archive size={20} color="#F59E0B" />
@@ -253,7 +257,7 @@ export default function HabitDetailsScreen() {
         </TouchableOpacity>
         
         <TouchableOpacity
-          style={styles.actionButton}
+          style={[styles.actionButton, { backgroundColor: colors.card }]}
           onPress={handleDelete}
         >
           <Trash2 size={20} color="#EF4444" />
@@ -268,7 +272,6 @@ export default function HabitDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0E27',
   },
   scrollView: {
     flex: 1,
@@ -277,7 +280,6 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   errorText: {
-    color: '#EF4444',
     fontSize: 16,
     textAlign: 'center',
     marginTop: 50,
@@ -310,7 +312,6 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 12,
   },
   categoryIcon: {
@@ -318,13 +319,11 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 13,
-    color: '#9CA3AF',
     fontWeight: '500',
   },
   timeTag: {
     paddingHorizontal: 10,
     paddingVertical: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 12,
   },
   timeText: {
@@ -333,19 +332,16 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#fff',
     marginBottom: 8,
   },
   description: {
     fontSize: 16,
-    color: '#9CA3AF',
     textAlign: 'center',
     paddingHorizontal: 32,
   },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: '#1A1F3A',
     borderRadius: 16,
     padding: 20,
     marginBottom: 32,
@@ -356,26 +352,22 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#fff',
     marginBottom: 4,
   },
   goalCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#1A1F3A',
     borderRadius: 16,
     padding: 16,
     marginBottom: 24,
   },
   goalText: {
     fontSize: 15,
-    color: '#fff',
     fontWeight: '600',
   },
   statLabel: {
     fontSize: 12,
-    color: '#9CA3AF',
     textTransform: 'uppercase',
   },
   progressContainer: {
@@ -391,7 +383,6 @@ const styles = StyleSheet.create({
   progressLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#9CA3AF',
   },
   progressBar: {
     height: 8,
@@ -406,7 +397,6 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#fff',
     textAlign: 'right',
   },
   gridSection: {
@@ -415,7 +405,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#9CA3AF',
     marginBottom: 16,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -433,12 +422,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#1A1F3A',
     padding: 14,
     borderRadius: 12,
   },
   actionText: {
-    color: '#8B5CF6',
     fontWeight: '600',
     fontSize: 14,
   },
@@ -453,13 +440,11 @@ const styles = StyleSheet.create({
   },
   monthButton: {
     padding: 8,
-    backgroundColor: '#1A1F3A',
     borderRadius: 12,
   },
   monthTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#fff',
   },
   weekDaysRow: {
     flexDirection: 'row',
@@ -468,7 +453,6 @@ const styles = StyleSheet.create({
   },
   weekDayText: {
     fontSize: 12,
-    color: '#9CA3AF',
     fontWeight: '600',
     width: 40,
     textAlign: 'center',
@@ -487,23 +471,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
-  todayCircle: {
-    borderWidth: 2,
-    borderColor: '#8B5CF6',
-  },
+
   dayText: {
     fontSize: 14,
-    color: '#9CA3AF',
     fontWeight: '500',
   },
   completedDayText: {
     color: '#fff',
     fontWeight: '700',
   },
-  todayText: {
-    color: '#8B5CF6',
-    fontWeight: '700',
-  },
+
 });
