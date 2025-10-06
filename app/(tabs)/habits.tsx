@@ -15,7 +15,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import { HabitCard } from "@/components/HabitCard";
-import { Plus, Settings as SettingsIcon, Sparkles, Target, Search, Filter, Zap, Grid3x3, List, Check } from "lucide-react-native";
+import { Plus, Settings as SettingsIcon, Sparkles, Target, Search, Filter, Zap, Grid3x3, List, Check, TrendingUp, Calendar, Archive, BookTemplate, Crown } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers/ThemeProvider";
 import typography from "@/constants/typography";
@@ -221,6 +221,71 @@ export default function HabitsScreen() {
           />
         </View>
         
+        <View style={[styles.quickActionsCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.quickActionsTitle, { color: colors.text }]}>Quick Actions</Text>
+          <View style={styles.quickActionsGrid}>
+            <TouchableOpacity
+              style={[styles.quickActionButton, { backgroundColor: colors.background }]}
+              onPress={() => {
+                if (Platform.OS !== 'web') {
+                  Haptics.selectionAsync();
+                }
+                router.push('/templates');
+              }}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#8B5CF620' }]}>
+                <BookTemplate size={20} color="#8B5CF6" />
+              </View>
+              <Text style={[styles.quickActionText, { color: colors.text }]}>Templates</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.quickActionButton, { backgroundColor: colors.background }]}
+              onPress={() => {
+                if (Platform.OS !== 'web') {
+                  Haptics.selectionAsync();
+                }
+                router.push('/routines');
+              }}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#F59E0B20' }]}>
+                <Calendar size={20} color="#F59E0B" />
+              </View>
+              <Text style={[styles.quickActionText, { color: colors.text }]}>Routines</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.quickActionButton, { backgroundColor: colors.background }]}
+              onPress={() => {
+                if (Platform.OS !== 'web') {
+                  Haptics.selectionAsync();
+                }
+                router.push('/stats');
+              }}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#10B98120' }]}>
+                <TrendingUp size={20} color="#10B981" />
+              </View>
+              <Text style={[styles.quickActionText, { color: colors.text }]}>Stats</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.quickActionButton, { backgroundColor: colors.background }]}
+              onPress={() => {
+                if (Platform.OS !== 'web') {
+                  Haptics.selectionAsync();
+                }
+                router.push('/archive');
+              }}
+            >
+              <View style={[styles.quickActionIcon, { backgroundColor: '#6B728020' }]}>
+                <Archive size={20} color="#6B7280" />
+              </View>
+              <Text style={[styles.quickActionText, { color: colors.text }]}>Archive</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        
         {showFilters && (
           <View style={[styles.filtersContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.filterSection}>
@@ -299,6 +364,90 @@ export default function HabitsScreen() {
             </Text>
           </Animated.View>
         )}
+        
+        {activeHabits.length > 0 && (
+          <View style={[styles.insightsCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={styles.insightsHeader}>
+              <Sparkles size={20} color={colors.tint} />
+              <Text style={[styles.insightsTitle, { color: colors.text }]}>Insights & Tips</Text>
+            </View>
+            
+            {totalCompletionsToday === activeHabits.length && (
+              <View style={styles.insightItem}>
+                <Text style={styles.insightEmoji}>🎉</Text>
+                <Text style={[styles.insightText, { color: colors.textSecondary }]}>
+                  Amazing! You&apos;ve completed all habits today. Keep up the momentum!
+                </Text>
+              </View>
+            )}
+            
+            {totalCompletionsToday === 0 && new Date().getHours() < 12 && (
+              <View style={styles.insightItem}>
+                <Text style={styles.insightEmoji}>☀️</Text>
+                <Text style={[styles.insightText, { color: colors.textSecondary }]}>
+                  Good morning! Start your day strong by completing your first habit.
+                </Text>
+              </View>
+            )}
+            
+            {totalCompletionsToday > 0 && totalCompletionsToday < activeHabits.length && (
+              <View style={styles.insightItem}>
+                <Text style={styles.insightEmoji}>💪</Text>
+                <Text style={[styles.insightText, { color: colors.textSecondary }]}>
+                  You&apos;re {Math.round((totalCompletionsToday / activeHabits.length) * 100)}% there! Just {activeHabits.length - totalCompletionsToday} more to go.
+                </Text>
+              </View>
+            )}
+            
+            {activeHabits.length >= 5 && (
+              <View style={styles.insightItem}>
+                <Text style={styles.insightEmoji}>🎯</Text>
+                <Text style={[styles.insightText, { color: colors.textSecondary }]}>
+                  Tip: Focus on 2-3 core habits first for better consistency.
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+        
+        <View style={[styles.premiumCard, { backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderColor: '#667eea' }]}>
+          <View style={styles.premiumHeader}>
+            <Crown size={24} color="#FFD700" fill="#FFD700" />
+            <Text style={styles.premiumTitle}>Unlock Premium</Text>
+          </View>
+          <Text style={styles.premiumDescription}>
+            Get unlimited habits, advanced analytics, custom themes, and more!
+          </Text>
+          <View style={styles.premiumFeatures}>
+            <View style={styles.premiumFeature}>
+              <Check size={16} color="#fff" strokeWidth={3} />
+              <Text style={styles.premiumFeatureText}>Unlimited Habits</Text>
+            </View>
+            <View style={styles.premiumFeature}>
+              <Check size={16} color="#fff" strokeWidth={3} />
+              <Text style={styles.premiumFeatureText}>Advanced Analytics</Text>
+            </View>
+            <View style={styles.premiumFeature}>
+              <Check size={16} color="#fff" strokeWidth={3} />
+              <Text style={styles.premiumFeatureText}>Custom Themes</Text>
+            </View>
+            <View style={styles.premiumFeature}>
+              <Check size={16} color="#fff" strokeWidth={3} />
+              <Text style={styles.premiumFeatureText}>Priority Support</Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.premiumButton}
+            onPress={() => {
+              if (Platform.OS !== 'web') {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              }
+            }}
+          >
+            <Text style={styles.premiumButtonText}>Start Free Trial</Text>
+            <Text style={styles.premiumButtonSubtext}>7 days free, then $4.99/month</Text>
+          </TouchableOpacity>
+        </View>
         
         <View style={styles.habitsSection}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Your Habits</Text>
@@ -620,5 +769,134 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  quickActionsCard: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+  },
+  quickActionsTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  quickActionButton: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    gap: 8,
+  },
+  quickActionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickActionText: {
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  insightsCard: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+  },
+  insightsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  insightsTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  insightItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 8,
+  },
+  insightEmoji: {
+    fontSize: 24,
+  },
+  insightText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  premiumCard: {
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 20,
+    borderWidth: 2,
+    backgroundColor: '#667eea',
+  },
+  premiumHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  },
+  premiumTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#fff',
+  },
+  premiumDescription: {
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  premiumFeatures: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  premiumFeature: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  premiumFeatureText: {
+    fontSize: 15,
+    color: '#fff',
+    fontWeight: '600',
+  },
+  premiumButton: {
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  premiumButtonText: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#667eea',
+    marginBottom: 4,
+  },
+  premiumButtonSubtext: {
+    fontSize: 13,
+    color: '#667eea',
+    fontWeight: '600',
+    opacity: 0.8,
   },
 });
