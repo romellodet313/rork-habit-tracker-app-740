@@ -43,8 +43,8 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     canvas.style.display = 'block';
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0e1a);
-    scene.fog = new THREE.FogExp2(0x0f1420, 0.012);
+    scene.background = new THREE.Color(0xb8d4e8);
+    scene.fog = new THREE.Fog(0xb8d4e8, 30, 100);
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
@@ -69,11 +69,11 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     renderer.shadowMap.type = THREE.BasicShadowMap;
     rendererRef.current = renderer;
 
-    const ambientLight = new THREE.AmbientLight(0x4a5a7a, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    directionalLight.position.set(30, 50, 20);
+    const directionalLight = new THREE.DirectionalLight(0xfff8e1, 1.2);
+    directionalLight.position.set(40, 60, 30);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048;
     directionalLight.shadow.mapSize.height = 2048;
@@ -83,60 +83,31 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     directionalLight.shadow.camera.right = 60;
     directionalLight.shadow.camera.top = 60;
     directionalLight.shadow.camera.bottom = -60;
-    directionalLight.shadow.bias = -0.0005;
+    directionalLight.shadow.bias = -0.001;
     scene.add(directionalLight);
 
-    const moonLight = new THREE.PointLight(0xa0b5ff, 4, 180);
-    moonLight.position.set(-25, 45, -25);
-    scene.add(moonLight);
+    const skyLight = new THREE.HemisphereLight(0xb8d4e8, 0xd4c4a8, 0.6);
+    scene.add(skyLight);
 
-    const cityGlow1 = new THREE.PointLight(0xff3d7f, 3, 90);
-    cityGlow1.position.set(-10, 10, -10);
-    scene.add(cityGlow1);
-
-    const cityGlow2 = new THREE.PointLight(0x00ffcc, 3, 90);
-    cityGlow2.position.set(10, 10, 10);
-    scene.add(cityGlow2);
-
-    const cityGlow3 = new THREE.PointLight(0xffaa00, 2.5, 80);
-    cityGlow3.position.set(0, 15, 0);
-    scene.add(cityGlow3);
-
-    const cityGlow4 = new THREE.PointLight(0x7b2fff, 2.5, 80);
-    cityGlow4.position.set(10, 12, -10);
-    scene.add(cityGlow4);
-
-    const cityGlow5 = new THREE.PointLight(0xff6b00, 2.5, 80);
-    cityGlow5.position.set(-10, 12, 10);
-    scene.add(cityGlow5);
-
-    const groundSize = 60;
+    const groundSize = 80;
     const groundGeometry = new THREE.PlaneGeometry(groundSize, groundSize);
     const groundMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x0d1118,
-      roughness: 0.9,
-      metalness: 0.3,
-      emissive: 0x0a0d15,
-      emissiveIntensity: 0.2
+      color: 0xd4c4a8,
+      roughness: 0.95,
+      metalness: 0.0,
+      flatShading: true
     });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    const gridHelper = new THREE.GridHelper(groundSize, 60, 0x00ffcc, 0x1a2030);
-    gridHelper.position.y = 0.01;
-    gridHelper.material.opacity = 0.3;
-    gridHelper.material.transparent = true;
-    scene.add(gridHelper);
-
-    const roadWidth = 2.5;
+    const roadWidth = 3;
     const roadMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x1a2230,
-      roughness: 0.6,
-      metalness: 0.5,
-      emissive: 0x0a1520,
-      emissiveIntensity: 0.3
+      color: 0x8a8a8a,
+      roughness: 0.9,
+      metalness: 0.0,
+      flatShading: true
     });
 
     const mainRoad1 = new THREE.Mesh(
@@ -157,151 +128,78 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     mainRoad2.receiveShadow = true;
     scene.add(mainRoad2);
 
-    const sidewalkWidth = 0.4;
-    const sidewalkMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x2a3545,
-      roughness: 0.8,
-      metalness: 0.2,
-      emissive: 0x1a2535,
-      emissiveIntensity: 0.1
-    });
-
-    for (let side of [-1, 1]) {
-      const sidewalk1 = new THREE.Mesh(
-        new THREE.PlaneGeometry(groundSize, sidewalkWidth),
-        sidewalkMaterial
-      );
-      sidewalk1.rotation.x = -Math.PI / 2;
-      sidewalk1.position.set(0, 0.03, side * (roadWidth / 2 + sidewalkWidth / 2));
-      sidewalk1.receiveShadow = true;
-      scene.add(sidewalk1);
-
-      const sidewalk2 = new THREE.Mesh(
-        new THREE.PlaneGeometry(sidewalkWidth, groundSize),
-        sidewalkMaterial
-      );
-      sidewalk2.rotation.x = -Math.PI / 2;
-      sidewalk2.position.set(side * (roadWidth / 2 + sidewalkWidth / 2), 0.03, 0);
-      sidewalk2.receiveShadow = true;
-      scene.add(sidewalk2);
-    }
-
-    const lineGeometry = new THREE.PlaneGeometry(0.12, 1.2);
+    const lineGeometry = new THREE.PlaneGeometry(0.15, 1.5);
     const lineMaterial = new THREE.MeshBasicMaterial({ 
-      color: 0x00ffcc,
+      color: 0xffffff,
       transparent: true,
-      opacity: 0.8
+      opacity: 0.9
     });
     
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 20; i++) {
       const line = new THREE.Mesh(lineGeometry, lineMaterial);
       line.rotation.x = -Math.PI / 2;
-      line.position.set(i * 2.5 - 30, 0.04, 0);
+      line.position.set(i * 3 - 30, 0.04, 0);
       scene.add(line);
 
       const line2 = new THREE.Mesh(lineGeometry, lineMaterial);
       line2.rotation.z = Math.PI / 2;
-      line2.position.set(0, 0.04, i * 2.5 - 30);
+      line2.position.set(0, 0.04, i * 3 - 30);
       scene.add(line2);
     }
 
-    const lampHeight = 3.5;
-    const poleGeometry = new THREE.CylinderGeometry(0.06, 0.12, lampHeight, 8);
-    const poleMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x1a2535,
-      roughness: 0.3,
-      metalness: 0.95,
-      emissive: 0x0a1520,
-      emissiveIntensity: 0.2
-    });
-    const lampArmGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.6, 6);
-    const lightGeometry = new THREE.SphereGeometry(0.18, 12, 12);
-    const glowGeometry = new THREE.SphereGeometry(0.25, 12, 12);
-    
-    const lightColors = [0x00ffcc, 0xff3d7f, 0xffaa00, 0x7b2fff];
-    const lightMaterials = lightColors.map(color => new THREE.MeshBasicMaterial({ 
-      color,
-      transparent: true,
-      opacity: 1
-    }));
-    const glowMaterials = lightColors.map(color => new THREE.MeshBasicMaterial({ 
-      color,
-      transparent: true,
-      opacity: 0.4
-    }));
-    
-    for (let i = 0; i < 16; i++) {
-      const x = (Math.random() - 0.5) * 45;
-      const z = (Math.random() - 0.5) * 45;
-      const distance = Math.sqrt(x * x + z * z);
-      
-      if (distance < 10 || distance > 25) continue;
 
-      const pole = new THREE.Mesh(poleGeometry, poleMaterial);
-      pole.position.set(x, lampHeight / 2, z);
-      pole.castShadow = true;
-      scene.add(pole);
 
-      const lampArm = new THREE.Mesh(lampArmGeometry, poleMaterial);
-      lampArm.rotation.z = Math.PI / 2;
-      lampArm.position.set(x + 0.3, lampHeight, z);
-      scene.add(lampArm);
-
-      const colorIndex = i % 4;
-      const lightColor = lightColors[colorIndex];
-      
-      const lightBulb = new THREE.Mesh(lightGeometry, lightMaterials[colorIndex]);
-      lightBulb.position.set(x + 0.6, lampHeight, z);
-      scene.add(lightBulb);
-
-      const streetLight = new THREE.PointLight(lightColor, 3, 14);
-      streetLight.position.set(x + 0.6, lampHeight, z);
-      streetLight.castShadow = false;
-      scene.add(streetLight);
-
-      const glow = new THREE.Mesh(glowGeometry, glowMaterials[colorIndex]);
-      glow.position.set(x + 0.6, lampHeight, z);
-      scene.add(glow);
-    }
-
-    const trunkGeometry = new THREE.CylinderGeometry(0.12, 0.18, 0.7, 6);
+    const trunkGeometry = new THREE.CylinderGeometry(0.15, 0.2, 1.2, 6);
     const trunkMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x4a3828,
-      roughness: 0.95,
-      metalness: 0.05
+      color: 0x5d4e37,
+      roughness: 1.0,
+      metalness: 0.0,
+      flatShading: true
     });
-    const foliageGeometry = new THREE.SphereGeometry(0.6, 8, 8);
-    const foliageGeometry2 = new THREE.SphereGeometry(0.45, 8, 8);
-    const foliageColors = [0x2a4a3a, 0x1e3a2e, 0x3a5a4a, 0x254a38];
+    
+    const foliageColors = [0x2d5016, 0x3a6b1f, 0x4a7c2f, 0x2a5814];
     const foliageMaterials = foliageColors.map(color => new THREE.MeshStandardMaterial({ 
       color,
-      roughness: 0.85,
-      metalness: 0.05
+      roughness: 1.0,
+      metalness: 0.0,
+      flatShading: true
     }));
     
-    for (let i = 0; i < 20; i++) {
-      const x = (Math.random() - 0.5) * 50;
-      const z = (Math.random() - 0.5) * 50;
+    for (let i = 0; i < 40; i++) {
+      const x = (Math.random() - 0.5) * 70;
+      const z = (Math.random() - 0.5) * 70;
       const distance = Math.sqrt(x * x + z * z);
       
-      if (distance < 18) continue;
+      if (distance < 20) continue;
 
-      const treeHeight = 1.8 + Math.random() * 1.2;
       const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-      trunk.position.set(x, treeHeight * 0.175, z);
-      trunk.castShadow = false;
+      trunk.position.set(x, 0.6, z);
+      trunk.castShadow = true;
+      trunk.receiveShadow = true;
       scene.add(trunk);
 
       const foliageMaterial = foliageMaterials[i % 4];
-      const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
-      foliage.position.set(x, treeHeight * 0.35 + 0.5, z);
-      foliage.castShadow = false;
-      scene.add(foliage);
+      
+      const coneGeometry1 = new THREE.ConeGeometry(0.8, 1.8, 6);
+      const cone1 = new THREE.Mesh(coneGeometry1, foliageMaterial);
+      cone1.position.set(x, 1.8, z);
+      cone1.castShadow = true;
+      cone1.receiveShadow = true;
+      scene.add(cone1);
 
-      const foliage2 = new THREE.Mesh(foliageGeometry2, foliageMaterial);
-      foliage2.position.set(x + 0.2, treeHeight * 0.35 + 0.8, z + 0.1);
-      foliage2.castShadow = false;
-      scene.add(foliage2);
+      const coneGeometry2 = new THREE.ConeGeometry(0.65, 1.4, 6);
+      const cone2 = new THREE.Mesh(coneGeometry2, foliageMaterial);
+      cone2.position.set(x, 2.6, z);
+      cone2.castShadow = true;
+      cone2.receiveShadow = true;
+      scene.add(cone2);
+
+      const coneGeometry3 = new THREE.ConeGeometry(0.45, 1.0, 6);
+      const cone3 = new THREE.Mesh(coneGeometry3, foliageMaterial);
+      cone3.position.set(x, 3.3, z);
+      cone3.castShadow = true;
+      cone3.receiveShadow = true;
+      scene.add(cone3);
     }
 
     if (containerRef.current) {
@@ -350,15 +248,13 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
       animationFrameRef.current = requestAnimationFrame(animate);
       time += 0.005;
 
-      const radius = 25;
-      camera.position.x = Math.sin(time * 0.3) * radius;
-      camera.position.z = Math.cos(time * 0.3) * radius;
-      camera.position.y = 18 + Math.sin(time * 0.2) * 3;
-      camera.lookAt(0, 3, 0);
+      const radius = 30;
+      camera.position.x = Math.sin(time * 0.25) * radius;
+      camera.position.z = Math.cos(time * 0.25) * radius;
+      camera.position.y = 20 + Math.sin(time * 0.15) * 4;
+      camera.lookAt(0, 5, 0);
 
-      buildingsRef.current.forEach((building) => {
-        building.rotation.y = Math.sin(time * 0.5) * 0.02;
-      });
+
 
       renderer.render(scene, camera);
     };
@@ -426,32 +322,28 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     if (!sharedMaterialsRef.current) {
       sharedMaterialsRef.current = {
         buildingMaterial: new THREE.MeshStandardMaterial({ 
-          color: 0x1a2230,
-          roughness: 0.4,
-          metalness: 0.7,
-          emissive: 0x0a1118,
-          emissiveIntensity: 0.3
+          color: 0xe8e8e8,
+          roughness: 0.9,
+          metalness: 0.0,
+          flatShading: true
         }),
         baseMaterial: new THREE.MeshStandardMaterial({ 
-          color: 0x0d1118,
-          roughness: 0.6,
-          metalness: 0.8,
-          emissive: 0x050810,
-          emissiveIntensity: 0.4
+          color: 0xc0c0c0,
+          roughness: 0.9,
+          metalness: 0.0,
+          flatShading: true
         }),
         antennaMaterial: new THREE.MeshStandardMaterial({ 
-          color: 0x3a4558,
-          roughness: 0.2,
-          metalness: 0.95,
-          emissive: 0x1a2230,
-          emissiveIntensity: 0.5
+          color: 0x808080,
+          roughness: 0.8,
+          metalness: 0.2,
+          flatShading: true
         }),
         helipadMaterial: new THREE.MeshStandardMaterial({ 
-          color: 0x1a2535,
-          roughness: 0.3,
-          metalness: 0.8,
-          emissive: 0x0a1520,
-          emissiveIntensity: 0.4
+          color: 0xa0a0a0,
+          roughness: 0.9,
+          metalness: 0.0,
+          flatShading: true
         }),
         windowGeometry: new THREE.PlaneGeometry(0.18, 0.18 * 1.2),
         windowMaterials: new Map(),
@@ -472,12 +364,12 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     building.position.x = col * spacing - offsetX;
     building.position.z = row * spacing - offsetZ;
 
-    const baseHeight = 0.6;
-    const floorHeight = 0.9;
+    const baseHeight = 0.8;
+    const floorHeight = 1.2;
     const floors = Math.min(Math.floor(habit.streak / 2) + 1, 25);
     const totalHeight = baseHeight + floors * floorHeight;
-    const width = 1.8 + Math.min(habit.streak * 0.06, 1.2);
-    const depth = 1.8 + Math.min(habit.streak * 0.06, 1.2);
+    const width = 2.0 + Math.min(habit.streak * 0.05, 1.0);
+    const depth = 2.0 + Math.min(habit.streak * 0.05, 1.0);
     const color = new THREE.Color(habit.color);
 
     const buildingGeometry = new THREE.BoxGeometry(width, totalHeight, depth);
@@ -513,17 +405,16 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     building.add(base);
 
     if (!sharedMaterialsRef.current.windowMaterials.has(colorKey)) {
-      const brighterColor = color.clone().multiplyScalar(1.5);
       sharedMaterialsRef.current.windowMaterials.set(colorKey, new THREE.MeshBasicMaterial({ 
-        color: brighterColor,
+        color: color,
         transparent: true,
-        opacity: 1
+        opacity: 0.9
       }));
     }
     const windowMaterial = sharedMaterialsRef.current.windowMaterials.get(colorKey)!;
     
-    const windowSpacing = 0.35;
-    const windowsPerFloor = Math.floor(width / windowSpacing);
+    const windowSpacing = 0.5;
+    const windowsPerFloor = Math.max(2, Math.floor(width / windowSpacing));
     
     for (let floor = 0; floor < floors; floor++) {
       const floorY = baseHeight + floor * floorHeight + floorHeight / 2;
@@ -547,108 +438,71 @@ export function HabitGarden3D({ habits, onHabitClick }: HabitCityBuilderProps) {
     }
 
     if (habit.streak >= 10) {
-      const antennaHeight = 1.5;
-      const antennaGeometry = new THREE.CylinderGeometry(0.03, 0.05, antennaHeight, 6);
+      const antennaHeight = 2.0;
+      const antennaGeometry = new THREE.CylinderGeometry(0.05, 0.08, antennaHeight, 6);
       const antenna = new THREE.Mesh(antennaGeometry, sharedMaterialsRef.current.antennaMaterial);
       antenna.position.y = totalHeight + antennaHeight / 2;
-      antenna.castShadow = false;
+      antenna.castShadow = true;
       building.add(antenna);
 
       if (!sharedMaterialsRef.current.beaconMaterials.has(colorKey)) {
-        const brighterColor = color.clone().multiplyScalar(1.8);
         sharedMaterialsRef.current.beaconMaterials.set(colorKey, new THREE.MeshBasicMaterial({ 
-          color: brighterColor,
-          transparent: true,
+          color: color,
+          transparent: false,
           opacity: 1
         }));
       }
       const beaconMaterial = sharedMaterialsRef.current.beaconMaterials.get(colorKey)!;
       
-      const beaconGeometry = new THREE.SphereGeometry(0.15, 12, 12);
+      const beaconGeometry = new THREE.SphereGeometry(0.2, 8, 8);
       const beacon = new THREE.Mesh(beaconGeometry, beaconMaterial);
       beacon.position.y = totalHeight + antennaHeight;
+      beacon.castShadow = true;
       building.add(beacon);
-
-      const beaconLight = new THREE.PointLight(colorHex, 5, 20);
-      beaconLight.position.y = totalHeight + antennaHeight;
-      beaconLight.castShadow = false;
-      building.add(beaconLight);
-
-      const beaconGlowGeometry = new THREE.SphereGeometry(0.3, 12, 12);
-      const beaconGlowMaterial = new THREE.MeshBasicMaterial({ 
-        color: colorHex,
-        transparent: true,
-        opacity: 0.3
-      });
-      const beaconGlow = new THREE.Mesh(beaconGlowGeometry, beaconGlowMaterial);
-      beaconGlow.position.y = totalHeight + antennaHeight;
-      building.add(beaconGlow);
     }
 
     if (habit.streak >= 15) {
-      const helipadsGeometry = new THREE.CylinderGeometry(width * 0.4, width * 0.4, 0.1, 12);
+      const helipadsGeometry = new THREE.CylinderGeometry(width * 0.45, width * 0.45, 0.15, 8);
       const helipad = new THREE.Mesh(helipadsGeometry, sharedMaterialsRef.current.helipadMaterial);
-      helipad.position.y = totalHeight + 0.05;
+      helipad.position.y = totalHeight + 0.075;
+      helipad.castShadow = true;
       building.add(helipad);
 
       if (!sharedMaterialsRef.current.hCircleMaterials.has(colorKey)) {
-        const brighterColor = color.clone().multiplyScalar(1.6);
         sharedMaterialsRef.current.hCircleMaterials.set(colorKey, new THREE.MeshBasicMaterial({ 
-          color: brighterColor
+          color: color
         }));
       }
       const hCircleMaterial = sharedMaterialsRef.current.hCircleMaterials.get(colorKey)!;
       
-      const hCircleGeometry = new THREE.TorusGeometry(width * 0.25, 0.02, 6, 16);
+      const hCircleGeometry = new THREE.TorusGeometry(width * 0.3, 0.04, 4, 12);
       const hCircle = new THREE.Mesh(hCircleGeometry, hCircleMaterial);
-      hCircle.position.y = totalHeight + 0.11;
+      hCircle.position.y = totalHeight + 0.16;
       hCircle.rotation.x = Math.PI / 2;
       building.add(hCircle);
     }
 
     if (habit.streak >= 20) {
-      const particleCount = 50;
-      const particlesGeometry = new THREE.BufferGeometry();
-      const positions = new Float32Array(particleCount * 3);
-      
-      for (let i = 0; i < particleCount; i++) {
-        positions[i * 3] = (Math.random() - 0.5) * width * 2.5;
-        positions[i * 3 + 1] = totalHeight + Math.random() * 3;
-        positions[i * 3 + 2] = (Math.random() - 0.5) * depth * 2.5;
-      }
-      
-      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      
-      if (!sharedMaterialsRef.current.particleMaterials.has(colorKey)) {
-        const brighterColor = color.clone().multiplyScalar(2);
-        sharedMaterialsRef.current.particleMaterials.set(colorKey, new THREE.PointsMaterial({
-          color: brighterColor,
-          size: 0.25,
-          transparent: true,
-          opacity: 1,
-          blending: THREE.AdditiveBlending
+      const spireHeight = 2.5;
+      const spireGeometry = new THREE.ConeGeometry(width * 0.3, spireHeight, 4);
+      if (!sharedMaterialsRef.current.beaconMaterials.has(colorKey)) {
+        sharedMaterialsRef.current.beaconMaterials.set(colorKey, new THREE.MeshBasicMaterial({ 
+          color: color,
+          transparent: false,
+          opacity: 1
         }));
       }
-      const particlesMaterial = sharedMaterialsRef.current.particleMaterials.get(colorKey)!;
-      
-      const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-      building.add(particles);
+      const spireMaterial = sharedMaterialsRef.current.beaconMaterials.get(colorKey)!;
+      const spire = new THREE.Mesh(spireGeometry, spireMaterial);
+      spire.position.y = totalHeight + spireHeight / 2;
+      spire.castShadow = true;
+      building.add(spire);
 
-      const epicLight = new THREE.PointLight(colorHex, 6, 30);
-      epicLight.position.y = totalHeight + 1;
-      epicLight.castShadow = false;
-      building.add(epicLight);
-
-      const epicGlowGeometry = new THREE.SphereGeometry(width * 0.8, 16, 16);
-      const epicGlowMaterial = new THREE.MeshBasicMaterial({ 
-        color: colorHex,
-        transparent: true,
-        opacity: 0.15,
-        blending: THREE.AdditiveBlending
-      });
-      const epicGlow = new THREE.Mesh(epicGlowGeometry, epicGlowMaterial);
-      epicGlow.position.y = totalHeight + 1;
-      building.add(epicGlow);
+      const flagPoleGeometry = new THREE.CylinderGeometry(0.03, 0.03, 1.5, 6);
+      const flagPole = new THREE.Mesh(flagPoleGeometry, sharedMaterialsRef.current.antennaMaterial);
+      flagPole.position.y = totalHeight + spireHeight + 0.75;
+      flagPole.castShadow = true;
+      building.add(flagPole);
     }
 
     return building;
