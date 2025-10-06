@@ -9,6 +9,7 @@ import { GamificationProvider } from "@/providers/GamificationProvider";
 import { RoutineProvider } from "@/providers/RoutineProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { trpc, trpcClient } from "@/lib/trpc";
+import { SEOHead } from "@/components/SEOHead";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -16,46 +17,49 @@ const queryClient = new QueryClient();
 
 function RootLayoutNav() {
   return (
-    <Stack 
-      screenOptions={{ 
-        headerBackTitle: "Back",
-      }}
-    >
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen 
-        name="habit/[id]" 
-        options={{ 
-          title: "Habit Details",
-          presentation: "modal",
-          headerShown: true,
-        }} 
-      />
-      <Stack.Screen 
-        name="calendar/[habitId]" 
-        options={{ 
-          title: "Calendar",
-          presentation: "modal",
-          headerShown: true,
-        }} 
-      />
-      <Stack.Screen 
-        name="share/[habitId]" 
-        options={{ 
-          title: "Share Habit",
-          presentation: "modal",
-          headerShown: true,
-        }} 
-      />
-      <Stack.Screen 
-        name="edit/[id]" 
-        options={{ 
-          title: "Edit Habit",
-          presentation: "modal",
-          headerShown: true,
-        }} 
-      />
-    </Stack>
+    <>
+      <SEOHead />
+      <Stack 
+        screenOptions={{ 
+          headerBackTitle: "Back",
+        }}
+      >
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen 
+          name="habit/[id]" 
+          options={{ 
+            title: "Habit Details",
+            presentation: "modal",
+            headerShown: true,
+          }} 
+        />
+        <Stack.Screen 
+          name="calendar/[habitId]" 
+          options={{ 
+            title: "Calendar",
+            presentation: "modal",
+            headerShown: true,
+          }} 
+        />
+        <Stack.Screen 
+          name="share/[habitId]" 
+          options={{ 
+            title: "Share Habit",
+            presentation: "modal",
+            headerShown: true,
+          }} 
+        />
+        <Stack.Screen 
+          name="edit/[id]" 
+          options={{ 
+            title: "Edit Habit",
+            presentation: "modal",
+            headerShown: true,
+          }} 
+        />
+      </Stack>
+    </>
   );
 }
 

@@ -37,7 +37,7 @@ export default function LandingPage() {
     if (Platform.OS !== 'web') {
       router.replace('/habits');
     }
-  }, []);
+  }, [router]);
 
   if (Platform.OS !== 'web') {
     return null;
@@ -119,7 +119,7 @@ export default function LandingPage() {
               <Text style={styles.badgeText}>Build Better Habits</Text>
             </View>
             
-            <Text style={styles.heroTitle}>
+            <Text style={styles.heroTitle} accessibilityRole="header">
               Transform Your Life,{' \n'}
               <Text style={styles.heroTitleAccent}>One Habit at a Time</Text>
             </Text>
@@ -197,7 +197,7 @@ export default function LandingPage() {
         <View style={styles.section} nativeID="features">
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionLabel}>FEATURES</Text>
-            <Text style={styles.sectionTitle}>Everything You Need to Succeed</Text>
+            <Text style={styles.sectionTitle} accessibilityRole="header">Everything You Need to Succeed</Text>
             <Text style={styles.sectionDescription}>
               Powerful features designed to help you build and maintain lasting habits
             </Text>
@@ -218,7 +218,7 @@ export default function LandingPage() {
                   <View style={[styles.featureIcon, { backgroundColor: `${feature.color}20` }]}>
                     <Icon size={28} color={feature.color} />
                   </View>
-                  <Text style={styles.featureTitle}>{feature.title}</Text>
+                  <Text style={styles.featureTitle} accessibilityRole="header">{feature.title}</Text>
                   <Text style={styles.featureDescription}>{feature.description}</Text>
                 </TouchableOpacity>
               );
@@ -248,7 +248,7 @@ export default function LandingPage() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionLabel}>TESTIMONIALS</Text>
-            <Text style={styles.sectionTitle}>Loved by Habit Builders</Text>
+            <Text style={styles.sectionTitle} accessibilityRole="header">Loved by Habit Builders</Text>
           </View>
 
           <ScrollView 
