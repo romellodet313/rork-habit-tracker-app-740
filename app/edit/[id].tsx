@@ -13,7 +13,8 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
-import colors, { COLORS } from "@/constants/colors";
+import { useTheme } from "@/providers/ThemeProvider";
+import { COLORS } from "@/constants/colors";
 import { ICONS } from "@/constants/icons";
 import { CATEGORIES } from "@/constants/categories";
 import * as Haptics from "expo-haptics";
@@ -24,6 +25,7 @@ export default function EditHabitScreen() {
   const { id } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const { habits, updateHabit } = useHabits();
+  const { theme, colors } = useTheme();
   
   const habit = habits.find(h => h.id === id);
   
@@ -57,7 +59,7 @@ export default function EditHabitScreen() {
   
   if (!habit) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <Text style={styles.errorText}>Habit not found</Text>
       </View>
     );
@@ -141,78 +143,79 @@ export default function EditHabitScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.dark.background} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors.background} />
       <ScrollView 
         style={[styles.scrollView, { paddingTop: insets.top }]} 
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <View style={styles.headerIcon}>
+          <View style={[styles.headerIcon, { backgroundColor: colors.card, borderColor: colors.tint }]}>
             <Edit3 size={24} color="#8B5CF6" />
           </View>
-          <Text style={styles.headerTitle}>Edit Habit</Text>
-          <Text style={styles.headerSubtitle}>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Edit Habit</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
             Update your habit details and preferences
           </Text>
         </View>
       <View style={styles.section}>
-        <Text style={styles.label}>Name</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Name</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
           value={name}
           onChangeText={setName}
           placeholder="e.g., Morning Meditation"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={colors.textSecondary}
         />
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Description</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Description</Text>
         <TextInput
-          style={[styles.input, styles.textArea]}
+          style={[styles.input, styles.textArea, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
           value={description}
           onChangeText={setDescription}
           placeholder="What's your goal with this habit?"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={colors.textSecondary}
           multiline
           numberOfLines={3}
         />
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Streak Goal (days)</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Streak Goal (days)</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
           value={streakGoal}
           onChangeText={setStreakGoal}
           placeholder="7"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={colors.textSecondary}
           keyboardType="number-pad"
         />
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Weekly Goal (days)</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Weekly Goal (days)</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
           value={weeklyGoal}
           onChangeText={setWeeklyGoal}
           placeholder="7"
-          placeholderTextColor="#6B7280"
+          placeholderTextColor={colors.textSecondary}
           keyboardType="number-pad"
         />
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Target Days</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Target Days</Text>
         <View style={styles.daysGrid}>
           {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
             <TouchableOpacity
               key={day}
               style={[
                 styles.dayButton,
+                { backgroundColor: colors.card, borderColor: colors.border },
                 selectedDays.includes(day) && [styles.selectedDay, { backgroundColor: selectedColor }],
               ]}
               onPress={() => {
@@ -225,6 +228,7 @@ export default function EditHabitScreen() {
             >
               <Text style={[
                 styles.dayText,
+                { color: colors.textSecondary },
                 selectedDays.includes(day) && styles.selectedDayText,
               ]}>
                 {day}
@@ -235,30 +239,30 @@ export default function EditHabitScreen() {
       </View>
       
       <View style={styles.section}>
-        <View style={styles.reminderHeader}>
+        <View style={[styles.reminderHeader, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.reminderHeaderLeft}>
-            <Bell size={20} color="#9CA3AF" />
-            <Text style={styles.label}>Reminders</Text>
+            <Bell size={20} color={colors.textSecondary} />
+            <Text style={[styles.label, { color: colors.text }]}>Reminders</Text>
           </View>
           <Switch
             value={enableReminders}
             onValueChange={setEnableReminders}
-            trackColor={{ false: '#4B5563', true: selectedColor }}
-            thumbColor={enableReminders ? '#fff' : '#9CA3AF'}
+            trackColor={{ false: colors.border, true: selectedColor }}
+            thumbColor={enableReminders ? '#fff' : colors.textSecondary}
           />
         </View>
         
         {enableReminders && (
           <View style={styles.reminderSettings}>
-            <Text style={styles.subLabel}>Reminder Time</Text>
+            <Text style={[styles.subLabel, { color: colors.textSecondary }]}>Reminder Time</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
               value={reminderTime}
               onChangeText={setReminderTime}
               placeholder="09:00"
-              placeholderTextColor="#6B7280"
+              placeholderTextColor={colors.textSecondary}
             />
-            <Text style={styles.helpText}>
+            <Text style={[styles.helpText, { color: colors.textSecondary }]}>
               You&apos;ll get notifications on your selected days at this time
             </Text>
           </View>
@@ -266,14 +270,15 @@ export default function EditHabitScreen() {
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Category</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Category</Text>
         <View style={styles.categoryGrid}>
           {CATEGORIES.map((cat) => (
             <TouchableOpacity
               key={cat.id}
               style={[
                 styles.categoryButton,
-                selectedCategoryId === cat.id && [styles.selectedCategory, { borderColor: cat.color }],
+                { backgroundColor: colors.card, borderColor: colors.border },
+                selectedCategoryId === cat.id && [styles.selectedCategory, { borderColor: cat.color, backgroundColor: theme === 'dark' ? colors.border : colors.card }],
               ]}
               onPress={() => {
                 if (Platform.OS !== 'web') {
@@ -285,7 +290,8 @@ export default function EditHabitScreen() {
               <Text style={styles.categoryEmoji}>{cat.icon}</Text>
               <Text style={[
                 styles.categoryName,
-                selectedCategoryId === cat.id && styles.selectedCategoryName,
+                { color: colors.textSecondary },
+                selectedCategoryId === cat.id && [styles.selectedCategoryName, { color: colors.text }],
               ]}>
                 {cat.name}
               </Text>
@@ -295,14 +301,15 @@ export default function EditHabitScreen() {
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Icon</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Icon</Text>
         <View style={styles.iconGrid}>
           {ICONS.map((icon) => (
             <TouchableOpacity
               key={icon}
               style={[
                 styles.iconButton,
-                selectedIcon === icon && styles.selectedIcon,
+                { backgroundColor: colors.card },
+                selectedIcon === icon && [styles.selectedIcon, { borderColor: colors.tint, backgroundColor: theme === 'dark' ? colors.border : colors.card }],
               ]}
               onPress={() => selectIcon(icon)}
             >
@@ -313,7 +320,7 @@ export default function EditHabitScreen() {
       </View>
       
       <View style={styles.section}>
-        <Text style={styles.label}>Color</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Color</Text>
         <View style={styles.colorGrid}>
           {COLORS.map((color) => (
             <TouchableOpacity
@@ -347,7 +354,6 @@ export default function EditHabitScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.dark.background,
   },
   scrollView: {
     flex: 1,
@@ -370,23 +376,19 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: colors.dark.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
     borderWidth: 2,
-    borderColor: colors.dark.tint,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#fff',
     marginBottom: 8,
     textAlign: 'center',
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#9CA3AF',
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -396,17 +398,13 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#fff',
     marginBottom: 12,
   },
   input: {
-    backgroundColor: colors.dark.card,
     borderRadius: 16,
     padding: 18,
     fontSize: 16,
-    color: '#fff',
     borderWidth: 2,
-    borderColor: colors.dark.border,
   },
   textArea: {
     minHeight: 80,
@@ -421,7 +419,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 16,
-    backgroundColor: colors.dark.card,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -436,9 +433,6 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   selectedIcon: {
-    borderColor: colors.dark.tint,
-    backgroundColor: colors.dark.border,
-    shadowColor: colors.dark.tint,
     shadowOpacity: 0.3,
   },
   iconText: {
@@ -499,9 +493,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 12,
-    backgroundColor: colors.dark.card,
     borderWidth: 2,
-    borderColor: colors.dark.border,
   },
   selectedDay: {
     borderColor: 'transparent',
@@ -516,7 +508,6 @@ const styles = StyleSheet.create({
   },
   dayText: {
     fontSize: 14,
-    color: '#9CA3AF',
     fontWeight: '500',
   },
   selectedDayText: {
@@ -529,10 +520,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 16,
     padding: 16,
-    backgroundColor: colors.dark.card,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.dark.border,
   },
   reminderHeaderLeft: {
     flexDirection: 'row',
@@ -544,12 +533,10 @@ const styles = StyleSheet.create({
   },
   subLabel: {
     fontSize: 14,
-    color: '#9CA3AF',
     marginBottom: 8,
   },
   helpText: {
     fontSize: 12,
-    color: '#6B7280',
     marginTop: 8,
     fontStyle: 'italic',
   },
@@ -564,12 +551,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 12,
-    backgroundColor: colors.dark.card,
     borderWidth: 2,
-    borderColor: colors.dark.border,
   },
   selectedCategory: {
-    backgroundColor: colors.dark.border,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -585,11 +569,8 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     fontSize: 13,
-    color: '#9CA3AF',
     fontWeight: '600',
     flex: 1,
   },
-  selectedCategoryName: {
-    color: '#fff',
-  },
+  selectedCategoryName: {},
 });
