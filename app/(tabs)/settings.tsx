@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import { useGamification } from "@/providers/GamificationProvider";
 import { useTheme } from "@/providers/ThemeProvider";
-import { Download, Upload, Trash2, Info, Lock, Database, CheckCircle, Sun, Moon, Monitor } from "lucide-react-native";
+import { Download, Upload, Trash2, Info, Lock, Database, CheckCircle, Sun, Moon, Monitor, Crown } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { StatusBar } from "expo-status-bar";
 
@@ -88,6 +88,56 @@ export default function SettingsScreen() {
       >
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Premium</Text>
+          
+          <View style={[styles.premiumCard, { backgroundColor: colors.card, borderColor: colors.tint }]}>
+            <View style={styles.premiumHeader}>
+              <View style={[styles.premiumIcon, { backgroundColor: `${colors.tint}20` }]}>
+                <Crown size={32} color={colors.tint} />
+              </View>
+              <View style={styles.premiumContent}>
+                <Text style={[styles.premiumTitle, { color: colors.text }]}>Unlock Premium</Text>
+                <Text style={[styles.premiumDescription, { color: colors.textSecondary }]}>
+                  Get unlimited habits, advanced analytics, and exclusive features
+                </Text>
+              </View>
+            </View>
+            
+            <View style={styles.premiumFeatures}>
+              <View style={styles.premiumFeature}>
+                <Text style={styles.premiumFeatureIcon}>✓</Text>
+                <Text style={[styles.premiumFeatureText, { color: colors.text }]}>Unlimited habits</Text>
+              </View>
+              <View style={styles.premiumFeature}>
+                <Text style={styles.premiumFeatureIcon}>✓</Text>
+                <Text style={[styles.premiumFeatureText, { color: colors.text }]}>Advanced analytics</Text>
+              </View>
+              <View style={styles.premiumFeature}>
+                <Text style={styles.premiumFeatureIcon}>✓</Text>
+                <Text style={[styles.premiumFeatureText, { color: colors.text }]}>Priority support</Text>
+              </View>
+              <View style={styles.premiumFeature}>
+                <Text style={styles.premiumFeatureIcon}>✓</Text>
+                <Text style={[styles.premiumFeatureText, { color: colors.text }]}>Exclusive themes</Text>
+              </View>
+            </View>
+            
+            <TouchableOpacity 
+              style={[styles.premiumButton, { backgroundColor: colors.tint }]}
+              onPress={() => {
+                if (Platform.OS !== 'web') {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                }
+                console.log('Premium purchase initiated');
+              }}
+            >
+              <Text style={styles.premiumButtonText}>Unlock for $10</Text>
+              <Text style={styles.premiumButtonSubtext}>One-time payment</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.section}>
@@ -445,5 +495,78 @@ const styles = StyleSheet.create({
   },
   storageStatLabel: {
     fontSize: 12,
+  },
+  premiumCard: {
+    borderRadius: 20,
+    padding: 24,
+    borderWidth: 2,
+    shadowColor: '#8B5CF6',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  premiumHeader: {
+    flexDirection: 'row' as const,
+    alignItems: 'flex-start' as const,
+    marginBottom: 20,
+    gap: 16,
+  },
+  premiumIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
+  premiumContent: {
+    flex: 1,
+  },
+  premiumTitle: {
+    fontSize: 24,
+    fontWeight: '800' as const,
+    marginBottom: 8,
+  },
+  premiumDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  premiumFeatures: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  premiumFeature: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 12,
+  },
+  premiumFeatureIcon: {
+    fontSize: 18,
+    color: '#10B981',
+  },
+  premiumFeatureText: {
+    fontSize: 15,
+    fontWeight: '500' as const,
+  },
+  premiumButton: {
+    borderRadius: 16,
+    padding: 18,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  },
+  premiumButtonText: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  premiumButtonSubtext: {
+    fontSize: 13,
+    fontWeight: '500' as const,
+    color: '#FFFFFF',
+    opacity: 0.9,
   },
 });
