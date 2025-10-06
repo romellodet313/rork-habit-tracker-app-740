@@ -73,7 +73,8 @@ export interface Achievement {
   unlockedAt?: string;
   progress: number;
   target: number;
-  category: 'streak' | 'completion' | 'consistency' | 'challenge';
+  category: 'streak' | 'completion' | 'consistency' | 'challenge' | 'time' | 'resilience' | 'variety' | 'social' | 'reflection' | 'routine' | 'garden' | 'exploration' | 'intensity' | 'loyalty';
+  tier: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
 }
 
 export interface Challenge {

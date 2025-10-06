@@ -5,23 +5,26 @@ import {
   View,
   ScrollView,
   Animated,
+  TouchableOpacity,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import { useGamification } from "@/providers/GamificationProvider";
-import { TrendingUp, Award, Target, Zap } from "lucide-react-native";
+import { TrendingUp, Award, Target, Zap, Lock } from "lucide-react-native";
 import { useTheme } from "@/providers/ThemeProvider";
 import typography from "@/constants/typography";
+import { Achievement } from "@/types/habit";
 
 const BAR_WIDTH = 8;
 
 export default function StatsScreen() {
   const insets = useSafeAreaInsets();
   const { habits } = useHabits();
-  const { level, xp, xpToNextLevel } = useGamification();
+  const { level, xp, xpToNextLevel, achievements, getUnlockedAchievements, getLockedAchievements } = useGamification();
   const { colors } = useTheme();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const scaleAnim = React.useRef(new Animated.Value(0.9)).current;
+  const [selectedTier, setSelectedTier] = React.useState<'all' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond'>('all');
 
   React.useEffect(() => {
     Animated.parallel([
@@ -69,6 +72,25 @@ export default function StatsScreen() {
   }, [activeHabits]);
 
   const maxCompletions = Math.max(...last30DaysData.map(d => d.completions), 1);
+
+  const unlockedAchievements = useMemo(() => getUnlockedAchievements(), [achievements]);
+  const lockedAchievements = useMemo(() => getLockedAchievements(), [achievements]);
+
+  const achievementsByTier = useMemo(() => {
+    const filtered = selectedTier === 'all' ? achievements : achievements.filter(a => a.tier === selectedTier);
+    return {
+      unlocked: filtered.filter(a => a.unlockedAt),
+      locked: filtered.filter(a => !a.unlockedAt),
+    };
+  }, [achievements, selectedTier]);
+
+  const tierColors = {
+    bronze: '#CD7F32',
+    silver: '#C0C0C0',
+    gold: '#FFD700',
+    platinum: '#E5E4E2',
+    diamond: '#B9F2FF',
+  };
 
   const stats = useMemo(() => {
     const totalCompletions = activeHabits.reduce((sum, habit) => {
@@ -210,6 +232,142 @@ export default function StatsScreen() {
                 );
               })}
             </View>
+          </View>
+        </View>
+
+        <View style={[styles.achievementsCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.achievementsHeader}>
+            <Text style={[styles.achievementsTitle, { color: colors.text }]}>Achievements</Text>
+            <Text style={[styles.achievementsCount, { color: colors.textSecondary }]}>
+              {unlockedAchievements.length} of {achievements.length} unlocked
+            </Text>
+          </View>
+
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.tierFilters}
+            contentContainerStyle={styles.tierFiltersContent}
+          >
+            <TouchableOpacity
+              style={[
+                styles.tierFilter,
+                selectedTier === 'all' && styles.tierFilterActive,
+                { borderColor: selectedTier === 'all' ? colors.tint : colors.border },
+              ]}
+              onPress={() => setSelectedTier('all')}
+            >
+              <Text style={[
+                styles.tierFilterText,
+                { color: selectedTier === 'all' ? colors.tint : colors.textSecondary },
+              ]}>All</Text>
+            </TouchableOpacity>
+            {(['bronze', 'silver', 'gold', 'platinum', 'diamond'] as const).map(tier => (
+              <TouchableOpacity
+                key={tier}
+                style={[
+                  styles.tierFilter,
+                  selectedTier === tier && styles.tierFilterActive,
+                  { borderColor: selectedTier === tier ? tierColors[tier] : colors.border },
+                ]}
+                onPress={() => setSelectedTier(tier)}
+              >
+                <Text style={[
+                  styles.tierFilterText,
+                  { color: selectedTier === tier ? tierColors[tier] : colors.textSecondary },
+                ]}>{tier.charAt(0).toUpperCase() + tier.slice(1)}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <View style={styles.achievementsList}>
+            {achievementsByTier.unlocked.length > 0 && (
+              <View style={styles.achievementSection}>
+                <Text style={[styles.achievementSectionTitle, { color: colors.text }]}>Unlocked</Text>
+                <View style={styles.achievementGrid}>
+                  {achievementsByTier.unlocked.map(achievement => (
+                    <View
+                      key={achievement.id}
+                      style={[
+                        styles.achievementItem,
+                        { 
+                          backgroundColor: colors.background,
+                          borderColor: tierColors[achievement.tier],
+                        },
+                      ]}
+                    >
+                      <View style={[
+                        styles.achievementIconContainer,
+                        { backgroundColor: `${tierColors[achievement.tier]}20` },
+                      ]}>
+                        <Text style={styles.achievementIcon}>{achievement.icon}</Text>
+                      </View>
+                      <Text style={[styles.achievementName, { color: colors.text }]} numberOfLines={1}>
+                        {achievement.name}
+                      </Text>
+                      <Text style={[styles.achievementDescription, { color: colors.textSecondary }]} numberOfLines={2}>
+                        {achievement.description}
+                      </Text>
+                      <View style={styles.achievementProgress}>
+                        <Text style={[styles.achievementProgressText, { color: tierColors[achievement.tier] }]}>
+                          ✓ Completed
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {achievementsByTier.locked.length > 0 && (
+              <View style={styles.achievementSection}>
+                <Text style={[styles.achievementSectionTitle, { color: colors.text }]}>Locked</Text>
+                <View style={styles.achievementGrid}>
+                  {achievementsByTier.locked.map(achievement => (
+                    <View
+                      key={achievement.id}
+                      style={[
+                        styles.achievementItem,
+                        styles.achievementItemLocked,
+                        { 
+                          backgroundColor: colors.background,
+                          borderColor: colors.border,
+                        },
+                      ]}
+                    >
+                      <View style={[
+                        styles.achievementIconContainer,
+                        { backgroundColor: `${colors.border}40` },
+                      ]}>
+                        <Lock size={20} color={colors.textSecondary} />
+                      </View>
+                      <Text style={[styles.achievementName, { color: colors.textSecondary }]} numberOfLines={1}>
+                        {achievement.name}
+                      </Text>
+                      <Text style={[styles.achievementDescription, { color: colors.textSecondary }]} numberOfLines={2}>
+                        {achievement.description}
+                      </Text>
+                      <View style={styles.achievementProgress}>
+                        <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
+                          <View 
+                            style={[
+                              styles.progressBarFill,
+                              { 
+                                width: `${Math.min((achievement.progress / achievement.target) * 100, 100)}%`,
+                                backgroundColor: tierColors[achievement.tier],
+                              },
+                            ]} 
+                          />
+                        </View>
+                        <Text style={[styles.achievementProgressText, { color: colors.textSecondary }]}>
+                          {achievement.progress}/{achievement.target}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
           </View>
         </View>
 
@@ -434,5 +592,102 @@ const styles = StyleSheet.create({
   insightDescription: {
     fontSize: 14,
     lineHeight: 20,
+  },
+  achievementsCard: {
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+  },
+  achievementsHeader: {
+    marginBottom: 16,
+  },
+  achievementsTitle: {
+    ...typography.h4,
+    marginBottom: 4,
+  },
+  achievementsCount: {
+    fontSize: 14,
+  },
+  tierFilters: {
+    marginBottom: 20,
+  },
+  tierFiltersContent: {
+    gap: 8,
+  },
+  tierFilter: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 2,
+  },
+  tierFilterActive: {
+    borderWidth: 2,
+  },
+  tierFilterText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  achievementsList: {
+    gap: 24,
+  },
+  achievementSection: {
+    gap: 12,
+  },
+  achievementSectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  achievementGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  achievementItem: {
+    width: '48%',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 2,
+    gap: 8,
+  },
+  achievementItemLocked: {
+    opacity: 0.6,
+  },
+  achievementIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  achievementIcon: {
+    fontSize: 24,
+  },
+  achievementName: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  achievementDescription: {
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  achievementProgress: {
+    marginTop: 4,
+  },
+  progressBar: {
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginBottom: 4,
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  achievementProgressText: {
+    fontSize: 11,
+    fontWeight: '600',
   },
 });
