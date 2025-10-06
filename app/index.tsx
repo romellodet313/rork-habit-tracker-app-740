@@ -8,7 +8,6 @@ import {
   Platform,
   Dimensions,
   StatusBar,
-  Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -24,20 +23,15 @@ import {
   CheckCircle2,
   ArrowRight,
   Star,
-  Flame,
-  Trophy,
-  Activity,
 } from 'lucide-react-native';
 import colors from '@/constants/colors';
 import typography from '@/constants/typography';
 
-const { width, height } = Dimensions.get('window');
-const isLargeScreen = width > 768;
+const { width } = Dimensions.get('window');
 
 export default function LandingPage() {
   const router = useRouter();
   const [activeFeature, setActiveFeature] = useState(0);
-  const [scrollY] = useState(new Animated.Value(0));
 
   useEffect(() => {
     if (Platform.OS !== 'web') {
@@ -48,12 +42,6 @@ export default function LandingPage() {
   if (Platform.OS !== 'web') {
     return null;
   }
-
-  const parallaxOffset = scrollY.interpolate({
-    inputRange: [0, 300],
-    outputRange: [0, -50],
-    extrapolate: 'clamp',
-  });
 
   const features = [
     {
@@ -115,49 +103,29 @@ export default function LandingPage() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#E8E8E8" />
-      <Animated.ScrollView 
+      <StatusBar barStyle="light-content" backgroundColor={colors.dark.background} />
+      <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
-        )}
-        scrollEventThrottle={16}
       >
-        <View style={styles.heroSection}>
+        <LinearGradient
+          colors={['#1a1f3a', '#0f1729']}
+          style={styles.heroSection}
+        >
           <View style={styles.heroContent}>
             <View style={styles.badge}>
-              <Flame size={14} color="#FF6B35" />
-              <Text style={styles.badgeText}>#1 Habit Tracker | 2,500+ Active Users</Text>
+              <Sparkles size={16} color="#FFD700" />
+              <Text style={styles.badgeText}>Build Better Habits</Text>
             </View>
             
-            <View style={styles.heroTitleContainer}>
-              <Text style={styles.heroTitle} accessibilityRole="header">
-                Build{' '}
-                <Text style={styles.heroTitleItalic}>Exceptional</Text>
-                {' '}Habits,{' '}
-                <Text style={styles.heroTitleAccent}>Faster</Text>
-              </Text>
-              
-              {isLargeScreen && (
-                <>
-                  <View style={[styles.typographyLabel, styles.labelTopRight]}>
-                    <Text style={styles.typographyLabelText}>Instrument Serif 74px (0)</Text>
-                  </View>
-                  <View style={[styles.typographyLabel, styles.labelLeft]}>
-                    <Text style={styles.typographyLabelText}>Geist 74px (-5)</Text>
-                  </View>
-                  <View style={[styles.typographyLabel, styles.labelBottomRight]}>
-                    <Text style={styles.typographyLabelText}>Geist 18px (-2)</Text>
-                  </View>
-                </>
-              )}
-            </View>
+            <Text style={styles.heroTitle} accessibilityRole="header">
+              Transform Your Life,{' \n'}
+              <Text style={styles.heroTitleAccent}>One Habit at a Time</Text>
+            </Text>
             
             <Text style={styles.heroDescription}>
-              Transform your daily routine with our AI-powered habit tracker and watch your progress come to life in a stunning 3D city visualization.
+              Track habits, visualize progress, and build a thriving 3D city that grows with your consistency. Join thousands building better lives.
             </Text>
 
             <View style={styles.heroButtons}>
@@ -166,8 +134,31 @@ export default function LandingPage() {
                 onPress={() => router.push('/habits')}
               >
                 <Text style={styles.primaryButtonText}>Start Building Free</Text>
-                <ArrowRight size={18} color="#fff" />
+                <ArrowRight size={20} color="#fff" />
               </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={() => {
+                  const element = Platform.OS === 'web' ? document.getElementById('features') : null;
+                  if (element) element.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                <Text style={styles.secondaryButtonText}>See How It Works</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.socialProof}>
+              <View style={styles.avatarGroup}>
+                {[1, 2, 3, 4].map((i) => (
+                  <View key={i} style={[styles.avatar, { marginLeft: i > 1 ? -12 : 0 }]}>
+                    <Text style={styles.avatarText}>👤</Text>
+                  </View>
+                ))}
+              </View>
+              <Text style={styles.socialProofText}>
+                <Text style={styles.socialProofBold}>2,500+</Text> people building better habits
+              </Text>
             </View>
 
             {Platform.OS === 'web' && (
@@ -175,10 +166,9 @@ export default function LandingPage() {
                 <a 
                   href="https://www.producthunt.com/products/momentpro?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-momentpro" 
                   target="_blank"
-                  rel="noopener noreferrer"
                 >
                   <img 
-                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1023307&theme=light&t=1759692862397" 
+                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1023307&theme=dark&t=1759692862397" 
                     alt="MomentPro - A beautiful habit tracker makes your progress look like art. | Product Hunt" 
                     style={{ width: '250px', height: '54px' }} 
                     width="250" 
@@ -188,146 +178,25 @@ export default function LandingPage() {
               </View>
             )}
           </View>
-        </View>
+        </LinearGradient>
 
-        <Animated.View 
-          style={[
-            styles.demoSection,
-            { transform: [{ translateY: parallaxOffset }] }
-          ]}
-        >
-          <View style={styles.demoCardsContainer}>
-            <View style={styles.demoCard}>
-              <View style={styles.demoCardHeader}>
-                <View style={styles.demoCardBadge}>
-                  <Text style={styles.demoCardBadgeText}>🇺🇸 United States</Text>
-                </View>
-                <View style={styles.demoCardBadge}>
-                  <Text style={styles.demoCardBadgeText}>⏱️ Hourly rate on request</Text>
-                </View>
+        <View style={styles.demoSection}>
+          <View style={styles.demoCard}>
+            <View style={styles.demoImagePlaceholder}>
+              <View style={styles.demoIconContainer}>
+                <Building2 size={48} color="#8B5CF6" />
               </View>
-              <Text style={styles.demoCardName}>Sarah Mitchell</Text>
-              <Text style={styles.demoCardRole}>Fitness Coach from New York</Text>
-              <View style={styles.demoCardProgress}>
-                <Text style={styles.demoCardProgressLabel}>Habit Streak</Text>
-                <View style={styles.progressBar}>
-                  <View style={[styles.progressFill, { width: '100%', backgroundColor: '#10B981' }]} />
-                </View>
-                <Text style={styles.demoCardProgressValue}>100%</Text>
-              </View>
-              <View style={styles.demoCardSkills}>
-                <Text style={styles.demoCardSkillsTitle}>Active Habits</Text>
-                <View style={styles.skillTag}>
-                  <Flame size={14} color="#FF6B35" />
-                  <Text style={styles.skillTagText}>Morning Run</Text>
-                </View>
-                <View style={styles.skillTag}>
-                  <Activity size={14} color="#3B82F6" />
-                  <Text style={styles.skillTagText}>Meditation</Text>
-                </View>
-                <View style={styles.skillTag}>
-                  <Trophy size={14} color="#F59E0B" />
-                  <Text style={styles.skillTagText}>Reading</Text>
-                </View>
-              </View>
-              <TouchableOpacity style={styles.demoCardButton}>
-                <Text style={styles.demoCardButtonText}>+ Add to routine</Text>
-              </TouchableOpacity>
+              <Text style={styles.demoImageText}>Interactive 3D City Builder</Text>
             </View>
-
-            <View style={styles.demoCard}>
-              <View style={styles.demoCardHeader}>
-                <View style={styles.demoCardBadge}>
-                  <Text style={styles.demoCardBadgeText}>🇬🇧 United Kingdom</Text>
-                </View>
-                <View style={styles.demoCardBadge}>
-                  <Text style={styles.demoCardBadgeText}>⏱️ Hourly rate on request</Text>
-                </View>
-              </View>
-              <Text style={styles.demoCardName}>James Parker</Text>
-              <Text style={styles.demoCardRole}>Developer from London</Text>
-              <View style={styles.demoCardProgress}>
-                <Text style={styles.demoCardProgressLabel}>Habit Streak</Text>
-                <View style={styles.progressBar}>
-                  <View style={[styles.progressFill, { width: '85%', backgroundColor: '#3B82F6' }]} />
-                </View>
-                <Text style={styles.demoCardProgressValue}>85%</Text>
-              </View>
-              <View style={styles.demoCardSkills}>
-                <Text style={styles.demoCardSkillsTitle}>Active Habits</Text>
-                <View style={styles.skillTag}>
-                  <Target size={14} color="#8B5CF6" />
-                  <Text style={styles.skillTagText}>Code Daily</Text>
-                </View>
-                <View style={styles.skillTag}>
-                  <Building2 size={14} color="#10B981" />
-                  <Text style={styles.skillTagText}>Exercise</Text>
-                </View>
-                <View style={styles.skillTag}>
-                  <Star size={14} color="#F59E0B" />
-                  <Text style={styles.skillTagText}>Learn</Text>
-                </View>
-              </View>
-              <TouchableOpacity style={styles.demoCardButton}>
-                <Text style={styles.demoCardButtonText}>+ Add to routine</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.demoCard}>
-              <View style={styles.demoCardHeader}>
-                <View style={styles.demoCardBadge}>
-                  <Text style={styles.demoCardBadgeText}>🇨🇦 Canada</Text>
-                </View>
-                <View style={styles.demoCardBadge}>
-                  <Text style={styles.demoCardBadgeText}>⏱️ Hourly rate on request</Text>
-                </View>
-              </View>
-              <Text style={styles.demoCardName}>Emma Chen</Text>
-              <Text style={styles.demoCardRole}>Designer from Toronto</Text>
-              <View style={styles.demoCardProgress}>
-                <Text style={styles.demoCardProgressLabel}>Habit Streak</Text>
-                <View style={styles.progressBar}>
-                  <View style={[styles.progressFill, { width: '92%', backgroundColor: '#8B5CF6' }]} />
-                </View>
-                <Text style={styles.demoCardProgressValue}>92%</Text>
-              </View>
-              <View style={styles.demoCardSkills}>
-                <Text style={styles.demoCardSkillsTitle}>Active Habits</Text>
-                <View style={styles.skillTag}>
-                  <Sparkles size={14} color="#EC4899" />
-                  <Text style={styles.skillTagText}>Design</Text>
-                </View>
-                <View style={styles.skillTag}>
-                  <Calendar size={14} color="#06B6D4" />
-                  <Text style={styles.skillTagText}>Journal</Text>
-                </View>
-                <View style={styles.skillTag}>
-                  <Award size={14} color="#F59E0B" />
-                  <Text style={styles.skillTagText}>Yoga</Text>
-                </View>
-              </View>
-              <TouchableOpacity style={styles.demoCardButton}>
-                <Text style={styles.demoCardButtonText}>+ Add to routine</Text>
-              </TouchableOpacity>
-            </View>
+            <Text style={styles.demoDescription}>
+              Watch your habits come to life as towering skyscrapers. The longer your streak, the taller your buildings grow!
+            </Text>
           </View>
-
-          {isLargeScreen && (
-            <>
-              <View style={[styles.floatingLabel, styles.floatingLabel1]}>
-                <View style={styles.floatingLabelDot} />
-                <Text style={styles.floatingLabelText}>Geist 14px (-1)</Text>
-              </View>
-              <View style={[styles.floatingLabel, styles.floatingLabel2]}>
-                <View style={styles.floatingLabelDot} />
-                <Text style={styles.floatingLabelText}>Geist 16px (-2)</Text>
-              </View>
-            </>
-          )}
-        </Animated.View>
+        </View>
 
         <View style={styles.section} nativeID="features">
           <View style={styles.sectionHeader}>
+            <Text style={styles.sectionLabel}>FEATURES</Text>
             <Text style={styles.sectionTitle} accessibilityRole="header">Everything You Need to Succeed</Text>
             <Text style={styles.sectionDescription}>
               Powerful features designed to help you build and maintain lasting habits
@@ -338,44 +207,87 @@ export default function LandingPage() {
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <View
+                <TouchableOpacity
                   key={index}
-                  style={styles.featureCard}
+                  style={[
+                    styles.featureCard,
+                    activeFeature === index && styles.featureCardActive,
+                  ]}
+                  onPress={() => setActiveFeature(index)}
                 >
-                  <View style={[styles.featureIcon, { backgroundColor: feature.color }]}>
-                    <Icon size={24} color="#fff" />
+                  <View style={[styles.featureIcon, { backgroundColor: `${feature.color}20` }]}>
+                    <Icon size={28} color={feature.color} />
                   </View>
                   <Text style={styles.featureTitle} accessibilityRole="header">{feature.title}</Text>
                   <Text style={styles.featureDescription}>{feature.description}</Text>
-                </View>
+                </TouchableOpacity>
               );
             })}
           </View>
         </View>
 
-        <View style={styles.statsSection}>
-          <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>2,500+</Text>
-              <Text style={styles.statLabel}>Active Users</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>50K+</Text>
-              <Text style={styles.statLabel}>Habits Tracked</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>95%</Text>
-              <Text style={styles.statLabel}>Success Rate</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>4.9★</Text>
-              <Text style={styles.statLabel}>User Rating</Text>
+        <View style={styles.section}>
+          <View style={styles.benefitsCard}>
+            <Text style={styles.benefitsTitle}>Why Choose MomentPro?</Text>
+            <View style={styles.benefitsList}>
+              {benefits.map((benefit, index) => {
+                const Icon = benefit.icon;
+                return (
+                  <View key={index} style={styles.benefitItem}>
+                    <View style={[styles.benefitIcon, { backgroundColor: `${benefit.color}20` }]}>
+                      <Icon size={20} color={benefit.color} />
+                    </View>
+                    <Text style={styles.benefitText}>{benefit.text}</Text>
+                  </View>
+                );
+              })}
             </View>
           </View>
         </View>
 
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionLabel}>TESTIMONIALS</Text>
+            <Text style={styles.sectionTitle} accessibilityRole="header">Loved by Habit Builders</Text>
+          </View>
+
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.testimonialsScroll}
+          >
+            {testimonials.map((testimonial, index) => (
+              <View key={index} style={styles.testimonialCard}>
+                <View style={styles.testimonialHeader}>
+                  <View style={styles.testimonialAvatar}>
+                    <Text style={styles.testimonialAvatarEmoji}>
+                      {testimonial.avatar}
+                    </Text>
+                  </View>
+                  <View style={styles.testimonialInfo}>
+                    <Text style={styles.testimonialName}>{testimonial.name}</Text>
+                    <Text style={styles.testimonialRole}>{testimonial.role}</Text>
+                  </View>
+                </View>
+                <View style={styles.testimonialRating}>
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} size={16} color="#FFD700" fill="#FFD700" />
+                  ))}
+                </View>
+                <Text style={styles.testimonialText}>{testimonial.text}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+
         <View style={styles.ctaSection}>
-          <View style={styles.ctaCard}>
+          <LinearGradient
+            colors={['#8B5CF6', '#6366F1']}
+            style={styles.ctaCard}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <Sparkles size={48} color="#fff" />
             <Text style={styles.ctaTitle}>Ready to Build Better Habits?</Text>
             <Text style={styles.ctaDescription}>
               Join thousands of people transforming their lives one habit at a time
@@ -385,15 +297,15 @@ export default function LandingPage() {
               onPress={() => router.push('/habits')}
             >
               <Text style={styles.ctaButtonText}>Get Started Free</Text>
-              <ArrowRight size={18} color="#fff" />
+              <ArrowRight size={20} color="#8B5CF6" />
             </TouchableOpacity>
-          </View>
+          </LinearGradient>
         </View>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>© 2025 MomentPro. Built with ❤️ for habit builders.</Text>
         </View>
-      </Animated.ScrollView>
+      </ScrollView>
     </View>
   );
 }
@@ -401,7 +313,7 @@ export default function LandingPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E8E8E8',
+    backgroundColor: colors.dark.background,
   },
   scrollView: {
     flex: 1,
@@ -410,119 +322,331 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   heroSection: {
-    paddingTop: Platform.OS === 'web' ? 100 : 60,
-    paddingBottom: 80,
+    paddingTop: Platform.OS === 'web' ? 80 : 60,
+    paddingBottom: 60,
     paddingHorizontal: 20,
     alignItems: 'center',
-    backgroundColor: '#E8E8E8',
   },
   heroContent: {
-    maxWidth: 900,
+    maxWidth: 600,
     alignItems: 'center',
-    width: '100%',
   },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    backgroundColor: '#FFD70020',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 20,
-    gap: 6,
-    marginBottom: 32,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
+    gap: 8,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#FFD70040',
   },
   badgeText: {
-    fontSize: 12,
-    fontWeight: '500' as const,
-    color: '#1F2937',
-  },
-  heroTitleContainer: {
-    position: 'relative',
-    marginBottom: 24,
-    paddingHorizontal: isLargeScreen ? 60 : 20,
+    fontSize: 14,
+    fontWeight: '600' as const,
+    color: '#FFD700',
   },
   heroTitle: {
-    fontSize: isLargeScreen ? 74 : 42,
-    fontWeight: '800' as const,
-    color: '#1F2937',
+    ...typography.display,
+    fontSize: Platform.OS === 'web' ? 48 : 36,
+    color: '#fff',
     textAlign: 'center',
-    lineHeight: isLargeScreen ? 84 : 50,
-    letterSpacing: -2,
-  },
-  heroTitleItalic: {
-    fontStyle: 'italic',
-    fontWeight: '400' as const,
+    marginBottom: 20,
+    lineHeight: Platform.OS === 'web' ? 56 : 44,
   },
   heroTitleAccent: {
-    color: '#3B82F6',
-  },
-  typographyLabel: {
-    position: 'absolute',
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  labelTopRight: {
-    top: -20,
-    right: -40,
-  },
-  labelLeft: {
-    top: '50%',
-    left: -80,
-  },
-  labelBottomRight: {
-    bottom: -20,
-    right: 40,
-  },
-  typographyLabelText: {
-    fontSize: 11,
-    fontWeight: '500' as const,
-    color: '#6B7280',
+    color: '#8B5CF6',
   },
   heroDescription: {
     fontSize: 18,
-    color: '#6B7280',
+    color: '#9CA3AF',
     textAlign: 'center',
     marginBottom: 32,
     lineHeight: 28,
-    maxWidth: 700,
-    letterSpacing: -0.5,
   },
   heroButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 32,
+    flexDirection: Platform.OS === 'web' ? 'row' : 'column',
+    gap: 16,
+    marginBottom: 40,
+    width: '100%',
+    maxWidth: 400,
   },
   primaryButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1F2937',
-    paddingHorizontal: 28,
-    paddingVertical: 14,
-    borderRadius: 10,
+    backgroundColor: '#8B5CF6',
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 12,
     gap: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 4,
+    flex: Platform.OS === 'web' ? 1 : undefined,
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 8,
   },
   primaryButtonText: {
-    fontSize: 15,
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#fff',
+  },
+  secondaryButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.dark.card,
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 12,
+    flex: Platform.OS === 'web' ? 1 : undefined,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+  },
+  secondaryButtonText: {
+    fontSize: 16,
     fontWeight: '600' as const,
     color: '#fff',
+  },
+  socialProof: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  avatarGroup: {
+    flexDirection: 'row',
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.dark.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.dark.background,
+  },
+  avatarText: {
+    fontSize: 20,
+  },
+  socialProofText: {
+    fontSize: 14,
+    color: '#9CA3AF',
+  },
+  socialProofBold: {
+    fontWeight: '700' as const,
+    color: '#fff',
+  },
+  section: {
+    paddingHorizontal: 20,
+    paddingVertical: 60,
+  },
+  sectionHeader: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  sectionLabel: {
+    fontSize: 12,
+    fontWeight: '700' as const,
+    color: '#8B5CF6',
+    letterSpacing: 2,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    ...typography.display,
+    fontSize: 32,
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  sectionDescription: {
+    fontSize: 16,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    maxWidth: 500,
+  },
+  featuresGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    justifyContent: 'center',
+  },
+  featureCard: {
+    width: Platform.OS === 'web' ? Math.min((width - 80) / 2, 280) : width - 40,
+    backgroundColor: colors.dark.card,
+    borderRadius: 20,
+    padding: 24,
+    borderWidth: 2,
+    borderColor: colors.dark.border,
+  },
+  featureCardActive: {
+    borderColor: '#8B5CF6',
+    backgroundColor: '#8B5CF610',
+  },
+  featureIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  featureTitle: {
+    fontSize: 20,
+    fontWeight: '700' as const,
+    color: '#fff',
+    marginBottom: 8,
+  },
+  featureDescription: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    lineHeight: 22,
+  },
+  benefitsCard: {
+    backgroundColor: colors.dark.card,
+    borderRadius: 20,
+    padding: 32,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+    maxWidth: 600,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  benefitsTitle: {
+    fontSize: 24,
+    fontWeight: '800' as const,
+    color: '#fff',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  benefitsList: {
+    gap: 16,
+  },
+  benefitItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  benefitIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  benefitText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600' as const,
+  },
+  testimonialsScroll: {
+    paddingHorizontal: 20,
+    gap: 16,
+  },
+  testimonialCard: {
+    width: 300,
+    backgroundColor: colors.dark.card,
+    borderRadius: 20,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+  },
+  testimonialHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 12,
+  },
+  testimonialAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#8B5CF6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  testimonialAvatarText: {
+    fontSize: 20,
+    fontWeight: '700' as const,
+    color: '#fff',
+  },
+  testimonialAvatarEmoji: {
+    fontSize: 24,
+  },
+  testimonialInfo: {
+    flex: 1,
+  },
+  testimonialName: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#fff',
+    marginBottom: 2,
+  },
+  testimonialRole: {
+    fontSize: 14,
+    color: '#9CA3AF',
+  },
+  testimonialRating: {
+    flexDirection: 'row',
+    gap: 4,
+    marginBottom: 12,
+  },
+  testimonialText: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    lineHeight: 22,
+  },
+  ctaSection: {
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+  },
+  ctaCard: {
+    borderRadius: 24,
+    padding: 48,
+    alignItems: 'center',
+    maxWidth: 600,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  ctaTitle: {
+    fontSize: 32,
+    fontWeight: '800' as const,
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 24,
+    marginBottom: 12,
+  },
+  ctaDescription: {
+    fontSize: 16,
+    color: '#E0E7FF',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  ctaButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  ctaButtonText: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#8B5CF6',
+  },
+  footer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 14,
+    color: '#6B7280',
   },
   productHuntBadge: {
     marginTop: 24,
@@ -530,303 +654,46 @@ const styles = StyleSheet.create({
   },
   demoSection: {
     paddingHorizontal: 20,
-    paddingVertical: 60,
-    position: 'relative',
-  },
-  demoCardsContainer: {
-    flexDirection: isLargeScreen ? 'row' : 'column',
-    gap: 20,
-    justifyContent: 'center',
-    maxWidth: 1200,
-    alignSelf: 'center',
+    paddingVertical: 40,
   },
   demoCard: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
-    minWidth: isLargeScreen ? 280 : undefined,
-    maxWidth: isLargeScreen ? 340 : undefined,
-  },
-  demoCardHeader: {
-    gap: 8,
-    marginBottom: 16,
-  },
-  demoCardBadge: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 6,
-    alignSelf: 'flex-start',
-  },
-  demoCardBadgeText: {
-    fontSize: 11,
-    color: '#6B7280',
-    fontWeight: '500' as const,
-  },
-  demoCardName: {
-    fontSize: 20,
-    fontWeight: '700' as const,
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  demoCardRole: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginBottom: 16,
-  },
-  demoCardProgress: {
-    marginBottom: 16,
-  },
-  demoCardProgressLabel: {
-    fontSize: 12,
-    fontWeight: '600' as const,
-    color: '#1F2937',
-    marginBottom: 8,
-  },
-  progressBar: {
-    height: 8,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: 6,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  demoCardProgressValue: {
-    fontSize: 11,
-    color: '#6B7280',
-    textAlign: 'right',
-  },
-  demoCardSkills: {
-    marginBottom: 16,
-  },
-  demoCardSkillsTitle: {
-    fontSize: 12,
-    fontWeight: '600' as const,
-    color: '#1F2937',
-    marginBottom: 10,
-  },
-  skillTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 8,
-    gap: 6,
-    marginBottom: 8,
-  },
-  skillTagText: {
-    fontSize: 13,
-    color: '#374151',
-    fontWeight: '500' as const,
-  },
-  demoCardButton: {
-    backgroundColor: '#1F2937',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  demoCardButtonText: {
-    fontSize: 13,
-    fontWeight: '600' as const,
-    color: '#fff',
-  },
-  floatingLabel: {
-    position: 'absolute',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  floatingLabel1: {
-    top: 100,
-    left: 40,
-  },
-  floatingLabel2: {
-    bottom: 100,
-    right: 40,
-  },
-  floatingLabelDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#3B82F6',
-  },
-  floatingLabelText: {
-    fontSize: 11,
-    fontWeight: '500' as const,
-    color: '#6B7280',
-  },
-  section: {
-    paddingHorizontal: 20,
-    paddingVertical: 60,
-    backgroundColor: '#E8E8E8',
-  },
-  sectionHeader: {
-    alignItems: 'center',
-    marginBottom: 48,
-  },
-  sectionTitle: {
-    fontSize: 36,
-    fontWeight: '800' as const,
-    color: '#1F2937',
-    textAlign: 'center',
-    marginBottom: 16,
-    letterSpacing: -1,
-  },
-  sectionDescription: {
-    fontSize: 16,
-    color: '#6B7280',
-    textAlign: 'center',
-    maxWidth: 600,
-    lineHeight: 24,
-  },
-  featuresGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 20,
-    justifyContent: 'center',
-    maxWidth: 1200,
-    alignSelf: 'center',
-  },
-  featureCard: {
-    width: isLargeScreen ? 280 : width - 40,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 2,
-  },
-  featureIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  featureTitle: {
-    fontSize: 18,
-    fontWeight: '700' as const,
-    color: '#1F2937',
-    marginBottom: 8,
-  },
-  featureDescription: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 22,
-  },
-  statsSection: {
-    paddingHorizontal: 20,
-    paddingVertical: 60,
-    backgroundColor: '#E8E8E8',
-  },
-  statsGrid: {
-    flexDirection: isLargeScreen ? 'row' : 'column',
-    gap: 16,
-    maxWidth: 1000,
-    alignSelf: 'center',
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 32,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 2,
-  },
-  statNumber: {
-    fontSize: 42,
-    fontWeight: '800' as const,
-    color: '#1F2937',
-    marginBottom: 8,
-    letterSpacing: -1,
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#6B7280',
-    fontWeight: '500' as const,
-  },
-  ctaSection: {
-    paddingHorizontal: 20,
-    paddingVertical: 60,
-    backgroundColor: '#E8E8E8',
-  },
-  ctaCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: colors.dark.card,
     borderRadius: 24,
-    padding: 48,
-    alignItems: 'center',
-    maxWidth: 700,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: colors.dark.border,
+    maxWidth: 800,
     alignSelf: 'center',
     width: '100%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 8,
   },
-  ctaTitle: {
-    fontSize: 32,
-    fontWeight: '800' as const,
-    color: '#fff',
-    textAlign: 'center',
-    marginBottom: 12,
-    letterSpacing: -1,
+  demoImagePlaceholder: {
+    height: 300,
+    backgroundColor: '#0a0e27',
+    borderRadius: 16,
+    marginBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#2d3561',
   },
-  ctaDescription: {
+  demoIconContainer: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#8B5CF620',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  demoImageText: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+    color: '#8B5CF6',
+  },
+  demoDescription: {
     fontSize: 16,
-    color: '#D1D5DB',
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
-  },
-  ctaButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#3B82F6',
-    paddingHorizontal: 28,
-    paddingVertical: 14,
-    borderRadius: 10,
-    gap: 8,
-  },
-  ctaButtonText: {
-    fontSize: 15,
-    fontWeight: '600' as const,
-    color: '#fff',
-  },
-  footer: {
-    paddingHorizontal: 20,
-    paddingVertical: 32,
-    alignItems: 'center',
-    backgroundColor: '#E8E8E8',
-  },
-  footerText: {
-    fontSize: 14,
     color: '#9CA3AF',
+    lineHeight: 24,
+    textAlign: 'center',
   },
 });
