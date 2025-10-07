@@ -47,11 +47,12 @@ export default function LandingPage() {
       hasRedirected.current = true;
       const timer = setTimeout(() => {
         try {
-          router.replace('/(tabs)/habits');
+          console.log('[LandingPage] Redirecting to habits...');
+          router.replace('/habits');
         } catch (error) {
           console.error('[LandingPage] Navigation error:', error);
         }
-      }, 0);
+      }, 100);
       return () => clearTimeout(timer);
     }
   }, [router]);

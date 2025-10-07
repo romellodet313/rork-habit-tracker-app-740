@@ -120,12 +120,14 @@ export function SmartDailyDashboard({ habits, onToggleCompletion }: SmartDailyDa
 
       <View style={styles.habitsList}>
         {topThreeHabits.map((habit, index) => {
+          if (!habit || !habit.id) return null;
+          
           const isCompleted = habit.completions?.[today];
           const streak = calculateStreak(habit);
           
           return (
             <TouchableOpacity
-              key={habit.id}
+              key={`smart-habit-${habit.id}-${index}`}
               style={[
                 styles.habitItem,
                 { backgroundColor: colors.background, borderColor: colors.border },
