@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import { HabitCard } from "@/components/HabitCard";
+import { SmartDailyDashboard } from "@/components/SmartDailyDashboard";
 import { Plus, Settings as SettingsIcon, Sparkles, Target, Search, Filter, Zap, Grid3x3, List, Check, TrendingUp, Calendar, Archive, BookTemplate } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -285,6 +286,11 @@ export default function HabitsScreen() {
             </TouchableOpacity>
           </View>
         </View>
+        
+        <SmartDailyDashboard 
+          habits={habits} 
+          onToggleCompletion={(habitId) => toggleHabitCompletion(habitId, new Date().toISOString().split('T')[0])} 
+        />
         
         {showFilters && (
           <View style={[styles.filtersContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>

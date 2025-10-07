@@ -46,6 +46,12 @@ export default function AddHabitScreen() {
   const [completionsPerDay, setCompletionsPerDay] = useState("1");
   const [timeOfDay, setTimeOfDay] = useState<('morning' | 'day' | 'evening')[]>([]);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [cue, setCue] = useState("");
+  const [craving, setCraving] = useState("");
+  const [response, setResponse] = useState("");
+  const [reward, setReward] = useState("");
+  const [identityStatement, setIdentityStatement] = useState("");
+  const [isPriority, setIsPriority] = useState(false);
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(30)).current;
 
@@ -127,6 +133,12 @@ export default function AddHabitScreen() {
         trackingMode,
         completionsPerDay: parsedCompletionsPerDay,
         timeOfDay: timeOfDay.length > 0 ? timeOfDay : undefined,
+        cue: cue.trim() || undefined,
+        craving: craving.trim() || undefined,
+        response: response.trim() || undefined,
+        reward: reward.trim() || undefined,
+        identityStatement: identityStatement.trim() || undefined,
+        isPriority,
         reminders: enableReminders ? [{
           id: Date.now().toString(),
           habitId: '',
@@ -224,6 +236,88 @@ export default function AddHabitScreen() {
           multiline
           numberOfLines={3}
         />
+      </View>
+      
+      <View style={[styles.atomicHabitsCard, { backgroundColor: colors.card, borderColor: '#8B5CF6' }]}>
+        <View style={styles.atomicHabitsHeader}>
+          <Text style={[styles.atomicHabitsTitle, { color: colors.text }]}>🧠 Atomic Habits Framework</Text>
+          <Text style={[styles.atomicHabitsSubtitle, { color: colors.textSecondary }]}>Make it stick with the habit loop</Text>
+        </View>
+        
+        <View style={styles.section}>
+          <Text style={[styles.label, { color: colors.text }]}>💡 Cue (What triggers it?)</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+            value={cue}
+            onChangeText={setCue}
+            placeholder="e.g., After I pour my morning coffee..."
+            placeholderTextColor={colors.textSecondary}
+          />
+        </View>
+        
+        <View style={styles.section}>
+          <Text style={[styles.label, { color: colors.text }]}>❤️ Craving (Why you want it?)</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+            value={craving}
+            onChangeText={setCraving}
+            placeholder="e.g., I want to feel calm and focused"
+            placeholderTextColor={colors.textSecondary}
+          />
+        </View>
+        
+        <View style={styles.section}>
+          <Text style={[styles.label, { color: colors.text }]}>⚡ Response (The action)</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+            value={response}
+            onChangeText={setResponse}
+            placeholder="e.g., I will meditate for 5 minutes"
+            placeholderTextColor={colors.textSecondary}
+          />
+        </View>
+        
+        <View style={styles.section}>
+          <Text style={[styles.label, { color: colors.text }]}>🎁 Reward (What you gain)</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+            value={reward}
+            onChangeText={setReward}
+            placeholder="e.g., I feel energized and ready for the day"
+            placeholderTextColor={colors.textSecondary}
+          />
+        </View>
+        
+        <View style={styles.section}>
+          <Text style={[styles.label, { color: colors.text }]}>✨ Identity Statement</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+            value={identityStatement}
+            onChangeText={setIdentityStatement}
+            placeholder="e.g., I&apos;m becoming someone who values mindfulness"
+            placeholderTextColor={colors.textSecondary}
+          />
+          <Text style={[styles.helpText, { color: colors.textSecondary }]}>
+            This helps you link the habit to your identity, making it more powerful
+          </Text>
+        </View>
+        
+        <View style={[styles.reminderHeader, { backgroundColor: colors.background, borderColor: colors.border }]}>
+          <View style={styles.reminderHeaderLeft}>
+            <Text style={[styles.label, { color: colors.text }]}>⭐ Priority Habit</Text>
+          </View>
+          <Switch
+            value={isPriority}
+            onValueChange={setIsPriority}
+            trackColor={{ false: '#4B5563', true: selectedColor }}
+            thumbColor={isPriority ? '#fff' : '#9CA3AF'}
+          />
+        </View>
+        {isPriority && (
+          <Text style={[styles.helpText, { color: colors.textSecondary }]}>
+            Priority habits appear in your daily focus dashboard
+          </Text>
+        )}
       </View>
       
       <TouchableOpacity
@@ -973,5 +1067,22 @@ const styles = StyleSheet.create({
   },
   timeOfDayButtonTextActive: {
     color: '#fff',
+  },
+  atomicHabitsCard: {
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 28,
+    borderWidth: 2,
+  },
+  atomicHabitsHeader: {
+    marginBottom: 20,
+  },
+  atomicHabitsTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  atomicHabitsSubtitle: {
+    fontSize: 14,
   },
 });

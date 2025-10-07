@@ -31,6 +31,12 @@ export interface Habit {
   trackingMode?: 'step-by-step' | 'custom-value';
   completionsPerDay?: number;
   timeOfDay?: ('morning' | 'day' | 'evening')[];
+  cue?: string;
+  craving?: string;
+  response?: string;
+  reward?: string;
+  identityStatement?: string;
+  isPriority?: boolean;
 }
 
 export interface HabitCompletion {
@@ -108,4 +114,27 @@ export interface HabitStack {
   habitIds: string[];
   totalDuration: number;
   createdAt: string;
+}
+
+export interface ReflectionEntry {
+  id: string;
+  date: string;
+  habitId?: string;
+  prompt: string;
+  response: string;
+  mood?: 'great' | 'good' | 'okay' | 'bad' | 'terrible';
+}
+
+export interface GrowthArchetype {
+  id: 'builder' | 'scholar' | 'explorer' | 'creator' | 'warrior';
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  criteria: {
+    minHabits?: number;
+    minStreak?: number;
+    minCompletions?: number;
+    categories?: string[];
+  };
 }
