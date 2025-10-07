@@ -185,7 +185,7 @@ export const HabitCard = memo(function HabitCard({ habit, onToggleCompletion, di
         <View style={styles.completionProgress}>
           {Array.from({ length: completionsPerDay }).map((_, i) => (
             <View
-              key={i}
+              key={`completion-${habit.id}-${i}`}
               style={[
                 styles.completionDot,
                 i < todayCompletionCount && { backgroundColor: habit.color },
