@@ -9,6 +9,54 @@
       "destination": "/api/index"
     },
     {
+      "source": "/habits",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/add",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/archive",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/settings",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/stats",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/routines",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/templates",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/garden",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/habit/:id",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/edit/:id",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/calendar/:habitId",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/share/:habitId",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

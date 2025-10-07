@@ -15,7 +15,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHabits } from "@/providers/HabitProvider";
 import { HabitCard } from "@/components/HabitCard";
-import { Plus, Settings as SettingsIcon, Sparkles, Target, Search, Filter, Zap, Grid3x3, List, Check, TrendingUp, Calendar, Archive, BookTemplate, Crown } from "lucide-react-native";
+import { Plus, Settings as SettingsIcon, Sparkles, Target, Search, Filter, Zap, Grid3x3, List, Check, TrendingUp, Calendar, Archive, BookTemplate } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers/ThemeProvider";
 import typography from "@/constants/typography";
@@ -410,45 +410,7 @@ export default function HabitsScreen() {
           </View>
         )}
         
-        <View style={[styles.premiumCard, { backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderColor: '#667eea' }]}>
-          <View style={styles.premiumHeader}>
-            <Crown size={24} color="#FFD700" fill="#FFD700" />
-            <Text style={styles.premiumTitle}>Unlock Premium</Text>
-          </View>
-          <Text style={styles.premiumDescription}>
-            Get unlimited habits, advanced analytics, custom themes, and more!
-          </Text>
-          <View style={styles.premiumFeatures}>
-            <View style={styles.premiumFeature}>
-              <Check size={16} color="#fff" strokeWidth={3} />
-              <Text style={styles.premiumFeatureText}>Unlimited Habits</Text>
-            </View>
-            <View style={styles.premiumFeature}>
-              <Check size={16} color="#fff" strokeWidth={3} />
-              <Text style={styles.premiumFeatureText}>Advanced Analytics</Text>
-            </View>
-            <View style={styles.premiumFeature}>
-              <Check size={16} color="#fff" strokeWidth={3} />
-              <Text style={styles.premiumFeatureText}>Custom Themes</Text>
-            </View>
-            <View style={styles.premiumFeature}>
-              <Check size={16} color="#fff" strokeWidth={3} />
-              <Text style={styles.premiumFeatureText}>Priority Support</Text>
-            </View>
-          </View>
-          <TouchableOpacity
-            style={styles.premiumButton}
-            onPress={() => {
-              if (Platform.OS !== 'web') {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              }
-            }}
-          >
-            <Text style={styles.premiumButtonText}>Start Free Trial</Text>
-            <Text style={styles.premiumButtonSubtext}>7 days free, then $4.99/month</Text>
-          </TouchableOpacity>
-        </View>
-        
+
         <View style={styles.habitsSection}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Your Habits</Text>
           {viewMode === 'list' ? (
@@ -834,69 +796,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
-  premiumCard: {
-    borderRadius: 20,
-    padding: 24,
-    marginBottom: 20,
-    borderWidth: 2,
-    backgroundColor: '#667eea',
-  },
-  premiumHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 12,
-  },
-  premiumTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#fff',
-  },
-  premiumDescription: {
-    fontSize: 15,
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: 20,
-    lineHeight: 22,
-  },
-  premiumFeatures: {
-    gap: 12,
-    marginBottom: 24,
-  },
-  premiumFeature: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  premiumFeatureText: {
-    fontSize: 15,
-    color: '#fff',
-    fontWeight: '600',
-  },
-  premiumButton: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  premiumButtonText: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: '#667eea',
-    marginBottom: 4,
-  },
-  premiumButtonSubtext: {
-    fontSize: 13,
-    color: '#667eea',
-    fontWeight: '600',
-    opacity: 0.8,
-  },
+
 });
