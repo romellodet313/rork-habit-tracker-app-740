@@ -34,8 +34,10 @@ export const [ThemeProvider, useTheme] = createContextHook<ThemeContextType>(() 
     const loadTheme = async () => {
       try {
         let stored = null;
-        if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-          stored = localStorage.getItem(THEME_STORAGE_KEY);
+        if (Platform.OS === 'web') {
+          if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+            stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+          }
         } else {
           stored = await AsyncStorage.getItem(THEME_STORAGE_KEY);
         }
@@ -63,8 +65,10 @@ export const [ThemeProvider, useTheme] = createContextHook<ThemeContextType>(() 
 
   const setThemeMode = useCallback(async (mode: ThemeMode) => {
     try {
-      if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-        localStorage.setItem(THEME_STORAGE_KEY, mode);
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          window.localStorage.setItem(THEME_STORAGE_KEY, mode);
+        }
       } else {
         await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
       }

@@ -204,8 +204,10 @@ export default function LandingPage() {
                   borderColor: borderColor,
                 }]}
                 onPress={() => {
-                  const element = Platform.OS === 'web' ? document.getElementById('features') : null;
-                  if (element) element.scrollIntoView({ behavior: 'smooth' });
+                  if (Platform.OS === 'web' && typeof document !== 'undefined') {
+                    const element = document.getElementById('features');
+                    if (element) element.scrollIntoView({ behavior: 'smooth' });
+                  }
                 }}
               >
                 <Text style={[styles.secondaryButtonText, { color: textPrimary }]}>View Demo</Text>
@@ -232,11 +234,12 @@ export default function LandingPage() {
               </View>
             </View>
 
-            {Platform.OS === 'web' && (
+            {Platform.OS === 'web' && typeof document !== 'undefined' && (
               <View style={styles.productHuntBadge}>
                 <a 
                   href="https://www.producthunt.com/products/momentpro?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-momentpro" 
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <img 
                     src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1023307&theme=${isDark ? 'dark' : 'light'}&t=1759692862397`}

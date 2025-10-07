@@ -35,8 +35,10 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
       try {
         console.log('[HabitProvider] Loading habits from storage...');
         let stored = null;
-        if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-          stored = localStorage.getItem(STORAGE_KEY);
+        if (Platform.OS === 'web') {
+          if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+            stored = window.localStorage.getItem(STORAGE_KEY);
+          }
         } else {
           stored = await AsyncStorage.getItem(STORAGE_KEY);
         }
@@ -71,8 +73,10 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
     try {
       const validatedHabits = newHabits.filter(h => h && typeof h === 'object' && h.id);
       const habitData = JSON.stringify(validatedHabits);
-      if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY, habitData);
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          window.localStorage.setItem(STORAGE_KEY, habitData);
+        }
       } else {
         await AsyncStorage.setItem(STORAGE_KEY, habitData);
       }
@@ -302,8 +306,10 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
 
   const clearAllData = useCallback(async () => {
     try {
-      if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-        localStorage.removeItem(STORAGE_KEY);
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          window.localStorage.removeItem(STORAGE_KEY);
+        }
       } else {
         await AsyncStorage.removeItem(STORAGE_KEY);
       }
