@@ -23,6 +23,22 @@ export function HabitStackingSuggestions({
 }: HabitStackingSuggestionsProps) {
   const { colors } = useTheme();
 
+  const calculateStreak = (habit: Habit): number => {
+    let streak = 0;
+    const now = new Date();
+    for (let i = 0; i < 365; i++) {
+      const checkDate = new Date(now);
+      checkDate.setDate(now.getDate() - i);
+      const dateStr = checkDate.toISOString().split('T')[0];
+      if (habit.completions?.[dateStr]) {
+        streak++;
+      } else if (i > 0) {
+        break;
+      }
+    }
+    return streak;
+  };
+
   const suggestions = useMemo(() => {
     const activeHabits = habits.filter(h => !h.archived && h.id !== currentHabit?.id);
     
@@ -70,22 +86,6 @@ export function HabitStackingSuggestions({
       .sort((a, b) => b.score - a.score)
       .slice(0, 5);
   }, [habits, currentHabit]);
-
-  const calculateStreak = (habit: Habit): number => {
-    let streak = 0;
-    const now = new Date();
-    for (let i = 0; i < 365; i++) {
-      const checkDate = new Date(now);
-      checkDate.setDate(now.getDate() - i);
-      const dateStr = checkDate.toISOString().split('T')[0];
-      if (habit.completions?.[dateStr]) {
-        streak++;
-      } else if (i > 0) {
-        break;
-      }
-    }
-    return streak;
-  };
 
   if (suggestions.length === 0) {
     return null;

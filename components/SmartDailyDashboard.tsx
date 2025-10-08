@@ -24,6 +24,22 @@ export function SmartDailyDashboard({ habits, onToggleCompletion }: SmartDailyDa
   const today = new Date().toISOString().split('T')[0];
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
+  const calculateStreak = (habit: Habit): number => {
+    let streak = 0;
+    const now = new Date();
+    for (let i = 0; i < 365; i++) {
+      const checkDate = new Date(now);
+      checkDate.setDate(now.getDate() - i);
+      const dateStr = checkDate.toISOString().split('T')[0];
+      if (habit.completions?.[dateStr]) {
+        streak++;
+      } else if (i > 0) {
+        break;
+      }
+    }
+    return streak;
+  };
+
   const topThreeHabits = useMemo(() => {
     const activeHabits = habits.filter(h => !h.archived);
     const hour = new Date().getHours();
@@ -54,22 +70,6 @@ export function SmartDailyDashboard({ habits, onToggleCompletion }: SmartDailyDa
       .slice(0, 3)
       .map(item => item.habit);
   }, [habits, today]);
-
-  const calculateStreak = (habit: Habit): number => {
-    let streak = 0;
-    const now = new Date();
-    for (let i = 0; i < 365; i++) {
-      const checkDate = new Date(now);
-      checkDate.setDate(now.getDate() - i);
-      const dateStr = checkDate.toISOString().split('T')[0];
-      if (habit.completions?.[dateStr]) {
-        streak++;
-      } else if (i > 0) {
-        break;
-      }
-    }
-    return streak;
-  };
 
   const handleToggle = async (habitId: string) => {
     Animated.sequence([
