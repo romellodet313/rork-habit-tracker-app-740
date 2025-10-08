@@ -17,24 +17,24 @@ const getBaseUrl = () => {
   return '';
 };
 
-let _trpcClient: ReturnType<typeof trpc.createClient> | null = null;
-
-const getTrpcClient = () => {
-  if (!_trpcClient) {
-    _trpcClient = trpc.createClient({
-      links: [
-        httpLink({
-          url: `${getBaseUrl()}/api/trpc`,
-          transformer: superjson,
-        }),
-      ],
-    });
-  }
-  return _trpcClient;
+const createTrpcClient = () => {
+  return trpc.createClient({
+    links: [
+      httpLink({
+        url: `${getBaseUrl()}/api/trpc`,
+        transformer: superjson,
+      }),
+    ],
+  });
 };
+
+let _trpcClient: ReturnType<typeof trpc.createClient> | undefined;
 
 export const trpcClient = new Proxy({} as ReturnType<typeof trpc.createClient>, {
   get(target, prop) {
-    return getTrpcClient()[prop as keyof ReturnType<typeof trpc.createClient>];
+    if (!_trpcClient) {
+      _trpcClient = createTrpcClient();
+    }
+    return _trpcClient[prop as keyof ReturnType<typeof trpc.createClient>];
   },
 });
