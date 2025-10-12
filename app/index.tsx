@@ -9,6 +9,7 @@ import {
   Dimensions,
   StatusBar,
   Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -31,6 +32,7 @@ import {
 import colors from '@/constants/colors';
 import typography from '@/constants/typography';
 import { useTheme } from '@/providers/ThemeProvider';
+import { useHabits } from '@/providers/HabitProvider';
 
 const { width } = Dimensions.get('window');
 
@@ -39,23 +41,29 @@ export default function LandingPage() {
   const [activeFeature, setActiveFeature] = useState(0);
   const hasRedirected = useRef(false);
   const { theme } = useTheme();
+  const { habits } = useHabits();
+  const [isReady, setIsReady] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
   useEffect(() => {
-    if (Platform.OS !== 'web' && !hasRedirected.current) {
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' && !hasRedirected.current && isReady) {
       hasRedirected.current = true;
-      const timer = setTimeout(() => {
-        try {
-          console.log('[LandingPage] Redirecting to habits...');
-          router.replace('/habits');
-        } catch (error) {
-          console.error('[LandingPage] Navigation error:', error);
-        }
-      }, 100);
-      return () => clearTimeout(timer);
+      try {
+        console.log('[LandingPage] Redirecting to habits...');
+        router.replace('/habits');
+      } catch (error) {
+        console.error('[LandingPage] Navigation error:', error);
+      }
     }
-  }, [router]);
+  }, [router, isReady]);
 
   useEffect(() => {
     if (Platform.OS === 'web') {
@@ -76,8 +84,9 @@ export default function LandingPage() {
 
   if (Platform.OS !== 'web') {
     return (
-      <View style={[styles.container, { backgroundColor: colors[theme].background }]}>
+      <View style={[styles.container, { backgroundColor: colors[theme].background, justifyContent: 'center', alignItems: 'center' }]}>
         <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor={colors[theme].background} />
+        <ActivityIndicator size="large" color={colors[theme].tint} />
       </View>
     );
   }
