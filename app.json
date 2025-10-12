@@ -16,7 +16,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.rork.habit-tracker-app-gafzv1u"
-    },
+      "infoPlist": {
+  "NSCalendarsUsageDescription": "This app uses calendar access to help you schedule and track your daily habits and routines."
+}
+},
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
