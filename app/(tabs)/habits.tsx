@@ -111,15 +111,23 @@ export default function HabitsScreen() {
   }, [activeHabits]);
 
   const handleToggleCompletion = async (habitId: string) => {
-    if (Platform.OS !== 'web') {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    try {
+      if (Platform.OS !== 'web') {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+    } catch (error) {
+      console.log('[Habits] Haptics not available:', error);
     }
     toggleHabitCompletion(habitId, new Date().toISOString().split('T')[0]);
   };
 
   const handleHabitPress = (habitId: string) => {
-    if (Platform.OS !== 'web') {
-      Haptics.selectionAsync();
+    try {
+      if (Platform.OS !== 'web') {
+        Haptics.selectionAsync();
+      }
+    } catch (error) {
+      console.log('[Habits] Haptics not available:', error);
     }
     router.push(`/habit/${habitId}`);
   };

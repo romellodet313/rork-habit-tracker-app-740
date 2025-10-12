@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import createContextHook from "@nkzw/create-context-hook";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
@@ -65,12 +65,19 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
 
 
 
+  const saveHabitsRef = React.useRef(false);
+  
   const saveHabits = async (newHabits: Habit[]) => {
     if (!Array.isArray(newHabits)) {
       console.error('[HabitProvider] Invalid habits data');
       return;
     }
+    if (saveHabitsRef.current) {
+      console.log('[HabitProvider] Save already in progress, skipping');
+      return;
+    }
     try {
+      saveHabitsRef.current = true;
       const validatedHabits = newHabits.filter(h => h && typeof h === 'object' && h.id);
       const habitData = JSON.stringify(validatedHabits);
       if (Platform.OS === 'web') {
@@ -84,6 +91,8 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
       setHabits(validatedHabits);
     } catch (error) {
       console.error('[HabitProvider] Failed to save habits:', error);
+    } finally {
+      saveHabitsRef.current = false;
     }
   };
 

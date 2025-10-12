@@ -127,7 +127,7 @@ export function SmartDailyDashboard({ habits, onToggleCompletion }: SmartDailyDa
           
           return (
             <TouchableOpacity
-              key={`smart-habit-${habit.id}-${index}`}
+              key={habit.id}
               style={[
                 styles.habitItem,
                 { backgroundColor: colors.background, borderColor: colors.border },
