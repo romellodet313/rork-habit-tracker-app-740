@@ -105,8 +105,11 @@ const styles = StyleSheet.create({
 export default function RootLayout() {
   useEffect(() => {
     const timer = setTimeout(() => {
-      SplashScreen.hideAsync();
-    }, 100);
+      console.log('[RootLayout] Hiding splash screen');
+      SplashScreen.hideAsync().catch(err => {
+        console.error('[RootLayout] Failed to hide splash screen:', err);
+      });
+    }, 500);
     return () => clearTimeout(timer);
   }, []);
 

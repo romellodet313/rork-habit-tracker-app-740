@@ -47,23 +47,19 @@ export default function LandingPage() {
   const slideAnim = useRef(new Animated.Value(30)).current;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (Platform.OS !== 'web' && !hasRedirected.current && isReady) {
+    if (Platform.OS !== 'web' && !hasRedirected.current) {
       hasRedirected.current = true;
-      try {
-        console.log('[LandingPage] Redirecting to habits...');
-        router.replace('/habits');
-      } catch (error) {
-        console.error('[LandingPage] Navigation error:', error);
-      }
+      const timer = setTimeout(() => {
+        try {
+          console.log('[LandingPage] Redirecting to habits...');
+          router.replace('/habits');
+        } catch (error) {
+          console.error('[LandingPage] Navigation error:', error);
+        }
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [router, isReady]);
+  }, [router]);
 
   useEffect(() => {
     if (Platform.OS === 'web') {
