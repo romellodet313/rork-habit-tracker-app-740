@@ -1,10 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect, Component, ReactNode } from "react";
-import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
+import React, { Component, ReactNode } from "react";
+import { StyleSheet, View, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { HabitProvider, useHabits } from "@/providers/HabitProvider";
+import { HabitProvider } from "@/providers/HabitProvider";
 import { GamificationProvider } from "@/providers/GamificationProvider";
 import { RoutineProvider } from "@/providers/RoutineProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
@@ -49,17 +49,6 @@ class ErrorBoundary extends Component<
 }
 
 function RootLayoutNav() {
-  const { isLoading } = useHabits();
-
-  useEffect(() => {
-    console.log('[RootLayoutNav] isLoading:', isLoading);
-  }, [isLoading]);
-
-  if (isLoading) {
-    console.log('[RootLayoutNav] Still loading, returning null');
-    return null;
-  }
-
   return (
     <>
       <SEOHead />
