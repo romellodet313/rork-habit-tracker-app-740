@@ -42,7 +42,14 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
             stored = window.localStorage.getItem(STORAGE_KEY);
           }
         } else {
-          stored = await AsyncStorage.getItem(STORAGE_KEY);
+          const timeoutPromise = new Promise<null>((resolve) => {
+            setTimeout(() => {
+              console.log('[HabitProvider] AsyncStorage timeout, continuing...');
+              resolve(null);
+            }, 2000);
+          });
+          const storagePromise = AsyncStorage.getItem(STORAGE_KEY);
+          stored = await Promise.race([storagePromise, timeoutPromise]);
         }
         if (stored && isMounted) {
           const parsed = JSON.parse(stored);
@@ -57,7 +64,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
         console.error('[HabitProvider] Failed to load habits:', error);
       } finally {
         if (isMounted) {
-          console.log('[HabitProvider] Loading complete');
+          console.log('[HabitProvider] Loading complete, setting isLoading to false');
           setIsLoading(false);
         }
       }
