@@ -32,18 +32,10 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
 
   useEffect(() => {
     let isMounted = true;
-    let loadingTimeout: NodeJS.Timeout | undefined;
     
     const loadData = async () => {
       try {
         console.log('[HabitProvider] Loading habits from storage...');
-        
-        loadingTimeout = setTimeout(() => {
-          if (isMounted) {
-            console.log('[HabitProvider] Force completing load after 200ms');
-            setIsLoading(false);
-          }
-        }, 200);
         
         let stored = null;
         if (Platform.OS === 'web') {
@@ -74,9 +66,6 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
       } catch (error) {
         console.error('[HabitProvider] Failed to load habits:', error);
       } finally {
-        if (loadingTimeout) {
-          clearTimeout(loadingTimeout);
-        }
         if (isMounted) {
           console.log('[HabitProvider] Loading complete, setting isLoading to false');
           setIsLoading(false);
@@ -88,9 +77,6 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
     
     return () => {
       isMounted = false;
-      if (loadingTimeout) {
-        clearTimeout(loadingTimeout);
-      }
     };
   }, []);
 

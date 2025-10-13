@@ -50,38 +50,13 @@ class ErrorBoundary extends Component<
 
 function RootLayoutNav() {
   const { isLoading } = useHabits();
-  const [appReady, setAppReady] = React.useState(false);
 
   useEffect(() => {
     console.log('[RootLayoutNav] isLoading:', isLoading);
-    
-    const maxWaitTimer = setTimeout(() => {
-      console.log('[RootLayoutNav] Max wait time reached (300ms), forcing app ready');
-      setAppReady(true);
-    }, 300);
-
-    if (!isLoading) {
-      console.log('[RootLayoutNav] Data loaded, setting app ready');
-      clearTimeout(maxWaitTimer);
-      setAppReady(true);
-    }
-
-    return () => clearTimeout(maxWaitTimer);
   }, [isLoading]);
 
-  useEffect(() => {
-    if (appReady) {
-      console.log('[RootLayoutNav] App ready, hiding splash screen');
-      const timer = setTimeout(() => {
-        SplashScreen.hideAsync().catch(err => {
-          console.error('[RootLayoutNav] Failed to hide splash screen:', err);
-        });
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [appReady]);
-
-  if (!appReady) {
+  if (isLoading) {
+    console.log('[RootLayoutNav] Still loading, returning null');
     return null;
   }
 
