@@ -32,30 +32,41 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
 
   useEffect(() => {
     let isMounted = true;
+    let loadingTimeout: NodeJS.Timeout;
     
     const loadData = async () => {
       try {
         console.log('[HabitProvider] Loading habits from storage...');
+        
+        loadingTimeout = setTimeout(() => {
+          if (isMounted) {
+            console.log('[HabitProvider] Force completing load after 500ms');
+            setIsLoading(false);
+          }
+        }, 500);
+        
         let stored = null;
         if (Platform.OS === 'web') {
           if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
             stored = window.localStorage.getItem(STORAGE_KEY);
           }
         } else {
-          const timeoutPromise = new Promise<null>((resolve) => {
-            setTimeout(() => {
-              console.log('[HabitProvider] AsyncStorage timeout, continuing...');
-              resolve(null);
-            }, 1000);
-          });
-          const storagePromise = AsyncStorage.getItem(STORAGE_KEY);
-          stored = await Promise.race([storagePromise, timeoutPromise]);
+          try {
+            stored = await AsyncStorage.getItem(STORAGE_KEY);
+          } catch (storageError) {
+            console.error('[HabitProvider] AsyncStorage error:', storageError);
+          }
         }
+        
         if (stored && isMounted) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed)) {
-            console.log(`[HabitProvider] Loaded ${parsed.length} habits from storage`);
-            setHabits(parsed);
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) {
+              console.log(`[HabitProvider] Loaded ${parsed.length} habits from storage`);
+              setHabits(parsed);
+            }
+          } catch (parseError) {
+            console.error('[HabitProvider] Failed to parse stored habits:', parseError);
           }
         } else {
           console.log('[HabitProvider] No stored habits found, starting fresh');
@@ -63,6 +74,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
       } catch (error) {
         console.error('[HabitProvider] Failed to load habits:', error);
       } finally {
+        clearTimeout(loadingTimeout);
         if (isMounted) {
           console.log('[HabitProvider] Loading complete, setting isLoading to false');
           setIsLoading(false);
@@ -74,6 +86,9 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
     
     return () => {
       isMounted = false;
+      if (loadingTimeout) {
+        clearTimeout(loadingTimeout);
+      }
     };
   }, []);
 

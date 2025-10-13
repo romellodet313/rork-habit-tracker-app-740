@@ -56,14 +56,14 @@ function RootLayoutNav() {
     console.log('[RootLayoutNav] isLoading:', isLoading);
     
     const maxWaitTimer = setTimeout(() => {
-      console.log('[RootLayoutNav] Max wait time reached, forcing app ready');
+      console.log('[RootLayoutNav] Max wait time reached (1000ms), forcing app ready');
       setAppReady(true);
-    }, 1500);
+    }, 1000);
 
     if (!isLoading) {
       console.log('[RootLayoutNav] Data loaded, setting app ready');
-      setAppReady(true);
       clearTimeout(maxWaitTimer);
+      setAppReady(true);
     }
 
     return () => clearTimeout(maxWaitTimer);
@@ -71,13 +71,10 @@ function RootLayoutNav() {
 
   useEffect(() => {
     if (appReady) {
-      console.log('[RootLayoutNav] App ready, hiding splash screen');
-      const timer = setTimeout(() => {
-        SplashScreen.hideAsync().catch(err => {
-          console.error('[RootLayoutNav] Failed to hide splash screen:', err);
-        });
-      }, 100);
-      return () => clearTimeout(timer);
+      console.log('[RootLayoutNav] App ready, hiding splash screen immediately');
+      SplashScreen.hideAsync().catch(err => {
+        console.error('[RootLayoutNav] Failed to hide splash screen:', err);
+      });
     }
   }, [appReady]);
 
