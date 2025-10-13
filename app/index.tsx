@@ -49,15 +49,12 @@ export default function LandingPage() {
   useEffect(() => {
     if (Platform.OS !== 'web' && !hasRedirected.current) {
       hasRedirected.current = true;
-      const timer = setTimeout(() => {
-        try {
-          console.log('[LandingPage] Redirecting to habits...');
-          router.replace('/habits');
-        } catch (error) {
-          console.error('[LandingPage] Navigation error:', error);
-        }
-      }, 100);
-      return () => clearTimeout(timer);
+      console.log('[LandingPage] Redirecting to habits immediately...');
+      try {
+        router.replace('/habits');
+      } catch (error) {
+        console.error('[LandingPage] Navigation error:', error);
+      }
     }
   }, [router]);
 
