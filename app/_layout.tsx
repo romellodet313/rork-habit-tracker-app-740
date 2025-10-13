@@ -2,9 +2,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, Component, ReactNode } from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { HabitProvider } from "@/providers/HabitProvider";
+import { HabitProvider, useHabits } from "@/providers/HabitProvider";
 import { GamificationProvider } from "@/providers/GamificationProvider";
 import { RoutineProvider } from "@/providers/RoutineProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
@@ -49,6 +49,28 @@ class ErrorBoundary extends Component<
 }
 
 function RootLayoutNav() {
+  const { isLoading } = useHabits();
+
+  useEffect(() => {
+    if (!isLoading) {
+      console.log('[RootLayoutNav] Data loaded, hiding splash screen');
+      const timer = setTimeout(() => {
+        SplashScreen.hideAsync().catch(err => {
+          console.error('[RootLayoutNav] Failed to hide splash screen:', err);
+        });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff' }}>
+        <ActivityIndicator size="large" color="#8B5CF6" />
+      </View>
+    );
+  }
+
   return (
     <>
       <SEOHead />
@@ -103,16 +125,6 @@ const styles = StyleSheet.create({
 });
 
 export default function RootLayout() {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      console.log('[RootLayout] Hiding splash screen');
-      SplashScreen.hideAsync().catch(err => {
-        console.error('[RootLayout] Failed to hide splash screen:', err);
-      });
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <ErrorBoundary>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>

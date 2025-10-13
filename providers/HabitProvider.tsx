@@ -6,6 +6,7 @@ import { Habit, HabitCompletionData } from "@/types/habit";
 
 interface HabitContextType {
   habits: Habit[];
+  isLoading: boolean;
   addHabit: (habit: Omit<Habit, 'id' | 'createdAt' | 'completions' | 'archived'>) => void;
   updateHabit: (id: string, updates: Partial<Habit>) => void;
   deleteHabit: (id: string) => void;
@@ -27,6 +28,7 @@ const STORAGE_KEY = '@habitkit_habits';
 
 export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(() => {
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -53,6 +55,11 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
         }
       } catch (error) {
         console.error('[HabitProvider] Failed to load habits:', error);
+      } finally {
+        if (isMounted) {
+          console.log('[HabitProvider] Loading complete');
+          setIsLoading(false);
+        }
       }
     };
     
@@ -330,6 +337,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
 
   return {
     habits,
+    isLoading,
     addHabit,
     updateHabit,
     deleteHabit,
