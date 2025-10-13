@@ -58,7 +58,7 @@ function RootLayoutNav() {
     const maxWaitTimer = setTimeout(() => {
       console.log('[RootLayoutNav] Max wait time reached, forcing app ready');
       setAppReady(true);
-    }, 3000);
+    }, 1500);
 
     if (!isLoading) {
       console.log('[RootLayoutNav] Data loaded, setting app ready');

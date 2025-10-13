@@ -46,7 +46,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
             setTimeout(() => {
               console.log('[HabitProvider] AsyncStorage timeout, continuing...');
               resolve(null);
-            }, 2000);
+            }, 1000);
           });
           const storagePromise = AsyncStorage.getItem(STORAGE_KEY);
           stored = await Promise.race([storagePromise, timeoutPromise]);
@@ -80,35 +80,42 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
 
 
   const saveHabitsRef = React.useRef(false);
+  const saveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   
-  const saveHabits = async (newHabits: Habit[]) => {
+  const saveHabits = useCallback((newHabits: Habit[]) => {
     if (!Array.isArray(newHabits)) {
       console.error('[HabitProvider] Invalid habits data');
       return;
     }
-    if (saveHabitsRef.current) {
-      console.log('[HabitProvider] Save already in progress, skipping');
-      return;
+    
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
     }
-    try {
-      saveHabitsRef.current = true;
-      const validatedHabits = newHabits.filter(h => h && typeof h === 'object' && h.id);
-      const habitData = JSON.stringify(validatedHabits);
-      if (Platform.OS === 'web') {
-        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-          window.localStorage.setItem(STORAGE_KEY, habitData);
-        }
-      } else {
-        await AsyncStorage.setItem(STORAGE_KEY, habitData);
+    
+    saveTimeoutRef.current = setTimeout(async () => {
+      if (saveHabitsRef.current) {
+        console.log('[HabitProvider] Save already in progress, skipping');
+        return;
       }
-      console.log(`[HabitProvider] Saved ${validatedHabits.length} habits to storage`);
-      setHabits(validatedHabits);
-    } catch (error) {
-      console.error('[HabitProvider] Failed to save habits:', error);
-    } finally {
-      saveHabitsRef.current = false;
-    }
-  };
+      try {
+        saveHabitsRef.current = true;
+        const validatedHabits = newHabits.filter(h => h && typeof h === 'object' && h.id);
+        const habitData = JSON.stringify(validatedHabits);
+        if (Platform.OS === 'web') {
+          if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+            window.localStorage.setItem(STORAGE_KEY, habitData);
+          }
+        } else {
+          await AsyncStorage.setItem(STORAGE_KEY, habitData);
+        }
+        console.log(`[HabitProvider] Saved ${validatedHabits.length} habits to storage`);
+      } catch (error) {
+        console.error('[HabitProvider] Failed to save habits:', error);
+      } finally {
+        saveHabitsRef.current = false;
+      }
+    }, 100);
+  }, []);
 
   const addHabit = useCallback((habitData: Omit<Habit, 'id' | 'createdAt' | 'completions' | 'archived'>) => {
     const newHabit: Habit = {
@@ -118,12 +125,13 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
       completions: {},
       archived: false,
     };
+    console.log('[HabitProvider] Adding new habit:', newHabit.name);
     setHabits(prev => {
       const updated = [...prev, newHabit];
       saveHabits(updated);
       return updated;
     });
-  }, []);
+  }, [saveHabits]);
 
   const updateHabit = useCallback((id: string, updates: Partial<Habit>) => {
     setHabits(prev => {
@@ -133,7 +141,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
       saveHabits(updated);
       return updated;
     });
-  }, []);
+  }, [saveHabits]);
 
   const deleteHabit = useCallback((id: string) => {
     setHabits(prev => {
@@ -141,7 +149,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
       saveHabits(updated);
       return updated;
     });
-  }, []);
+  }, [saveHabits]);
 
   const archiveHabit = useCallback((id: string) => {
     setHabits(prev => {
@@ -151,7 +159,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
       saveHabits(updated);
       return updated;
     });
-  }, []);
+  }, [saveHabits]);
 
   const restoreHabit = useCallback((id: string) => {
     setHabits(prev => {
@@ -161,7 +169,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
       saveHabits(updated);
       return updated;
     });
-  }, []);
+  }, [saveHabits]);
 
   const toggleHabitCompletion = useCallback((habitId: string, date: string, data?: Partial<HabitCompletionData>) => {
     setHabits(prev => {
@@ -188,7 +196,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
       saveHabits(updated);
       return updated;
     });
-  }, []);
+  }, [saveHabits]);
 
   const habitsMap = useMemo(() => {
     const map = new Map<string, Habit>();
@@ -315,13 +323,14 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
       const sanitized = jsonString.trim();
       const data = JSON.parse(sanitized);
       if (Array.isArray(data)) {
+        setHabits(data);
         saveHabits(data);
       }
     } catch (error) {
       console.error('Failed to import data:', error);
       throw error;
     }
-  }, []);
+  }, [saveHabits]);
 
   const exportData = useCallback((): string => {
     return JSON.stringify(habits, null, 2);
