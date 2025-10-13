@@ -33,9 +33,11 @@ export const [RoutineProvider, useRoutines] = createContextHook<RoutineContextTy
         let storedRoutines = null;
         let storedStacks = null;
         
-        if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-          storedRoutines = localStorage.getItem(ROUTINES_STORAGE_KEY);
-          storedStacks = localStorage.getItem(STACKS_STORAGE_KEY);
+        if (Platform.OS === 'web') {
+          if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+            storedRoutines = window.localStorage.getItem(ROUTINES_STORAGE_KEY);
+            storedStacks = window.localStorage.getItem(STACKS_STORAGE_KEY);
+          }
         } else {
           storedRoutines = await AsyncStorage.getItem(ROUTINES_STORAGE_KEY);
           storedStacks = await AsyncStorage.getItem(STACKS_STORAGE_KEY);
@@ -74,8 +76,10 @@ export const [RoutineProvider, useRoutines] = createContextHook<RoutineContextTy
     try {
       const validatedRoutines = newRoutines.filter(r => r && typeof r === 'object' && r.id);
       const routineData = JSON.stringify(validatedRoutines);
-      if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-        localStorage.setItem(ROUTINES_STORAGE_KEY, routineData);
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          window.localStorage.setItem(ROUTINES_STORAGE_KEY, routineData);
+        }
       } else {
         await AsyncStorage.setItem(ROUTINES_STORAGE_KEY, routineData);
       }
@@ -93,8 +97,10 @@ export const [RoutineProvider, useRoutines] = createContextHook<RoutineContextTy
     try {
       const validatedStacks = newStacks.filter(s => s && typeof s === 'object' && s.id);
       const stackData = JSON.stringify(validatedStacks);
-      if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-        localStorage.setItem(STACKS_STORAGE_KEY, stackData);
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          window.localStorage.setItem(STACKS_STORAGE_KEY, stackData);
+        }
       } else {
         await AsyncStorage.setItem(STACKS_STORAGE_KEY, stackData);
       }

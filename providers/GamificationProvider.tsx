@@ -91,11 +91,13 @@ export const [GamificationProvider, useGamification] = createContextHook<Gamific
         let storedXp = null;
         let storedStats = null;
 
-        if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-          storedAchievements = localStorage.getItem(STORAGE_KEY_ACHIEVEMENTS);
-          storedChallenges = localStorage.getItem(STORAGE_KEY_CHALLENGES);
-          storedXp = localStorage.getItem(STORAGE_KEY_XP);
-          storedStats = localStorage.getItem(STORAGE_KEY_STATS);
+        if (Platform.OS === 'web') {
+          if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+            storedAchievements = window.localStorage.getItem(STORAGE_KEY_ACHIEVEMENTS);
+            storedChallenges = window.localStorage.getItem(STORAGE_KEY_CHALLENGES);
+            storedXp = window.localStorage.getItem(STORAGE_KEY_XP);
+            storedStats = window.localStorage.getItem(STORAGE_KEY_STATS);
+          }
         } else {
           storedAchievements = await AsyncStorage.getItem(STORAGE_KEY_ACHIEVEMENTS);
           storedChallenges = await AsyncStorage.getItem(STORAGE_KEY_CHALLENGES);
@@ -152,8 +154,10 @@ export const [GamificationProvider, useGamification] = createContextHook<Gamific
   const saveAchievements = async (newAchievements: Achievement[]) => {
     try {
       const data = JSON.stringify(newAchievements);
-      if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY_ACHIEVEMENTS, data);
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          window.localStorage.setItem(STORAGE_KEY_ACHIEVEMENTS, data);
+        }
       } else {
         await AsyncStorage.setItem(STORAGE_KEY_ACHIEVEMENTS, data);
       }
@@ -166,8 +170,10 @@ export const [GamificationProvider, useGamification] = createContextHook<Gamific
   const saveChallenges = async (newChallenges: Challenge[]) => {
     try {
       const data = JSON.stringify(newChallenges);
-      if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY_CHALLENGES, data);
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          window.localStorage.setItem(STORAGE_KEY_CHALLENGES, data);
+        }
       } else {
         await AsyncStorage.setItem(STORAGE_KEY_CHALLENGES, data);
       }
@@ -180,8 +186,10 @@ export const [GamificationProvider, useGamification] = createContextHook<Gamific
   const saveXp = async (newXp: number) => {
     try {
       const data = newXp.toString();
-      if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY_XP, data);
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          window.localStorage.setItem(STORAGE_KEY_XP, data);
+        }
       } else {
         await AsyncStorage.setItem(STORAGE_KEY_XP, data);
       }
@@ -197,8 +205,10 @@ export const [GamificationProvider, useGamification] = createContextHook<Gamific
         ...newStats,
         categoriesUsed: Array.from(newStats.categoriesUsed),
       });
-      if (Platform.OS === 'web' && typeof Storage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY_STATS, data);
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+          window.localStorage.setItem(STORAGE_KEY_STATS, data);
+        }
       } else {
         await AsyncStorage.setItem(STORAGE_KEY_STATS, data);
       }

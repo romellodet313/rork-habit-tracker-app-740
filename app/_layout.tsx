@@ -58,7 +58,7 @@ function RootLayoutNav() {
         SplashScreen.hideAsync().catch(err => {
           console.error('[RootLayoutNav] Failed to hide splash screen:', err);
         });
-      }, 100);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [isLoading]);
