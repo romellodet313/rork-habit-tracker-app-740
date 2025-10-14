@@ -8,23 +8,19 @@ export default function Index() {
   const { isLoading } = useHabits();
 
   useEffect(() => {
-    const run = async () => {
-      if (!isLoading) {
-        try {
-          await SplashScreen.hideAsync();
-        } catch (e) {
-          console.log('[Index] hideAsync error', e);
-        }
-        setTimeout(() => {
-          try {
-            router.replace('/habits');
-          } catch (err) {
-            console.log('[Index] router.replace error', err);
-          }
-        }, 100);
-      }
-    };
-    run();
+    if (!isLoading) {
+      console.log('[Index] Provider ready, hiding splash and navigating');
+      
+      SplashScreen.hideAsync()
+        .then(() => {
+          console.log('[Index] Splash hidden, navigating to /habits');
+          router.replace('/habits');
+        })
+        .catch((e) => {
+          console.log('[Index] hideAsync error:', e);
+          router.replace('/habits');
+        });
+    }
   }, [isLoading, router]);
 
   return null;
