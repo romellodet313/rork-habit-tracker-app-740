@@ -1,10 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { Component, ReactNode } from "react";
+import React, { Component, ReactNode, useEffect } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { HabitProvider } from "@/providers/HabitProvider";
+import { HabitProvider, useHabits } from "@/providers/HabitProvider";
 import { GamificationProvider } from "@/providers/GamificationProvider";
 import { RoutineProvider } from "@/providers/RoutineProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
@@ -49,6 +49,16 @@ class ErrorBoundary extends Component<
 }
 
 function RootLayoutNav() {
+  const { isLoading } = useHabits();
+
+  useEffect(() => {
+    if (!isLoading) {
+      SplashScreen.hideAsync().catch((e) => console.log('[RootLayoutNav] hideAsync error', e));
+    }
+  }, [isLoading]);
+
+  if (isLoading) return null;
+
   return (
     <>
       <SEOHead />
