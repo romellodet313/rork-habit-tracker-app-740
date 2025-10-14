@@ -11,7 +11,9 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { trpc, trpcClient } from "@/lib/trpc";
 import { SEOHead } from "@/components/SEOHead";
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => {
+  console.log('[RootLayout] Splash screen already hidden or error preventing auto-hide');
+});
 
 const queryClient = new QueryClient();
 
