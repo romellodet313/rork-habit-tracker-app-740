@@ -1,28 +1,20 @@
-import { useEffect } from 'react';
-import { useRouter } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import { Redirect } from 'expo-router';
 import { useHabits } from '@/providers/HabitProvider';
+import { View, ActivityIndicator } from 'react-native';
 
 export default function Index() {
-  const router = useRouter();
   const { isLoading } = useHabits();
 
-  useEffect(() => {
-    if (!isLoading) {
-      console.log('[Index] Provider ready, hiding splash and navigating');
-      
-      SplashScreen.hideAsync()
-        .then(() => {
-          console.log('[Index] Splash hidden, navigating to /habits');
-          router.replace('/habits');
-        })
-        .catch((error) => {
-          console.error('[Index] Error hiding splash:', error);
-          router.replace('/habits');
-        });
-    }
-  }, [isLoading, router]);
+  console.log('[Index] isLoading:', isLoading);
 
-  return null;
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
+        <ActivityIndicator size="large" color="#8B5CF6" />
+      </View>
+    );
+  }
+
+  return <Redirect href="/(tabs)/habits" />;
 }
 
