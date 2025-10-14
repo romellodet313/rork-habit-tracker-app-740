@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { Component, ReactNode, useEffect } from "react";
+import React, { Component, ReactNode, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { HabitProvider, useHabits } from "@/providers/HabitProvider";
@@ -50,14 +50,32 @@ class ErrorBoundary extends Component<
 
 function RootLayoutNav() {
   const { isLoading } = useHabits();
+  const [ready, setReady] = useState<boolean>(false);
 
   useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+
     if (!isLoading) {
-      SplashScreen.hideAsync().catch((e) => console.log('[RootLayoutNav] hideAsync error', e));
+      setReady(true);
+    } else {
+      timeout = setTimeout(() => {
+        console.log('[RootLayoutNav] Boot safety timeout reached, proceeding');
+        setReady(true);
+      }, 3500);
     }
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
   }, [isLoading]);
 
-  if (isLoading) return null;
+  useEffect(() => {
+    if (ready) {
+      SplashScreen.hideAsync().catch((e) => console.log('[RootLayoutNav] hideAsync error', e));
+    }
+  }, [ready]);
+
+  if (!ready) return null;
 
   return (
     <>

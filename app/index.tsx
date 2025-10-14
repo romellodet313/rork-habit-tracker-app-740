@@ -17,7 +17,7 @@ export default function Index() {
         }
         setTimeout(() => {
           try {
-            router.replace('/(tabs)/habits');
+            router.replace('/habits');
           } catch (err) {
             console.log('[Index] router.replace error', err);
           }

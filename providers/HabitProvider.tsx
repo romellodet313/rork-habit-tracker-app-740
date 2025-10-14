@@ -33,20 +33,27 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
   useEffect(() => {
     let isMounted = true;
     
+    const withTimeout = async <T,>(p: Promise<T>, ms: number): Promise<T> => {
+      return await Promise.race<T>([
+        p,
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Storage timeout')), ms)) as Promise<T>,
+      ]);
+    };
+
     const loadData = async () => {
       try {
         console.log('[HabitProvider] Loading habits from storage...');
         
-        let stored = null;
+        let stored: string | null = null;
         if (Platform.OS === 'web') {
           if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
             stored = window.localStorage.getItem(STORAGE_KEY);
           }
         } else {
           try {
-            stored = await AsyncStorage.getItem(STORAGE_KEY);
+            stored = await withTimeout<string | null>(AsyncStorage.getItem(STORAGE_KEY), 2500);
           } catch (storageError) {
-            console.error('[HabitProvider] AsyncStorage error:', storageError);
+            console.error('[HabitProvider] AsyncStorage error or timeout:', storageError);
           }
         }
         
@@ -83,7 +90,7 @@ export const [HabitProvider, useHabits] = createContextHook<HabitContextType>(()
 
 
   const saveHabitsRef = React.useRef(false);
-  const saveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const saveTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const saveHabits = useCallback((newHabits: Habit[]) => {
     if (!Array.isArray(newHabits)) {
