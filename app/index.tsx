@@ -1,5 +1,5 @@
 import { Redirect } from 'expo-router';
-import { Platform, View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { Platform, View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CheckCircle, TrendingUp, Award, Calendar, Sparkles } from 'lucide-react-native';
 
@@ -26,6 +26,19 @@ export default function Index() {
           onPress={() => router.push('/habits')}
         >
           <Text style={styles.ctaText}>Get Started</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.productHuntBadge}
+          onPress={() => Linking.openURL('https://www.producthunt.com/products/momentpro?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-momentpro')}
+        >
+          <img 
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1023307&theme=light&t=1760491693288" 
+            alt="MomentPro - A beautiful habit tracker makes your progress look like art. | Product Hunt" 
+            style={{ width: 250, height: 54 }} 
+            width="250" 
+            height="54" 
+          />
         </TouchableOpacity>
       </View>
 
@@ -116,6 +129,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600' as const,
+  },
+  productHuntBadge: {
+    marginTop: 24,
   },
   features: {
     flexDirection: 'row',
