@@ -1,7 +1,7 @@
 import { Redirect } from 'expo-router';
 import { Platform, View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
-import { CheckCircle, TrendingUp, Award, Calendar, Sparkles } from 'lucide-react-native';
+import { CheckCircle, TrendingUp, Award, Calendar, Sparkles, ArrowRight } from 'lucide-react-native';
 
 export default function Index() {
   const router = useRouter();
@@ -12,34 +12,116 @@ export default function Index() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.hero}>
-        <View style={styles.iconContainer}>
-          <Sparkles size={48} color="#8B5CF6" />
+      <View style={styles.nav}>
+        <View style={styles.navContent}>
+          <View style={styles.logo}>
+            <Sparkles size={24} color="#8B5CF6" />
+            <Text style={styles.logoText}>MomentPro</Text>
+          </View>
+          <View style={styles.navLinks}>
+            <Text style={styles.navLink}>Features</Text>
+            <Text style={styles.navLink}>Pricing</Text>
+            <Text style={styles.navLink}>Blog</Text>
+            <TouchableOpacity 
+              style={styles.navButton}
+              onPress={() => router.push('/habits')}
+            >
+              <Text style={styles.navButtonText}>Get Started</Text>
+              <ArrowRight size={16} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
         </View>
-        <Text style={styles.title}>MomentPro</Text>
-        <Text style={styles.subtitle}>Transform Your Habits Into Art</Text>
-        <Text style={styles.description}>
-          Track daily habits, build streaks, and visualize your progress with beautiful charts and 3D gardens.
-        </Text>
+      </View>
+
+      <View style={styles.hero}>
         <TouchableOpacity 
-          style={styles.ctaButton}
-          onPress={() => router.push('/habits')}
+          style={styles.badge}
+          onPress={() => Linking.openURL('https://www.producthunt.com/products/momentpro')}
         >
-          <Text style={styles.ctaText}>Get Started</Text>
+          <Text style={styles.badgeText}>🏆 #3 Product of the Day | 280+ Upvotes</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity 
-          style={styles.productHuntBadge}
-          onPress={() => Linking.openURL('https://www.producthunt.com/products/momentpro?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-momentpro')}
-        >
-          <img 
-            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1023307&theme=light&t=1760491693288" 
-            alt="MomentPro - A beautiful habit tracker makes your progress look like art. | Product Hunt" 
-            style={{ width: 250, height: 54 }} 
-            width="250" 
-            height="54" 
-          />
-        </TouchableOpacity>
+        <View style={styles.heroContent}>
+          <Text style={styles.heroTitle}>
+            <Text style={styles.heroTitleRegular}>Build </Text>
+            <Text style={styles.heroTitleItalic}>Exceptional</Text>
+            {"\n"}
+            <Text style={styles.heroTitleRegular}>Habits, </Text>
+            <Text style={styles.heroTitleBlue}>Faster</Text>
+          </Text>
+          
+          <Text style={styles.heroSubtitle}>
+            Connect with <Text style={styles.bold}>beautiful visualizations</Text> through our AI-driven platform and{"\n"}
+            start building your <Text style={styles.bold}>progress in just 24 hours.</Text>
+          </Text>
+          
+          <TouchableOpacity 
+            style={styles.ctaButton}
+            onPress={() => router.push('/habits')}
+          >
+            <Text style={styles.ctaText}>Get Started</Text>
+            <ArrowRight size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+        
+        <View style={styles.productHuntContainer}>
+          <TouchableOpacity 
+            onPress={() => Linking.openURL('https://www.producthunt.com/products/momentpro?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-momentpro')}
+          >
+            <img 
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1023307&theme=light&t=1760491693288" 
+              alt="MomentPro - A beautiful habit tracker makes your progress look like art. | Product Hunt" 
+              style={{ width: 250, height: 54 }} 
+              width="250" 
+              height="54" 
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.previewSection}>
+        <View style={styles.previewCard}>
+          <View style={styles.mockupContainer}>
+            <View style={styles.habitCard}>
+              <View style={styles.habitHeader}>
+                <View style={styles.habitIcon}>
+                  <CheckCircle size={20} color="#10B981" />
+                </View>
+                <Text style={styles.habitName}>Morning Meditation</Text>
+              </View>
+              <View style={styles.progressBar}>
+                <View style={[styles.progressFill, { width: '85%', backgroundColor: '#10B981' }]} />
+              </View>
+              <Text style={styles.habitStats}>85% Complete</Text>
+            </View>
+            
+            <View style={styles.habitCard}>
+              <View style={styles.habitHeader}>
+                <View style={styles.habitIcon}>
+                  <TrendingUp size={20} color="#3B82F6" />
+                </View>
+                <Text style={styles.habitName}>Daily Exercise</Text>
+              </View>
+              <View style={styles.progressBar}>
+                <View style={[styles.progressFill, { width: '92%', backgroundColor: '#3B82F6' }]} />
+              </View>
+              <Text style={styles.habitStats}>92% Complete</Text>
+            </View>
+            
+            <View style={styles.habitCard}>
+              <View style={styles.habitHeader}>
+                <View style={styles.habitIcon}>
+                  <Award size={20} color="#F59E0B" />
+                </View>
+                <Text style={styles.habitName}>Read 30 Minutes</Text>
+              </View>
+              <View style={styles.progressBar}>
+                <View style={[styles.progressFill, { width: '78%', backgroundColor: '#F59E0B' }]} />
+              </View>
+              <Text style={styles.habitStats}>78% Complete</Text>
+            </View>
+          </View>
+        </View>
       </View>
 
       <View style={styles.features}>
@@ -78,60 +160,196 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F5F5F5',
   },
   content: {
     alignItems: 'center',
-    paddingVertical: 60,
+  },
+  nav: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    paddingVertical: 16,
+  },
+  navContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    maxWidth: 1200,
+    width: '100%',
+    paddingHorizontal: 24,
+    marginHorizontal: 'auto' as any,
+  },
+  logo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  logoText: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+    color: '#1F2937',
+  },
+  navLinks: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 32,
+  },
+  navLink: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500' as const,
+  },
+  navButton: {
+    backgroundColor: '#1F2937',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  navButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600' as const,
   },
   hero: {
     alignItems: 'center',
     paddingHorizontal: 20,
-    maxWidth: 600,
-    marginBottom: 60,
+    paddingVertical: 80,
+    maxWidth: 900,
+    width: '100%',
   },
-  iconContainer: {
-    marginBottom: 20,
+  badge: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginBottom: 32,
   },
-  title: {
-    fontSize: 48,
+  badgeText: {
+    fontSize: 14,
+    color: '#92400E',
+    fontWeight: '500' as const,
+  },
+  heroContent: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  heroTitle: {
+    fontSize: 74,
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 84,
+  },
+  heroTitleRegular: {
     fontWeight: '700' as const,
     color: '#1F2937',
-    marginBottom: 12,
-    textAlign: 'center',
   },
-  subtitle: {
-    fontSize: 24,
-    fontWeight: '600' as const,
-    color: '#8B5CF6',
-    marginBottom: 16,
-    textAlign: 'center',
+  heroTitleItalic: {
+    fontStyle: 'italic',
+    fontWeight: '400' as const,
+    color: '#1F2937',
   },
-  description: {
+  heroTitleBlue: {
+    fontWeight: '700' as const,
+    color: '#3B82F6',
+  },
+  heroSubtitle: {
     fontSize: 18,
-    color: '#6B7280',
+    color: '#4B5563',
     textAlign: 'center',
     lineHeight: 28,
     marginBottom: 32,
+    maxWidth: 700,
+  },
+  bold: {
+    fontWeight: '600' as const,
   },
   ctaButton: {
-    backgroundColor: '#8B5CF6',
-    paddingHorizontal: 48,
-    paddingVertical: 16,
-    borderRadius: 12,
-    shadowColor: '#8B5CF6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    backgroundColor: '#1F2937',
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   ctaText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600' as const,
   },
-  productHuntBadge: {
-    marginTop: 24,
+  productHuntContainer: {
+    marginTop: 32,
+  },
+  previewSection: {
+    width: '100%',
+    maxWidth: 1000,
+    paddingHorizontal: 20,
+    marginBottom: 80,
+  },
+  previewCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+    elevation: 8,
+  },
+  mockupContainer: {
+    gap: 16,
+  },
+  habitCard: {
+    backgroundColor: '#F9FAFB',
+    padding: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  habitHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  },
+  habitIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  habitName: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: '#1F2937',
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  habitStats: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500' as const,
   },
   features: {
     flexDirection: 'row',
@@ -140,13 +358,16 @@ const styles = StyleSheet.create({
     maxWidth: 1200,
     paddingHorizontal: 20,
     gap: 24,
+    marginBottom: 80,
   },
   feature: {
     width: 260,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFFFFF',
     padding: 24,
     borderRadius: 16,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   featureTitle: {
     fontSize: 20,
@@ -163,7 +384,8 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   footer: {
-    marginTop: 60,
+    marginTop: 40,
+    marginBottom: 40,
     paddingTop: 24,
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
